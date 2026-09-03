@@ -10,6 +10,7 @@ import jwt from 'jsonwebtoken';
 import { getJwtSecret } from '../src/utils/secretLoader.js';
 
 process.env.NODE_ENV = 'test';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-minuta-super-seguro-256bit';
 
 let app;
 let authCookie;

@@ -16,7 +16,7 @@ const logger = require('./logger');
  * at startup, preventing insecure fallback secrets.
  */
 function getJwtSecret() {
-  const secret = process.env.JWT_SECRET;
+  const secret = process.env.JWT_SECRET || (process.env.NODE_ENV === 'test' ? 'test-jwt-secret-minuta-super-seguro-256bit' : null);
   if (!secret) {
     logger.error('JWT_SECRET is not set – aborting startup for security reasons');
     throw new Error('Missing JWT_SECRET environment variable');

@@ -13,6 +13,9 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    env:
+      NODE_ENV: test
+      JWT_SECRET: ci-test-jwt-secret-minuta-super-seguro-256bit
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
