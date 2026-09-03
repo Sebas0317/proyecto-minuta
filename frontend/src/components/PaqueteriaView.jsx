@@ -220,10 +220,16 @@ export default function PaqueteriaView() {
             <Package className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
-              Paquetería & Recibos Públicos <span className="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">Casillero de Portería</span>
-            </h1>
-            <p className="text-slate-400 text-sm">Control de encomiendas con PIN de 4 dígitos y seguimiento de facturas públicas acumuladas</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
+                Paquetería & Recibos Públicos
+              </h1>
+              <span className="inline-flex items-center gap-1.5 text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                Casillero de Portería
+              </span>
+            </div>
+            <p className="text-slate-400 text-xs md:text-sm mt-0.5">Control de encomiendas con PIN de 4 dígitos y seguimiento de facturas públicas</p>
           </div>
         </div>
 

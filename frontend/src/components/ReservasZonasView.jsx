@@ -124,13 +124,16 @@ export default function ReservasZonasView() {
             <CalendarIcon className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
-              Reserva de Zonas Comunes & Recreativas
-              <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
+                Reserva de Zonas Comunes & Recreativas
+              </h1>
+              <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 Calendario en Vivo
               </span>
-            </h1>
-            <p className="text-slate-400 text-sm">
+            </div>
+            <p className="text-slate-400 text-xs md:text-sm mt-0.5">
               Aparta la Cancha Sintética, Salón Social y Zona BBQ con validación de horarios y depósitos de garantía
             </p>
           </div>

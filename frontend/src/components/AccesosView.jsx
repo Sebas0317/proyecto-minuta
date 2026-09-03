@@ -122,10 +122,16 @@ export default function AccesosView() {
             <UserCheck className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
-              Control de Accesos y Visitas <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">Registro de Portería</span>
-            </h1>
-            <p className="text-slate-400 text-sm">Registro en tiempo real de visitantes, domiciliarios, contratistas, permanencia y bitácora de salidas</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
+                Control de Accesos y Visitas
+              </h1>
+              <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Registro de Portería
+              </span>
+            </div>
+            <p className="text-slate-400 text-xs md:text-sm mt-0.5">Registro en tiempo real de visitantes, domiciliarios, contratistas, permanencia y salidas</p>
           </div>
         </div>
 

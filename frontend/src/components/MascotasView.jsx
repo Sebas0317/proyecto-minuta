@@ -80,10 +80,16 @@ export default function MascotasView() {
             <Heart className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
-              Censo de Mascotas & Carnet QR <span className="text-xs bg-pink-500/20 text-pink-400 border border-pink-500/30 px-2.5 py-0.5 rounded-full font-bold">Tenencia Responsable</span>
-            </h1>
-            <p className="text-slate-400 text-sm">Registro de Animales de Compañía, Carnet Antirrábico y Control de Razas de Manejo Especial</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
+                Censo de Mascotas & Carnet QR
+              </h1>
+              <span className="inline-flex items-center gap-1.5 text-xs bg-pink-500/20 text-pink-400 border border-pink-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                <span className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
+                Tenencia Responsable
+              </span>
+            </div>
+            <p className="text-slate-400 text-xs md:text-sm mt-0.5">Registro de Animales de Compañía, Carnet Antirrábico y Control de Razas</p>
           </div>
         </div>
 

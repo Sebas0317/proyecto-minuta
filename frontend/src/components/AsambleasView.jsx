@@ -109,10 +109,16 @@ export default function AsambleasView() {
             <Vote className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
-              Asambleas & Votaciones Digitales <span className="text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2.5 py-0.5 rounded-full font-bold">Ley 675</span>
-            </h1>
-            <p className="text-slate-400 text-sm">Control de Quórum por Coeficiente y Votaciones en Tiempo Real</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
+                Asambleas & Votaciones Digitales
+              </h1>
+              <span className="inline-flex items-center gap-1.5 text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+                Ley 675
+              </span>
+            </div>
+            <p className="text-slate-400 text-xs md:text-sm mt-0.5">Control de Quórum por Coeficiente y Votaciones en Tiempo Real</p>
           </div>
         </div>
 

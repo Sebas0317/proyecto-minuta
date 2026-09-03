@@ -103,10 +103,16 @@ export default function EquiposEmergenciaView() {
             <Flame className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
-              Equipos de Emergencia & Extintores <span className="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-0.5 rounded-full font-bold">Gestión de Riesgos</span>
-            </h1>
-            <p className="text-slate-400 text-sm">Semáforo de Vencimiento y Distribución de Seguridad por Torres y Sótanos</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
+                Equipos de Emergencia & Extintores
+              </h1>
+              <span className="inline-flex items-center gap-1.5 text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+                Gestión de Riesgos
+              </span>
+            </div>
+            <p className="text-slate-400 text-xs md:text-sm mt-0.5">Semáforo de Vencimiento y Distribución de Seguridad por Torres y Sótanos</p>
           </div>
         </div>
 
