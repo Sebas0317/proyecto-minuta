@@ -316,62 +316,68 @@ export default function PorteriaDashboard() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-6 space-y-6">
       {/* HEADER DE CONTROL */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-800/80 backdrop-blur border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-slate-800/90 backdrop-blur border border-slate-700/80 p-4 md:p-6 rounded-2xl shadow-xl">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded-2xl shadow-inner">
             <Shield className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-              Portería Principal <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">Turno Activo</span>
-            </h1>
-            <p className="text-slate-400 text-sm">Control Operativo de Accesos, Paquetería y Minuta</p>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
+                Portería Principal
+              </h1>
+              <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Turno Activo
+              </span>
+            </div>
+            <p className="text-slate-400 text-xs md:text-sm mt-0.5">Control Operativo de Accesos, Paquetería y Minuta</p>
           </div>
         </div>
 
         {/* BOTONES DE ACCIÓN RÁPIDA */}
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
           <button
             onClick={() => setShowIngresoModal(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-emerald-900/30 transition-all hover:scale-[1.02]"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-emerald-950/40 transition-all hover:scale-[1.02] cursor-pointer"
           >
-            <UserCheck className="w-5 h-5" />
-            <span>Nuevo Ingreso</span>
+            <UserCheck className="w-4 h-4" />
+            <span>+ Nuevo Ingreso</span>
           </button>
           <button
             onClick={() => setShowPaqueteModal(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-900/30 transition-all hover:scale-[1.02]"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-950/40 transition-all hover:scale-[1.02] cursor-pointer"
           >
             <Package className="w-4 h-4" />
             <span>+ Llegó Paquete</span>
           </button>
           <button
             onClick={() => setShowReciboModal(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-amber-900/30 transition-all hover:scale-[1.02]"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-amber-950/40 transition-all hover:scale-[1.02] cursor-pointer"
           >
             <Receipt className="w-4 h-4" />
-            <span>+ Factura / Recibo Público</span>
+            <span>+ Factura / Recibo</span>
           </button>
           <button
             onClick={() => setShowCertificados(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-purple-900/30 transition-all hover:scale-[1.02]"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-purple-950/40 transition-all hover:scale-[1.02] cursor-pointer"
           >
             <FileCheck className="w-4 h-4" />
-            <span>+ Paz y Salvo / Certificado</span>
+            <span>+ Paz y Salvo</span>
           </button>
           <button
             onClick={() => setShowMinutaModal(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-amber-900/30 transition-all hover:scale-[1.02]"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-rose-950/40 transition-all hover:scale-[1.02] cursor-pointer"
           >
-            <AlertTriangle className="w-5 h-5" />
-            <span>Minuta</span>
+            <AlertTriangle className="w-4 h-4" />
+            <span>+ Minuta</span>
           </button>
           <button
             onClick={loadData}
             title="Refrescar datos"
-            className="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl transition-all"
+            className="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl transition-all cursor-pointer"
           >
-            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
           </button>
         </div>
       </div>
