@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
-  Shield, Search, UserCheck, Package, Car, AlertTriangle, 
+  Shield, Search, UserCheck, Package, Car, AlertTriangle, Receipt, FileText, Droplets, Zap, Flame, Wifi, 
   Plus, CheckCircle, Clock, Send, Phone, User, Users,
   Home, Building2, ArrowRight, ArrowLeft, LogOut, Check, X, RefreshCw
 } from 'lucide-react';
@@ -26,7 +26,18 @@ export default function PorteriaDashboard() {
   const [showPaqueteModal, setShowPaqueteModal] = useState(false);
   const [showMinutaModal, setShowMinutaModal] = useState(false);
   const [showEntregaModal, setShowEntregaModal] = useState(null);
-  const [tabVisitas, setTabVisitas] = useState('activos'); // 'activos' | 'salidas'
+  const [showReciboModal, setShowReciboModal] = useState(false);
+  const [tabVisitas, setTabVisitas] = useState('activos');
+
+  const [reciboForm, setReciboForm] = useState({
+    torre: 'Torre 1',
+    apto: '',
+    tipoRecibo: 'Acueducto y Alcantarillado (Agua)',
+    empresa: 'Empresa de Acueducto',
+    mesFacturado: 'Septiembre 2026',
+    valorFactura: '',
+    destinatario: 'Titular Inmueble'
+  }); // 'activos' | 'salidas'
 
   const [ingresoForm, setIngresoForm] = useState({
     tipo: 'visitante',
@@ -89,19 +100,35 @@ export default function PorteriaDashboard() {
     return () => clearInterval(interval);
   }, [loadData]);
 
+  const calcularDiasCasillero = (fechaIngreso) => {
+    if (!fechaIngreso) return 0;
+    const diffMs = Date.now() - new Date(fechaIngreso).getTime();
+    return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+  };
+
+  const encomiendasPendientes = useMemo(() => {
+    return (paquetes || []).filter(p => p.categoria !== 'recibo_publico' && p.estado !== 'entregado');
+  }, [paquetes]);
+
+  const recibosPendientes = useMemo(() => {
+    return (paquetes || []).filter(p => p.categoria === 'recibo_publico' && p.estado !== 'entregado');
+  }, [paquetes]);
+
   const stats = useMemo(() => {
     const enConjunto = (accesos || []).filter(a => a.estado === 'en_conjunto');
-    const paquetesPendientes = (paquetes || []).filter(p => p.estado !== 'entregado');
     const cuposLibres = (parqueaderos || []).filter(p => p.estado === 'disponible').length;
     const novedadesHoy = (minuta || []).filter(m => m.fecha && m.fecha.startsWith(new Date().toISOString().slice(0, 10))).length;
+    const recibosCriticos = recibosPendientes.filter(r => calcularDiasCasillero(r.fechaIngreso) > 30).length;
 
     return {
       visitantesActivos: enConjunto.length,
-      paquetesPendientes: paquetesPendientes.length,
+      paquetesPendientes: encomiendasPendientes.length,
+      recibosPendientes: recibosPendientes.length,
+      recibosCriticos,
       cuposLibres,
       novedadesHoy
     };
-  }, [accesos, paquetes, parqueaderos, minuta]);
+  }, [accesos, encomiendasPendientes, recibosPendientes, parqueaderos, minuta]);
 
   const filteredUnidades = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -171,6 +198,52 @@ export default function PorteriaDashboard() {
       loadData();
     } catch (err) {
       toast.error('Error al registrar salida');
+    }
+  };
+
+  const handleRegistrarRecibo = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        categoria: 'recibo_publico',
+        tipoRecibo: reciboForm.tipoRecibo,
+        empresa: reciboForm.empresa,
+        mesFacturado: reciboForm.mesFacturado,
+        valorFactura: Number(reciboForm.valorFactura) || 0,
+        torre: reciboForm.torre,
+        apto: String(reciboForm.apto),
+        destinatario: reciboForm.destinatario || `Titular Inmueble ${reciboForm.apto}`,
+        guia: `REC-${reciboForm.apto}-${Date.now().toString().slice(-4)}`,
+        descripcion: `Factura de ${reciboForm.tipoRecibo} - ${reciboForm.mesFacturado}`,
+        codigoRetiro: `REC-${reciboForm.apto}`
+      };
+      await createPaquete(payload);
+      toast.success(`Recibo de ${reciboForm.tipoRecibo} para ${reciboForm.torre} Apto ${reciboForm.apto} registrado en casillero`);
+      setShowReciboModal(false);
+      setReciboForm({
+        torre: 'Torre 1',
+        apto: '',
+        tipoRecibo: 'Acueducto y Alcantarillado (Agua)',
+        empresa: 'Empresa de Acueducto',
+        mesFacturado: 'Septiembre 2026',
+        valorFactura: '',
+        destinatario: 'Titular Inmueble'
+      });
+      loadData();
+    } catch (err) {
+      toast.error(err.message || 'Error al registrar recibo público');
+    }
+  };
+
+  const handleEntregarReciboDirecto = async (recibo) => {
+    const quien = window.prompt(`Entregar recibo de ${recibo.tipoRecibo || recibo.empresa} para ${recibo.torre} Apto ${recibo.apto}.\n\n¿Quién retira la factura?:`, 'Residente');
+    if (!quien) return;
+    try {
+      await entregarPaquete(recibo.id, { retiradoPor: quien, codigoRetiro: recibo.codigoRetiro });
+      toast.success(`Recibo entregado a ${quien}`);
+      loadData();
+    } catch (err) {
+      toast.error('Error al entregar recibo');
     }
   };
 
@@ -265,10 +338,17 @@ export default function PorteriaDashboard() {
           </button>
           <button
             onClick={() => setShowPaqueteModal(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-900/30 transition-all hover:scale-[1.02]"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-900/30 transition-all hover:scale-[1.02]"
           >
-            <Package className="w-5 h-5" />
-            <span>Llegó Paquete</span>
+            <Package className="w-4 h-4" />
+            <span>+ Llegó Paquete</span>
+          </button>
+          <button
+            onClick={() => setShowReciboModal(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-amber-900/30 transition-all hover:scale-[1.02]"
+          >
+            <Receipt className="w-4 h-4" />
+            <span>+ Factura / Recibo Público</span>
           </button>
           <button
             onClick={() => setShowMinutaModal(true)}
@@ -288,44 +368,65 @@ export default function PorteriaDashboard() {
       </div>
 
       {/* METRIC CARDS */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-slate-800/60 border border-slate-700/80 p-4 rounded-2xl flex items-center gap-4">
-          <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
-            <UserCheck className="w-6 h-6" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="bg-slate-800/60 border border-slate-700/80 p-3.5 rounded-2xl flex items-center gap-3">
+          <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl">
+            <UserCheck className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Visitas Activas</p>
-            <h3 className="text-2xl font-bold text-white">{stats.visitantesActivos}</h3>
+            <p className="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Visitas Activas</p>
+            <h3 className="text-xl font-black text-white">{stats.visitantesActivos}</h3>
           </div>
         </div>
 
-        <div className="bg-slate-800/60 border border-slate-700/80 p-4 rounded-2xl flex items-center gap-4">
-          <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl">
-            <Package className="w-6 h-6" />
+        <div className="bg-slate-800/60 border border-slate-700/80 p-3.5 rounded-2xl flex items-center gap-3">
+          <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl">
+            <Package className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Paquetes por Retirar</p>
-            <h3 className="text-2xl font-bold text-white">{stats.paquetesPendientes}</h3>
+            <p className="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Paquetería</p>
+            <h3 className="text-xl font-black text-white">{stats.paquetesPendientes} <span className="text-[10px] text-slate-400 font-normal">encomiendas</span></h3>
           </div>
         </div>
 
-        <div className="bg-slate-800/60 border border-slate-700/80 p-4 rounded-2xl flex items-center gap-4">
-          <div className="p-3 bg-purple-500/10 text-purple-400 rounded-xl">
-            <Car className="w-6 h-6" />
+        <div className={`p-3.5 rounded-2xl flex items-center gap-3 border ${
+          stats.recibosCriticos > 0
+            ? 'bg-amber-950/40 border-amber-800/80'
+            : 'bg-slate-800/60 border-slate-700/80'
+        }`}>
+          <div className="p-2.5 bg-amber-500/10 text-amber-400 rounded-xl">
+            <Receipt className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Cupos Parqueadero</p>
-            <h3 className="text-2xl font-bold text-white">{stats.cuposLibres} <span className="text-xs text-slate-400 font-normal">libres</span></h3>
+            <p className="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Recibos Casillero</p>
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-xl font-black text-white">{stats.recibosPendientes}</h3>
+              {stats.recibosCriticos > 0 && (
+                <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-bold animate-pulse">
+                  {stats.recibosCriticos} &gt;30d
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="bg-slate-800/60 border border-slate-700/80 p-4 rounded-2xl flex items-center gap-4">
-          <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl">
-            <Clock className="w-6 h-6" />
+        <div className="bg-slate-800/60 border border-slate-700/80 p-3.5 rounded-2xl flex items-center gap-3">
+          <div className="p-2.5 bg-purple-500/10 text-purple-400 rounded-xl">
+            <Car className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Novedades Hoy</p>
-            <h3 className="text-2xl font-bold text-white">{stats.novedadesHoy}</h3>
+            <p className="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Parqueaderos</p>
+            <h3 className="text-xl font-black text-white">{stats.cuposLibres} <span className="text-[10px] text-slate-400 font-normal">libres</span></h3>
+          </div>
+        </div>
+
+        <div className="bg-slate-800/60 border border-slate-700/80 p-3.5 rounded-2xl flex items-center gap-3">
+          <div className="p-2.5 bg-cyan-500/10 text-cyan-400 rounded-xl">
+            <Clock className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Novedades Hoy</p>
+            <h3 className="text-xl font-black text-white">{stats.novedadesHoy}</h3>
           </div>
         </div>
       </div>
@@ -624,40 +725,44 @@ export default function PorteriaDashboard() {
           </div>
         </div>
 
-        {/* PANEL DE PAQUETES POR ENTREGAR */}
+        {/* PANEL DE PAQUETERÍA & ENCOMIENDAS FÍSICAS (EXCLUSIVO) */}
         <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-xl flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Package className="w-5 h-5 text-blue-400" /> Paquetería Pendiente por Retiro
-            </h3>
+          <div className="flex items-center justify-between mb-4 border-b border-slate-700/80 pb-3">
+            <div className="flex items-center gap-2">
+              <Package className="w-5 h-5 text-blue-400" />
+              <div>
+                <h3 className="text-base font-bold text-white">Paquetería & Encomiendas</h3>
+                <p className="text-[11px] text-slate-400">MercadoLibre, Amazon, Servientrega, etc.</p>
+              </div>
+            </div>
             <span className="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-full font-bold">
-              {paquetes.filter(p => p.estado !== 'entregado').length} paquetes
+              {encomiendasPendientes.length} por retirar
             </span>
           </div>
 
           <div className="space-y-3 flex-1 overflow-y-auto max-h-[380px] pr-1">
-            {paquetes.filter(p => p.estado !== 'entregado').length === 0 ? (
+            {encomiendasPendientes.length === 0 ? (
               <div className="text-center py-12 text-slate-500">
                 <Package className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                <p>No hay paquetes pendientes por entregar.</p>
+                <p>No hay encomiendas pendientes por entregar.</p>
               </div>
             ) : (
-              paquetes.filter(p => p.estado !== 'entregado').map((p) => (
+              encomiendasPendientes.map((p) => (
                 <div key={p.id} className="bg-slate-900/70 border border-slate-700/80 p-3.5 rounded-xl flex items-center justify-between gap-3 hover:border-slate-600 transition-all">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-blue-500/20 text-blue-400 rounded-xl font-bold text-xs">
+                    <div className="p-2.5 bg-blue-950 text-blue-400 border border-blue-800 rounded-xl font-bold text-xs">
                       {p.apto}
                     </div>
                     <div>
                       <h4 className="font-semibold text-white text-sm flex items-center gap-2">
                         {p.destinatario}
-                        <span className="text-xs font-normal text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/50">{p.empresa}</span>
+                        <span className="text-[11px] font-bold text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/50">{p.empresa}</span>
                       </h4>
                       <p className="text-xs text-slate-400">
                         {p.torre} - Apto {p.apto} • Guía: <strong className="text-slate-300">{p.guia}</strong>
                       </p>
-                      <p className="text-[11px] text-amber-400 mt-0.5">
-                        PIN Retiro: <strong className="font-mono bg-slate-800 px-1 rounded">{p.codigoRetiro}</strong>
+                      <p className="text-[11px] text-amber-400 font-mono font-bold mt-0.5">
+                        PIN Retiro: <strong className="bg-slate-800 px-1.5 py-0.5 rounded text-white border border-slate-700">{p.codigoRetiro}</strong>
                       </p>
                     </div>
                   </div>
@@ -665,14 +770,14 @@ export default function PorteriaDashboard() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleNotificarWhatsApp(p)}
-                      title="Enviar WhatsApp de aviso"
-                      className="p-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 rounded-lg text-xs transition-all"
+                      title="Enviar WhatsApp con PIN de retiro"
+                      className="p-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 rounded-xl text-xs transition-all"
                     >
-                      <Send className="w-3.5 h-3.5" />
+                      <Send className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setShowEntregaModal(p)}
-                      className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1"
+                      className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
                     >
                       <Check className="w-3.5 h-3.5" /> Entregar
                     </button>
@@ -683,6 +788,198 @@ export default function PorteriaDashboard() {
           </div>
         </div>
       </div>
+
+      {/* SECCIÓN EXCLUSIVA DEDICADA: CASILLERO DE RECIBOS PÚBLICOS SIN RECOGER */}
+      <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-700/80 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl">
+              <Receipt className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-white flex items-center gap-2">
+                Casillero de Recibos Públicos & Facturas Sin Recoger
+                <span className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                  {recibosPendientes.length} en espera
+                </span>
+              </h3>
+              <p className="text-slate-400 text-xs">
+                Control de facturas físicas (Agua, Energía, Gas, Telecomunicaciones, Predial) con alerta de días acumulados
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowReciboModal(true)}
+              className="bg-amber-600 hover:bg-amber-500 text-white px-3 py-2 rounded-xl font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" /> + Ingresar Recibo
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {recibosPendientes.length === 0 ? (
+            <div className="col-span-full text-center py-8 text-slate-500">
+              <Receipt className="w-10 h-10 mx-auto mb-2 opacity-30" />
+              <p className="text-xs">No hay recibos públicos pendientes en el casillero.</p>
+            </div>
+          ) : (
+            recibosPendientes.map((r) => {
+              const dias = calcularDiasCasillero(r.fechaIngreso);
+              const esCritico = dias > 30;
+              return (
+                <div
+                  key={r.id}
+                  className={`p-4 rounded-xl border flex flex-col justify-between gap-3 transition-all ${
+                    esCritico
+                      ? 'bg-red-950/40 border-red-800/80 shadow-lg shadow-red-950/30'
+                      : 'bg-slate-900/80 border-slate-700/80 hover:border-slate-600'
+                  }`}
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 bg-amber-950 text-amber-300 border border-amber-800 rounded-lg text-xs font-mono font-bold">
+                        {r.torre} - {r.apto}
+                      </span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        esCritico
+                          ? 'bg-red-500/30 text-red-300 border border-red-500/50 animate-pulse'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {dias} días acumulados
+                      </span>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-white text-xs">{r.tipoRecibo || r.empresa}</h4>
+                      <p className="text-[11px] text-slate-400">Mes: <strong className="text-slate-300">{r.mesFacturado || 'Mes en curso'}</strong></p>
+                      {r.valorFactura > 0 && (
+                        <p className="text-xs font-mono font-bold text-emerald-400 mt-0.5">
+                          ${Number(r.valorFactura).toLocaleString('es-CO')} COP
+                        </p>
+                      )}
+                    </div>
+
+                    {esCritico && (
+                      <p className="text-[10px] text-red-400 font-semibold bg-red-950/80 p-1.5 rounded border border-red-900/60">
+                        ⚠️ ALERTA: Más de 1 mes sin retirar. Riesgo de corte de servicio.
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => handleEntregarReciboDirecto(r)}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition-all flex items-center justify-center gap-1"
+                  >
+                    <Check className="w-3.5 h-3.5" /> Marcar Entregado
+                  </button>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+      {/* MODAL: REGISTRO DE RECIBO PÚBLICO */}
+      {showReciboModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-amber-400" /> Registrar Llegada de Recibo Público
+              </h3>
+              <button onClick={() => setShowReciboModal(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRegistrarRecibo} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Torre</label>
+                  <select
+                    value={reciboForm.torre}
+                    onChange={(e) => setReciboForm({ ...reciboForm, torre: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs outline-none focus:border-amber-500"
+                  >
+                    <option value="Torre 1">Torre 1</option>
+                    <option value="Torre 2">Torre 2</option>
+                    <option value="Torre 3">Torre 3</option>
+                    <option value="Torre 4">Torre 4</option>
+                    <option value="Torre 5">Torre 5</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Apartamento</label>
+                  <input
+                    type="text"
+                    required
+                    value={reciboForm.apto}
+                    onChange={(e) => setReciboForm({ ...reciboForm, apto: e.target.value })}
+                    placeholder="Ej: 203"
+                    className="w-full bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1">Tipo de Servicio Público</label>
+                <select
+                  value={reciboForm.tipoRecibo}
+                  onChange={(e) => setReciboForm({ ...reciboForm, tipoRecibo: e.target.value, empresa: e.target.value.split(' ')[0] })}
+                  className="w-full bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs outline-none focus:border-amber-500"
+                >
+                  <option value="Acueducto y Alcantarillado (Agua)">💧 Acueducto y Alcantarillado (Agua)</option>
+                  <option value="Energía Eléctrica (Luz)">⚡ Energía Eléctrica (Luz)</option>
+                  <option value="Gas Natural Domiciliario">🔥 Gas Natural Domiciliario</option>
+                  <option value="Telecomunicaciones (Internet/TV)">📶 Telecomunicaciones (Internet/TV)</option>
+                  <option value="Impuesto Predial Unificado">🏛️ Impuesto Predial Unificado</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Mes Facturado</label>
+                  <input
+                    type="text"
+                    value={reciboForm.mesFacturado}
+                    onChange={(e) => setReciboForm({ ...reciboForm, mesFacturado: e.target.value })}
+                    placeholder="Ej: Septiembre 2026"
+                    className="w-full bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Valor Factura (COP)</label>
+                  <input
+                    type="number"
+                    value={reciboForm.valorFactura}
+                    onChange={(e) => setReciboForm({ ...reciboForm, valorFactura: e.target.value })}
+                    placeholder="Ej: 85400"
+                    className="w-full bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2 border-t border-slate-700">
+                <button
+                  type="button"
+                  onClick={() => setShowReciboModal(false)}
+                  className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 py-2.5 rounded-xl text-xs font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-amber-900/30"
+                >
+                  Guardar en Casillero
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {/* MODAL: REGISTRO DE INGRESO */}
       {showIngresoModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
