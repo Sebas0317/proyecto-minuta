@@ -1,0 +1,129 @@
+const fs = require('fs');
+
+const knowledge = [
+  // 1. ZONAS RECREATIVAS
+  {
+    id: "kb-piscina",
+    categoria: "recreacion",
+    titulo: "Horarios y Reglas de la Piscina Climatizada",
+    keywords: ["piscina", "piscina climatizada", "alberca", "nadar", "gorro", "cloro", "horario piscina", "orario piscina", "abren piscina", "cierran piscina"],
+    preguntasFrecuentes: ["¿A qué hora abre la piscina?", "¿Qué días abren la piscina?", "¿Los lunes abren la piscina?", "¿Se necesita gorro para la piscina?"],
+    respuesta: "🏊 **Piscina Climatizada (Adultos y Niños)**\n\n• **Horario:** Martes a Domingo de 06:00 AM a 09:00 PM.\n• **Mantenimiento:** Cerrada todos los Lunes (química y aspirado).\n• **Requisitos obligatorios:** Ducha previa, traje en tela lycra y gorro de baño.\n• **Menores:** Niños menores de 12 años deben estar siempre acompañados de un adulto.",
+    accionRapida: { tipo: "link", label: "Ver Guía de Zonas", ruta: "/admin/info" }
+  },
+  {
+    id: "kb-gimnasio",
+    categoria: "recreacion",
+    titulo: "Gimnasio Equipado y Aforo",
+    keywords: ["gimnasio", "gym", "pesas", "cardio", "mancuernas", "caminadora", "ejercicio", "entrenar", "aforo gym", "horario gym"],
+    preguntasFrecuentes: ["¿Qué horario tiene el gimnasio?", "¿Cuál es el aforo del gimnasio?", "¿Cómo ingreso al gym?"],
+    respuesta: "🏋️ **Gimnasio Equipado (Cardio & Fuerza)**\n\n• **Horario:** Lunes a Domingo de 05:00 AM a 10:00 PM.\n• **Aforo máximo:** 20 personas simultáneas.\n• **Requisito obligatorio:** Toalla personal y desinfección de mancuernas tras su uso.\n• **Acceso:** Huella o tarjeta magnética en puerta principal.",
+    accionRapida: { tipo: "link", label: "Ver Guía de Zonas", ruta: "/admin/info" }
+  },
+  {
+    id: "kb-canchas",
+    categoria: "recreacion",
+    titulo: "Cancha Sintética de Fútbol 5 y Múltiple",
+    keywords: ["cancha", "futbol", "sintetica", "futbol 5", "partido", "baloncesto", "voley", "microfutbol", "reserva cancha"],
+    preguntasFrecuentes: ["¿Cómo reservar la cancha de fútbol?", "¿Cuánto dura el turno de la cancha?", "¿Tiene costo la cancha?"],
+    respuesta: "⚽ **Cancha Sintética Fútbol 5 & Cancha Múltiple**\n\n• **Horario:** Lunes a Domingo de 08:00 AM a 10:00 PM.\n• **Reserva:** Turnos de 1h 30m vía citófono (Ext 100) o en portería.\n• **Calzado:** Solo tenis de suela sintética (prohibido taches de aluminio).\n• **Costo:** Gratuito para residentes al día en expensas comunes.",
+    accionRapida: { tipo: "link", label: "Contactar Portería", ruta: "/admin/porteria" }
+  },
+  {
+    id: "kb-salon-social",
+    categoria: "recreacion",
+    titulo: "Salón Social de Eventos y Fiestas",
+    keywords: ["salon social", "eventos", "fiesta", "cumpleaños", "reunion", "alquiler salon", "musica fiesta", "deposito salon"],
+    preguntasFrecuentes: ["¿Cuánto cuesta alquilar el salón social?", "¿Hasta qué hora se puede poner música en el salón?", "¿Cuántas personas caben en el salón?"],
+    respuesta: "🎉 **Salón Social de Eventos**\n\n• **Capacidad:** 120 personas sentadas con mesas y cocina auxiliar.\n• **Límite de música:** 02:00 AM (volumen moderado).\n• **Depósito de garantía:** $200.000 COP reembolsables tras revisión de aseo y daños.\n• **Reserva:** Mínimo con 8 días de anticipación con la administración.",
+    accionRapida: { tipo: "link", label: "Ver Manual y Pagos", ruta: "/admin/info" }
+  },
+  {
+    id: "kb-bbq",
+    categoria: "recreacion",
+    titulo: "Zona BBQ, Asadores & Kiosco",
+    keywords: ["bbq", "asador", "asados", "carne", "parrilla", "carbon", "kiosco", "reserva bbq"],
+    preguntasFrecuentes: ["¿Cómo apartar el asador BBQ?", "¿Qué horario tiene el BBQ?"],
+    respuesta: "🍖 **Zona BBQ & Asadores**\n\n• **Horario:** 11:00 AM a 09:00 PM.\n• **Uso:** Bloques de máximo 4 horas continuas.\n• **Compromiso:** Entregar parrillas limpias y carbón totalmente apagado con agua.\n• **Reserva:** Con 24 horas de antelación en portería.",
+    accionRapida: { tipo: "link", label: "Reservar en Portería", ruta: "/admin/porteria" }
+  },
+  {
+    id: "kb-mascotas",
+    categoria: "convivencia",
+    titulo: "Zona Canina (Pipican) y Normas de Mascotas",
+    keywords: ["mascotas", "perros", "gatos", "canina", "pipican", "correa", "bozal", "heces", "ladrando", "excrementos"],
+    preguntasFrecuentes: ["¿Es obligatorio llevar el perro con correa?", "¿Dónde está la zona de mascotas?", "¿Qué razas necesitan bozal?"],
+    respuesta: "🐾 **Mascotas & Zona Canina (Pipican)**\n\n• **Zona Canina:** Abierta 24 horas con iluminación nocturna.\n• **En áreas comunes:** Uso de correa obligatorio en todo momento.\n• **Razas de manejo especial:** Obligatorio bozal reglamentario y póliza.\n• **Aseo:** Recoger deposiciones inmediatamente en bolsas biodegradables.",
+    accionRapida: { tipo: "link", label: "Ver Manual de Convivencia", ruta: "/admin/info" }
+  },
+
+  // 2. BASURAS & SHUTS
+  {
+    id: "kb-basuras",
+    categoria: "basuras",
+    titulo: "Ruta de Recolección de Basuras y Shuts",
+    keywords: ["basura", "basuras", "recoleccion", "carro de basura", "shut", "ducto", "reciclaje", "bolsa blanca", "escombros", "vidrio"],
+    preguntasFrecuentes: ["¿Qué días pasa el camión de la basura?", "¿A qué hora se puede usar el shut de basuras?", "¿Qué está prohibido botar por el shut?", "¿Qué días se recicla?"],
+    respuesta: "🗑️ **Gestión de Basuras, Shuts y Reciclaje**\n\n• **Camión Municipal:** Lunes, Miércoles y Viernes a partir de las 07:00 PM.\n• **Horario del Shut:** 06:00 AM a 09:00 PM (bolsas selladas < 10 kg).\n• **⚠️ PROHIBIDO en el shut:** Botellas de vidrio, cartones grandes/cajas de pizza o escombros (llevar al cuarto principal de Sótano 1).\n• **Reciclaje (Bolsa Blanca):** Martes y Jueves (plástico PET, papel, cartón limpio y latas).",
+    accionRapida: { tipo: "link", label: "Ver Normas de Shuts", ruta: "/admin/info" }
+  },
+
+  // 3. ASEO POR TORRES
+  {
+    id: "kb-aseo-torres",
+    categoria: "aseo",
+    titulo: "Horarios y Rutas de Aseo por Torres",
+    keywords: ["aseo", "limpieza", "aseadora", "barrer", "trapear", "pasillos", "ascensores", "sandra", "torres aseo", "cuando limpian mi torre"],
+    preguntasFrecuentes: ["¿Qué días hacen aseo en mi torre?", "¿Cuándo lavan los sótanos?", "¿Quién es la aseadora de turno?"],
+    respuesta: "🧹 **Rutas y Horarios de Aseo por Torres**\n\n• **Torres 1 & 2:** Lunes y Jueves (08:00 AM - 12:30 PM).\n• **Torres 3 & 4:** Martes y Viernes (08:00 AM - 12:30 PM).\n• **Torre 5 & Zonas Comunes:** Miércoles y Sábados (08:00 AM - 01:00 PM).\n• **Lavado de Sótanos:** Primer miércoles de cada mes (09:00 AM - 04:00 PM).",
+    accionRapida: { tipo: "link", label: "Ver Cronograma de Aseo", ruta: "/admin/info" }
+  },
+
+  // 4. MANUAL DE CONVIVENCIA, RUIDO Y OBRAS
+  {
+    id: "kb-ruido-obras",
+    categoria: "convivencia",
+    titulo: "Horario de Silencio, Ruidos y Obras",
+    keywords: ["ruido", "musica", "silencio", "volumen", "fiesta", "obras", "remodelacion", "taladro", "mudanza", "trasteo", "decibeles"],
+    preguntasFrecuentes: ["¿Cuál es el horario de silencio?", "¿Hasta qué hora se puede hacer obra o taladrar?", "¿Qué días se pueden hacer trasteos?"],
+    respuesta: "🔇 **Manual de Convivencia, Silencio & Obras**\n\n• **Horario de Silencio:** 10:00 PM a 07:00 AM todos los días (máx. 45 dB).\n• **Obras y Remodelaciones:** Lunes a Viernes de 08:00 AM a 05:00 PM | Sábados de 08:00 AM a 01:00 PM (Domingos y festivos prohibido taladros).\n• **Mudanzas y Trasteos:** Lunes a Sábado de 08:00 AM a 05:00 PM con paz y salvo de administración.",
+    accionRapida: { tipo: "link", label: "Ver Manual Completo", ruta: "/admin/info" }
+  },
+
+  // 5. PARQUEADEROS, BODEGAS Y BICICLETAS
+  {
+    id: "kb-parqueaderos",
+    categoria: "parqueaderos",
+    titulo: "Reglamento de Parqueaderos, Bodegas y Bicicleteros",
+    keywords: ["parqueadero", "parqueaderos", "bahia", "visitantes", "carro", "moto", "tiempo parqueadero", "velocidad", "bodega", "bicicletero", "cuarto util"],
+    preguntasFrecuentes: ["¿Cuánto tiempo de cortesía tienen los visitantes?", "¿A qué velocidad se puede andar en el sótano?", "¿Qué está prohibido guardar en las bodegas?"],
+    respuesta: "🚗 **Parqueaderos, Bodegas & Bicicleteros**\n\n• **Velocidad máxima:** 10 km/h en rampas y sótanos con luces medias encendidas.\n• **Visitantes:** 4 horas continuas de cortesía.\n• **Bodegas / Cuartos Útiles:** Prohibido almacenar gasolina, pólvora o materiales inflamables.\n• **Bicicleteros:** Registro de serial en portería y candado tipo U-Lock obligatorio.",
+    accionRapida: { tipo: "link", label: "Ver Bahías y Mapa", ruta: "/admin/mapa" }
+  },
+
+  // 6. PAGOS & CUENTAS BANCARIAS
+  {
+    id: "kb-pagos",
+    categoria: "pagos",
+    titulo: "Canales de Pago, Cuentas Bancarias y Descuento Pronto Pago",
+    keywords: ["pago", "pagar", "administracion", "cuota", "descuento", "pronto pago", "cuenta", "banco", "bancolombia", "davivienda", "nit", "intereses", "soporte de pago"],
+    preguntasFrecuentes: ["¿Hasta qué día tengo descuento de administración?", "¿Cuál es el número de cuenta para pagar?", "¿A qué correo envío el comprobante de pago?"],
+    respuesta: "💳 **Pagos de Administración & Cuentas Bancarias**\n\n• **Descuento Pronto Pago (10%):** Cancelando dentro de los primeros **10 días calendario** del mes.\n• **Cuentas Oficiales:** Bancolombia / Davivienda\n• **Cuenta de Ahorros:** `458-992145-02`\n• **Titular:** CONDOMINIO MINUTA P.H. • **NIT:** 901.458.772-1\n• **Envío de Comprobantes:** `pagos@minuta.com` o al WhatsApp de Administración.",
+    accionRapida: { tipo: "link", label: "Ver Datos de Pago", ruta: "/admin/info" }
+  },
+
+  // 7. DIRECTORIO DE EMERGENCIAS
+  {
+    id: "kb-emergencias",
+    categoria: "emergencias",
+    titulo: "Directorio de Emergencias, Portería y Autoridades 24/7",
+    keywords: ["emergencia", "telefono", "policia", "bomberos", "ambulancia", "cai", "gas", "fuga", "vanti", "acueducto", "enel", "luz", "cai", "porteria telefono", "citofono"],
+    preguntasFrecuentes: ["¿Cuál es la extensión de la portería?", "¿Cuál es el teléfono del cuadrante de policía?", "¿A dónde llamo por fuga de gas?"],
+    respuesta: "🚨 **Directorio de Emergencias y Servicios 24/7**\n\n• **Portería Principal:** Extensión `100` / `101` • Celular Turno: `320 114 4778`\n• **Policía Nacional (CAI):** Cel: `300 200 4455` • Línea: `123`\n• **Bomberos:** `119`\n• **Fuga de Gas Natural (Vanti):** `164` o `01 8000 912 800`\n• **Acueducto & Alcantarillado:** `116`\n• **Fallas de Energía (Enel):** `115`",
+    accionRapida: { tipo: "link", label: "Ver Directorio Telefónico", ruta: "/admin/info" }
+  }
+];
+
+fs.writeFileSync('c:/Users/kevin/Desktop/PROYECTOS/minuta/backend/chatbot_knowledge.json', JSON.stringify(knowledge, null, 2));
+fs.writeFileSync('c:/Users/kevin/Desktop/PROYECTOS/minuta/backend/unanswered_questions.json', JSON.stringify([], null, 2));
+console.log('✓ chatbot_knowledge.json and unanswered_questions.json created successfully');

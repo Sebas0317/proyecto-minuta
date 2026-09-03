@@ -1108,3 +1108,46 @@ export async function liberarInvasionParqueadero(id) {
     method: 'PATCH',
   });
 }
+
+// ── CHATBOT & ASISTENTE VIRTUAL (MINUTABOT) ──
+export async function queryChatbot(message) {
+  return apiFetch('/chatbot/query', {
+    method: 'POST',
+    body: JSON.stringify({ message }),
+  });
+}
+
+export async function fetchKnowledgeBase() {
+  return apiFetch('/chatbot/knowledge', { method: 'GET' });
+}
+
+export async function createKnowledgeItem(data) {
+  return apiFetch('/chatbot/knowledge', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateKnowledgeItem(id, data) {
+  return apiFetch(`/chatbot/knowledge/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteKnowledgeItem(id) {
+  return apiFetch(`/chatbot/knowledge/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function fetchUnansweredQuestions() {
+  return apiFetch('/chatbot/unanswered', { method: 'GET' });
+}
+
+export async function deleteUnansweredQuestion(id) {
+  return apiFetch(`/chatbot/unanswered/${id}`, {
+    method: 'DELETE',
+  });
+}
+

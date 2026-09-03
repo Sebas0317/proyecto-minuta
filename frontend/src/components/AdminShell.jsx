@@ -21,7 +21,8 @@ import {
   Download,
   Activity,
   ShieldCheck,
-  BookOpen
+  BookOpen,
+  Bot
 } from 'lucide-react';
 import {
   downloadLoginLogsCSV,
@@ -52,6 +53,7 @@ const NAV_GROUPS = [
     items: [
       { key: 'unidades', label: 'Censo de Inmuebles', icon: Building2, path: '/admin/unidades' },
       { key: 'info', label: 'Guía & Zonas Comunes', icon: BookOpen, path: '/admin/info' },
+      { key: 'chatbot', label: 'MinutaBot IA & Q&A', icon: Bot, path: '/admin/chatbot' },
       { key: 'users', label: 'Personal y Guardas', icon: Users, path: '/admin/users' },
       { key: 'security', label: 'Ciberseguridad & Logs', icon: ShieldCheck, path: '/admin/security' },
     ]
@@ -95,6 +97,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
     if (path.includes('/admin/trasteos')) return 'trasteos';
     if (path.includes('/admin/unidades')) return 'unidades';
     if (path.includes('/admin/info')) return 'info';
+    if (path.includes('/admin/chatbot')) return 'chatbot';
     if (path.includes('/admin/users')) return 'users';
     if (path.includes('/admin/security')) return 'security';
     return 'porteria';
@@ -114,6 +117,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
         trasteos: '/admin/trasteos',
         unidades: '/admin/unidades',
         info: '/admin/info',
+        chatbot: '/admin/chatbot',
         users: '/admin/users',
         security: '/admin/security',
       };
@@ -283,6 +287,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
                  activeView === 'trasteos' ? 'Mudanzas' :
                  activeView === 'unidades' ? 'Censo Inmuebles' :
                  activeView === 'info' ? 'Guía & Zonas Comunes' :
+                 activeView === 'chatbot' ? 'MinutaBot IA' :
                  activeView === 'users' ? 'Personal' : 'Ciberseguridad'}
               </span>
             </div>

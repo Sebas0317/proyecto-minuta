@@ -75,11 +75,11 @@ const paquetesRoutes = require('./src/routes/paquetes');
 const accesosRoutes = require('./src/routes/accesos');
 const trasteosRoutes = require('./src/routes/trasteos');
 const parqueaderosRoutes = require('./src/routes/parqueaderos');
+const chatbotRoutes = require('./src/routes/chatbot');
 
 const app = express();
 
 // Trust Vercel proxy for real client IP (required for rate limiting / security)
-// '1' = trust 1 proxy hop (Vercel). 'true' would trigger ERR_ERL_PERMISSIVE_TRUST_PROXY in express-rate-limit v8.
 app.set('trust proxy', 1);
 
 const PORT = process.env.PORT || 3001;
@@ -262,6 +262,9 @@ app.use('/v1/trasteos', trasteosRoutes);
 app.use('/trasteos', trasteosRoutes);
 app.use('/v1/parqueaderos', parqueaderosRoutes);
 app.use('/parqueaderos', parqueaderosRoutes);
+app.use('/v1/chatbot', chatbotRoutes);
+app.use('/chatbot', chatbotRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 // ── BACKUP MANAGEMENT (admin only) ──
 function requireAdminRole(req, res, next) {

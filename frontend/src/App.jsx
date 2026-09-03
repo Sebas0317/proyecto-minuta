@@ -34,6 +34,8 @@ const UnidadesView = lazy(() => import('./components/UnidadesView'));
 const PantallaUsuarios = lazy(() => import('./components/PantallaUsuarios'));
 const SecurityView = lazy(() => import('./components/SecurityView'));
 const InfoCondominioView = lazy(() => import('./components/InfoCondominioView'));
+const ChatbotAdminView = lazy(() => import('./components/ChatbotAdminView'));
+import MinutaBotWidget from './components/MinutaBotWidget';
 
 // Vistas secundarias
 const UserView = lazy(() => import('./components/UserView'));
@@ -263,6 +265,7 @@ export default function App() {
               <Route path="trasteos" element={<TrasteosView />} />
               <Route path="unidades" element={<UnidadesView />} />
               <Route path="info" element={<InfoCondominioView />} />
+              <Route path="chatbot" element={<ChatbotAdminView />} />
               <Route path="users" element={<PantallaUsuarios userRole={rol} />} />
               <Route path="security" element={<SecurityView />} />
             </Route>
@@ -271,6 +274,9 @@ export default function App() {
             <Route path="*" element={<SafeNavigate to="/" replace />} />
           </Routes>
         </Suspense>
+
+        {/* ASISTENTE VIRTUAL FLOTANTE MINUTABOT */}
+        <MinutaBotWidget />
       </div>
     </ErrorBoundary>
   );
