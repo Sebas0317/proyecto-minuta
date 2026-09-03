@@ -343,7 +343,8 @@ if (!process.env.VERCEL && process.env.NODE_ENV !== 'test') {
     });
   });
 } else {
-  // On Vercel, seed users on cold start
+  // On Vercel, seed files and users on cold start
+  persistence.bootstrapFromFiles().catch(() => {});
   seedUsers();
 }
 

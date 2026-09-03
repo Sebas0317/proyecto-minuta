@@ -27,34 +27,40 @@ function deployPath(filePath) {
 }
 
 async function readJsonFile(filePath, defaultVal = null) {
-  // On Vercel: try writable /tmp/ first, fall back to deployment directory
-  const resolved = validatePath(filePath);
-  try {
-    const raw = await fs.readFile(resolved, 'utf8');
-    return JSON.parse(raw);
-  } catch (err) {
-    if (err.code === 'ENOENT' && DATA_DIR !== DEPLOY_DIR) {
-      // File not in /tmp/ — try copying from deployment directory
-      try {
-        const src = deployPath(filePath);
-        const raw = await fs.readFile(src, 'utf8');
-        const data = JSON.parse(raw);
-        // Seed /tmp/ for future writes
-        await fs
-          .writeFile(resolved, JSON.stringify(data, null, 2), 'utf8')
-          .catch(() => {});
-        logger.info(`Seeded ${path.basename(resolved)} from deployment dir`);
-        return data;
-      } catch {
-        return defaultVal;
+  validatePath(filePath);
+  const name = path.basename(filePath);
+  const candidates = [
+    filePath,
+    path.join(DATA_DIR, name),
+    path.join(DEPLOY_DIR, name),
+    path.join(process.cwd(), name),
+    path.join(process.cwd(), 'backend', name),
+    path.join(__dirname, '..', '..', name),
+    path.join(__dirname, '..', '..', 'backend', name),
+  ];
+
+  let fallbackEmpty = null;
+
+  for (const p of candidates) {
+    try {
+      const raw = await fs.readFile(p, 'utf8');
+      const data = JSON.parse(raw);
+      if (data !== null && data !== undefined) {
+        if (Array.isArray(data)) {
+          if (data.length > 0) return data;
+          fallbackEmpty = data;
+        } else if (typeof data === 'object' && Object.keys(data).length > 0) {
+          return data;
+        } else {
+          fallbackEmpty = data;
+        }
       }
+    } catch {
+      // Continue searching next candidate path
     }
-    if (err.code === 'ENOENT') {
-      return defaultVal;
-    }
-    logger.warn({ err, file: filePath }, 'Error reading JSON file');
-    return defaultVal;
   }
+
+  return fallbackEmpty !== null ? fallbackEmpty : defaultVal;
 }
 
 async function writeJsonFile(filePath, data) {

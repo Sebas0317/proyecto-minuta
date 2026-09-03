@@ -1,10 +1,11 @@
 'use strict';
 
 /**
- * Persistence layer — abstracts storage between file system and Upstash Redis.
+ * EcoBosque Hotel System & Proyecto Minuta - Persistence layer
+ * Abstracts storage between file system and Upstash Redis.
  *
- * In production (Vercel): uses Upstash Redis via KV_REST_API_URL env var.
- * In development/local: uses file-based JSON storage (existing behavior).
+ * In production (Vercel): uses Upstash Redis via KV_REST_API_URL env var with disk fallback.
+ * In development/local: uses file-based JSON storage.
  */
 
 const path = require('node:path');
@@ -58,11 +59,9 @@ const STATE_KEY = 'data:state';
 const memoryStore = new Map();
 
 // Track which keys have been lazily bootstrapped from files
-// Use a Map of promises to prevent concurrent bootstrap races
 const bootstrapped = new Map();
 
-// Per-key write lock to prevent lost updates (concurrent read-modify-write).
-// Each key has a promise chain; setData adds to the chain serially.
+// Per-key write lock to prevent lost updates
 const writeLocks = new Map();
 function withWriteLock(key, fn) {
   if (!writeLocks.has(key)) writeLocks.set(key, Promise.resolve());
@@ -79,16 +78,25 @@ async function getData(key, defaultVal = null) {
   if (r) {
     try {
       const val = await r.get(key);
-      if (val !== null && val !== undefined) return val;
+      if (val !== null && val !== undefined) {
+        if (!Array.isArray(val) || val.length > 0) {
+          return val;
+        }
+      }
     } catch (err) {
       logger.warn({ err, key }, 'Redis get failed, falling back to memory');
     }
   }
+
   // Check in-memory fallback
-  if (memoryStore.has(key)) return memoryStore.get(key);
+  if (memoryStore.has(key)) {
+    const mem = memoryStore.get(key);
+    if (!Array.isArray(mem) || mem.length > 0) {
+      return mem;
+    }
+  }
 
   // Lazy bootstrap: seed from file (also runs without Redis for local dev)
-  // Use promise-based dedup to prevent race conditions between concurrent requests
   if (!bootstrapped.has(key)) {
     bootstrapped.set(
       key,
@@ -102,7 +110,7 @@ async function getData(key, defaultVal = null) {
               if (r) {
                 await r.set(key, data).catch(() => {});
               }
-              logger.info(`Lazy-seeded ${key} from ${path.basename(file)}`);
+              logger.info(`Lazy-seeded ${key} from ${path.basename(file)} (${Array.isArray(data) ? data.length : 'obj'})`);
               return data;
             }
           } catch {
@@ -115,9 +123,8 @@ async function getData(key, defaultVal = null) {
   }
 
   const result = await bootstrapped.get(key);
-  // Return from memoryStore in case another call set it while we waited
   if (memoryStore.has(key)) return memoryStore.get(key);
-  return result;
+  return result !== null && result !== undefined ? result : defaultVal;
 }
 
 async function _setData(key, data) {
@@ -239,7 +246,6 @@ async function setParqueaderos(data) {
   return setData(PARQUEADEROS_KEY, data);
 }
 
-
 async function getRooms() {
   return getData(ROOMS_KEY, []);
 }
@@ -262,13 +268,12 @@ async function setUsers(data) {
 }
 
 async function getHistory() {
-  return getData(HISTORY_KEY, {});
+  return getData(HISTORY_KEY, []);
 }
 async function setHistory(data) {
   return setData(HISTORY_KEY, data);
 }
 
-// StateHistory is stored as raw cambios array (not wrapped in {cambios})
 async function getStateHistory() {
   return getData(STATE_HISTORY_KEY, []);
 }
@@ -291,7 +296,7 @@ async function setReservas(data) {
 }
 
 async function getCodes() {
-  return getData(CODES_KEY, []);
+  return getData(CODES_KEY, {});
 }
 async function setCodes(data) {
   return setData(CODES_KEY, data);
@@ -325,6 +330,12 @@ async function bootstrapFromFiles() {
   if (!r) return;
 
   const fileKeyPairs = [
+    { file: path.join(DATA_DIR, 'unidades.json'), key: UNIDADES_KEY },
+    { file: path.join(DATA_DIR, 'minuta.json'), key: MINUTA_KEY },
+    { file: path.join(DATA_DIR, 'paquetes.json'), key: PAQUETES_KEY },
+    { file: path.join(DATA_DIR, 'accesos.json'), key: ACCESOS_KEY },
+    { file: path.join(DATA_DIR, 'trasteos.json'), key: TRASTEOS_KEY },
+    { file: path.join(DATA_DIR, 'parqueaderos.json'), key: PARQUEADEROS_KEY },
     { file: path.join(DATA_DIR, 'rooms.json'), key: ROOMS_KEY },
     { file: path.join(DATA_DIR, 'consumos.json'), key: CONSUMOS_KEY },
     { file: path.join(DATA_DIR, 'users.json'), key: USERS_KEY },
@@ -347,31 +358,6 @@ async function bootstrapFromFiles() {
       }
     } catch (err) {
       logger.warn({ err, key }, 'Failed to seed Redis key from file');
-    }
-  }
-
-  // Security files (might not exist)
-  for (const { file, key } of [
-    {
-      file: path.join(DATA_DIR, 'security-attempts.json'),
-      key: SECURITY_ATTEMPTS_KEY,
-    },
-    {
-      file: path.join(DATA_DIR, 'security-events.json'),
-      key: SECURITY_EVENTS_KEY,
-    },
-    { file: path.join(DATA_DIR, 'state.json'), key: STATE_KEY },
-  ]) {
-    try {
-      const exists = await r.exists(key);
-      if (!exists) {
-        const data = await readJsonFile(file, null);
-        if (data !== null) {
-          await r.set(key, data);
-        }
-      }
-    } catch {
-      // Ignore missing files
     }
   }
 }
