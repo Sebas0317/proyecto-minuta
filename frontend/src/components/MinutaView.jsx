@@ -82,6 +82,32 @@ export default function MinutaView() {
     };
     return tipos[tipo] || tipo;
   };
+  const handleExportCSV = () => {
+    if (!minuta.length) {
+      toast.info('No hay entradas en la minuta para exportar');
+      return;
+    }
+    const headers = ['ID', 'Fecha y Hora', 'Tipo', 'Título', 'Severidad', 'Guardia', 'Descripción'];
+    const rows = minuta.map(m => [
+      m.id,
+      new Date(m.fecha || m.timestamp).toLocaleString('es-CO'),
+      `"${getTipoLabel(m.tipo)}"`,
+      `"${(m.titulo || '').replace(/"/g, '""')}"`,
+      m.severidad || 'info',
+      `"${m.guarda || m.guardiaNombre || 'Guardia'}"`,
+      `"${(m.descripcion || '').replace(/"/g, '""')}"`
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Minuta_Digital_Oficial_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Minuta exportada a Excel (CSV)');
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-6 space-y-6">
       {/* HEADER */}
@@ -99,6 +125,14 @@ export default function MinutaView() {
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3.5 py-2.5 rounded-xl font-bold text-xs transition-all"
+            title="Exportar a Excel"
+          >
+            <Download className="w-4 h-4" />
+            <span>Exportar CSV</span>
+          </button>
           <button
             onClick={() => setShowModal(true)}
             className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-amber-900/30 transition-all hover:scale-[1.02]"

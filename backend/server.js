@@ -71,6 +71,8 @@ const accesosRoutes = require('./src/routes/accesos');
 const trasteosRoutes = require('./src/routes/trasteos');
 const parqueaderosRoutes = require('./src/routes/parqueaderos');
 const chatbotRoutes = require('./src/routes/chatbot');
+const rondasRoutes = require('./src/routes/rondas');
+const reservasZonasRoutes = require('./src/routes/reservasZonas');
 
 const app = express();
 
@@ -241,6 +243,10 @@ app.use('/parqueaderos', parqueaderosRoutes);
 app.use('/v1/chatbot', chatbotRoutes);
 app.use('/chatbot', chatbotRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/v1/rondas', rondasRoutes);
+app.use('/rondas', rondasRoutes);
+app.use('/v1/reservas-zonas', reservasZonasRoutes);
+app.use('/reservas-zonas', reservasZonasRoutes);
 
 // ── BACKUP MANAGEMENT (admin only) ──
 function requireAdminRole(req, res, next) {

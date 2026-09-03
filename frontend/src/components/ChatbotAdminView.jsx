@@ -14,6 +14,11 @@ import {
   ExternalLink,
   Tag,
   MessageSquare,
+  Smartphone,
+  Send,
+  Video,
+  Phone,
+  MoreVertical,
   X
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -23,7 +28,8 @@ import {
   updateKnowledgeItem,
   deleteKnowledgeItem,
   fetchUnansweredQuestions,
-  deleteUnansweredQuestion
+  deleteUnansweredQuestion,
+  queryChatbot
 } from '../services/api';
 
 const CATEGORIES = [
@@ -59,6 +65,71 @@ export default function ChatbotAdminView() {
     rutaAccion: '/admin/info',
     labelAccion: 'Ver Guía'
   });
+
+  // Estado del Simulador Móvil de WhatsApp
+  const [simInput, setSimInput] = useState('');
+  const [simLoading, setSimLoading] = useState(false);
+  const [simContext, setSimContext] = useState({});
+  const [simMessages, setSimMessages] = useState([
+    {
+      id: 'msg-0',
+      sender: 'bot',
+      text: '¡Hola! 👋 Soy *MinutaBot*, el canal oficial de atención virtual de *Condominio Minuta P.H.*.\n\nPuedes consultarme por horarios, parqueaderos, basuras, saldos de administración o pedirme que asiente novedades en la minuta.\n\n¿En qué te podemos colaborar hoy?',
+      time: '10:00 AM'
+    }
+  ]);
+  const simEndRef = useRef(null);
+
+  useEffect(() => {
+    if (activeTab === 'simulator') {
+      simEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [simMessages, activeTab]);
+
+  const handleSimSend = async (customText = null) => {
+    const textToSend = (customText || simInput).trim();
+    if (!textToSend || simLoading) return;
+
+    const userMsg = {
+      id: 'sim-usr-' + Date.now(),
+      sender: 'user',
+      text: textToSend,
+      time: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setSimMessages((prev) => [...prev, userMsg]);
+    setSimInput('');
+    setSimLoading(true);
+
+    try {
+      const res = await queryChatbot(textToSend, simContext);
+      if (res.context) {
+        setSimContext(res.context);
+      }
+
+      const botMsg = {
+        id: 'sim-bot-' + Date.now(),
+        sender: 'bot',
+        text: res.answer,
+        action: res.item?.accionRapida || res.accionRapida || null,
+        time: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setSimMessages((prev) => [...prev, botMsg]);
+    } catch (err) {
+      setSimMessages((prev) => [
+        ...prev,
+        {
+          id: 'sim-err-' + Date.now(),
+          sender: 'bot',
+          text: 'Lo siento, ocurrió un error en el servidor. Por favor intenta de nuevo.',
+          time: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+    } finally {
+      setSimLoading(false);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -247,6 +318,18 @@ export default function ChatbotAdminView() {
           <BookOpen className="w-4 h-4" />
           <span>Base de Conocimiento ({knowledge.length})</span>
         </button>
+
+        <button
+          onClick={() => setActiveTab('simulator')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+            activeTab === 'simulator'
+              ? 'bg-teal-600 text-white shadow-lg'
+              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+          }`}
+        >
+          <Smartphone className="w-4 h-4" />
+          <span>📱 Simulador WhatsApp / Móvil</span>
+        </button>
         <button
           onClick={() => setActiveTab('unanswered')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
@@ -356,7 +439,140 @@ export default function ChatbotAdminView() {
         </div>
       )}
 
-      {/* ── SECCIÓN 2: CONSULTAS SIN RESPUESTA (ENTRENAMIENTO) ── */}
+      {/* ── TAB 2: SIMULADOR DE WHATSAPP / MÓVIL ── */}
+      {activeTab === 'simulator' && (
+        <div className="flex flex-col lg:flex-row gap-6 items-start justify-center">
+          <div className="w-full lg:w-96 bg-slate-800/80 border border-slate-700 p-5 rounded-3xl space-y-4 shadow-xl">
+            <h3 className="font-bold text-white text-sm flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-400" />
+              Prueba la IA & Memoria en Vivo
+            </h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Haz clic en cualquier ejemplo para enviar al simulador de WhatsApp y ver la respuesta en tiempo real:
+            </p>
+
+            <div className="space-y-2">
+              <button
+                onClick={() => handleSimSend('¿Cuánto debe de administración el apto 204?')}
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
+              >
+                💳 "Cuánto debe de administración el apto 204?"
+              </button>
+
+              <button
+                onClick={() => handleSimSend('¿Y tiene paquetes pendientes en portería?')}
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
+              >
+                🧠 "Y tiene paquetes pendientes?" (Prueba Memoria)
+              </button>
+
+              <button
+                onClick={() => handleSimSend('Anota en la minuta que a las 11:30pm hubo ruidos en la Torre 2')}
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
+              >
+                📝 "Anota en la minuta que hubo ruidos..."
+              </button>
+
+              <button
+                onClick={() => handleSimSend('¿A qué hora abren la piscina los fines de semana?')}
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
+              >
+                🏊 "A qué hora abren la piscina?"
+              </button>
+
+              <button
+                onClick={() => handleSimSend('¿Hay cupos de parqueadero disponibles?')}
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
+              >
+                🚗 "Hay cupos de parqueadero libres?"
+              </button>
+            </div>
+
+            {simContext.apto && (
+              <div className="bg-emerald-950/60 border border-emerald-800/80 p-3 rounded-xl text-xs text-emerald-300">
+                <span className="font-bold block">Memoria Contextual Activa:</span>
+                <span>Apartamento en seguimiento: <strong>Apto {simContext.apto}</strong></span>
+              </div>
+            )}
+          </div>
+
+          {/* FRAME DE TELÉFONO WHATSAPP */}
+          <div className="w-full max-w-sm bg-slate-950 rounded-[40px] border-4 border-slate-800 shadow-2xl p-2.5 overflow-hidden flex flex-col h-[620px]">
+            <div className="bg-[#075e54] text-white p-3 rounded-t-[30px] flex items-center justify-between shadow-md">
+              <div className="flex items-center gap-2.5">
+                <div className="relative">
+                  <div className="w-9 h-9 rounded-full bg-emerald-700 border border-white/40 flex items-center justify-center">
+                    <Bot className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#075e54] rounded-full" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs leading-none">MinutaBot P.H.</h4>
+                  <span className="text-[10px] text-emerald-200">en línea</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-white/80">
+                <Video className="w-4 h-4" />
+                <Phone className="w-4 h-4" />
+                <MoreVertical className="w-4 h-4" />
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-[#0b141a] text-xs">
+              {simMessages.map((m) => {
+                const isBot = m.sender === 'bot';
+                return (
+                  <div key={m.id} className={`flex flex-col ${isBot ? 'items-start' : 'items-end'}`}>
+                    <div
+                      className={`max-w-[85%] p-3 rounded-2xl shadow-md text-xs relative ${
+                        isBot
+                          ? 'bg-[#202c33] text-slate-100 rounded-tl-sm'
+                          : 'bg-[#005c4b] text-white rounded-tr-sm font-medium'
+                      }`}
+                    >
+                      <p className="whitespace-pre-line leading-relaxed">{m.text}</p>
+                      <span className="text-[9px] text-slate-400 block text-right mt-1 font-mono">{m.time}</span>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {simLoading && (
+                <div className="bg-[#202c33] text-slate-300 text-xs p-2.5 rounded-2xl w-fit flex items-center gap-2">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping" />
+                  <span>escribiendo...</span>
+                </div>
+              )}
+              <div ref={simEndRef} />
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSimSend();
+              }}
+              className="bg-[#202c33] p-2 rounded-b-[30px] flex items-center gap-1.5 border-t border-slate-800"
+            >
+              <input
+                type="text"
+                value={simInput}
+                onChange={(e) => setSimInput(e.target.value)}
+                placeholder="Mensaje..."
+                className="flex-1 bg-[#2a3942] text-white text-xs px-3 py-2 rounded-full outline-none placeholder:text-slate-500"
+              />
+              <button
+                type="submit"
+                disabled={!simInput.trim() || simLoading}
+                className="p-2 bg-[#00a884] hover:bg-[#008f6f] disabled:opacity-40 text-white rounded-full transition-all"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── SECCIÓN 3: CONSULTAS SIN RESPUESTA (ENTRENAMIENTO) ── */}
       {activeTab === 'unanswered' && (
         <div className="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
           <div className="p-4 border-b border-slate-700/80 bg-slate-900/80">

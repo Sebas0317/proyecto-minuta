@@ -1110,10 +1110,10 @@ export async function liberarInvasionParqueadero(id) {
 }
 
 // ── CHATBOT & ASISTENTE VIRTUAL (MINUTABOT) ──
-export async function queryChatbot(message) {
+export async function queryChatbot(message, context = {}) {
   return apiFetch('/chatbot/query', {
     method: 'POST',
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ message, context }),
   });
 }
 
@@ -1150,4 +1150,43 @@ export async function deleteUnansweredQuestion(id) {
     method: 'DELETE',
   });
 }
+
+// ── RONDAS DE VIGILANCIA & PUNTOS QR ──
+export async function fetchRondas() {
+  return apiFetch('/rondas', { method: 'GET' });
+}
+
+export async function registrarPuntoRonda(data) {
+  return apiFetch('/rondas/registrar', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function createPuntoControl(data) {
+  return apiFetch('/rondas/puntos', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+// ── RESERVAS DE ZONAS COMUNES ──
+export async function fetchReservasZonas() {
+  return apiFetch('/reservas-zonas', { method: 'GET' });
+}
+
+export async function createReservaZona(data) {
+  return apiFetch('/reservas-zonas', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateEstadoReservaZona(id, data) {
+  return apiFetch(`/reservas-zonas/${id}/estado`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
 

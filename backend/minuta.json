@@ -1,5 +1,15 @@
 [
   {
+    "id": "min-1788454708114-1788454708114-6ec7fd",
+    "fecha": "2026-09-03T16:58:28.114Z",
+    "tipo": "novedad",
+    "radicado": "NOV-2752",
+    "aptoAfectado": "204",
+    "guardaTurno": "Carlos Rodríguez (MinutaBot AI)",
+    "descripcion": "[Generado Asistido por MinutaBot]: anota en la minuta que a las 11:30pm hubo ruidos en torre 2",
+    "estado": "abierta"
+  },
+  {
     "id": "min-1",
     "fecha": "2026-09-01T06:00:00.000Z",
     "tipo": "cambio_turno",

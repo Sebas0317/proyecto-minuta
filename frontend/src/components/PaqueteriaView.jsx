@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Package, Search, Plus, Send, Check, Clock, User, 
   Building2, Phone, Filter, RefreshCw, X, CheckCircle,
-  FileText, AlertTriangle, Calendar, Layers, CheckSquare
+  FileText, AlertTriangle, Calendar, Layers, CheckSquare, Download
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchPaquetes, createPaquete, notificarPaquete, entregarPaquete, fetchUnidades } from '../services/api';
@@ -181,6 +181,36 @@ export default function PaqueteriaView() {
       toast.error(err.message || 'Error al entregar correspondencia');
     }
   };
+  const handleExportCSV = () => {
+    if (!paquetes.length) {
+      toast.info('No hay paquetes o recibos para exportar');
+      return;
+    }
+    const headers = ['ID', 'Categoría', 'Torre', 'Apto', 'Destinatario', 'Empresa / Servicio', 'Guía', 'PIN', 'Estado', 'Fecha Ingreso', 'Fecha Entrega'];
+    const rows = paquetes.map(p => [
+      p.id,
+      p.categoria === 'recibo_publico' ? 'Recibo Público' : 'Encomienda',
+      p.torre,
+      p.apto,
+      `"${(p.destinatario || '').replace(/"/g, '""')}"`,
+      `"${(p.empresa || p.tipoRecibo || '').replace(/"/g, '""')}"`,
+      p.guia || '',
+      p.codigoRetiro || '',
+      p.estado.toUpperCase(),
+      p.fechaIngreso ? new Date(p.fechaIngreso).toLocaleString('es-CO') : '',
+      p.fechaEntrega ? new Date(p.fechaEntrega).toLocaleString('es-CO') : ''
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Inventario_Paquetes_Recibos_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Paquetería y facturas exportadas a Excel (CSV)');
+  };
+
   return (
     <div className="space-y-6">
       {/* HEADER */}
@@ -198,6 +228,14 @@ export default function PaqueteriaView() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3.5 py-2.5 rounded-xl font-bold text-xs transition-all"
+            title="Exportar a Excel"
+          >
+            <Download className="w-4 h-4" />
+            <span>Exportar CSV</span>
+          </button>
           <button
             onClick={() => setShowReciboModal(true)}
             className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-amber-950/40 transition-all hover:scale-[1.02]"

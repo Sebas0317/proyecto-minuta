@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Shield, Search, UserCheck, Package, Car, AlertTriangle, Receipt, FileText, Droplets, Zap, Flame, Wifi, 
   Plus, CheckCircle, Clock, Send, Phone, User, Users,
-  Home, Building2, ArrowRight, ArrowLeft, LogOut, Check, X, RefreshCw
+  Home, Building2, ArrowRight, ArrowLeft, LogOut, Check, X, RefreshCw, FileCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -10,6 +10,7 @@ import {
   registrarIngreso, registrarSalida, createPaquete, notificarPaquete, entregarPaquete,
   createMinutaEntry, ocuparParqueadero, liberarParqueadero
 } from '../services/api';
+import CertificadosModal from './CertificadosModal';
 
 export default function PorteriaDashboard() {
   const [unidades, setUnidades] = useState([]);
@@ -27,6 +28,7 @@ export default function PorteriaDashboard() {
   const [showMinutaModal, setShowMinutaModal] = useState(false);
   const [showEntregaModal, setShowEntregaModal] = useState(null);
   const [showReciboModal, setShowReciboModal] = useState(false);
+  const [showCertificados, setShowCertificados] = useState(false);
   const [tabVisitas, setTabVisitas] = useState('activos');
 
   const [reciboForm, setReciboForm] = useState({
@@ -349,6 +351,13 @@ export default function PorteriaDashboard() {
           >
             <Receipt className="w-4 h-4" />
             <span>+ Factura / Recibo Público</span>
+          </button>
+          <button
+            onClick={() => setShowCertificados(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-purple-900/30 transition-all hover:scale-[1.02]"
+          >
+            <FileCheck className="w-4 h-4" />
+            <span>+ Paz y Salvo / Certificado</span>
           </button>
           <button
             onClick={() => setShowMinutaModal(true)}
@@ -1382,6 +1391,14 @@ export default function PorteriaDashboard() {
           </div>
         </div>
       )}
+
+      {/* MODAL GENERADOR DE PAZ Y SALVO & CERTIFICADOS */}
+      <CertificadosModal
+        isOpen={showCertificados}
+        onClose={() => setShowCertificados(false)}
+        aptoInicial={selectedUnidad?.numero || '101'}
+        torreInicial={selectedUnidad?.torre || '1'}
+      />
     </div>
   );
 }

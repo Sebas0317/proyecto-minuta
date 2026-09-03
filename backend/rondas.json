@@ -1,0 +1,75 @@
+{
+  "puntosControl": [
+    {
+      "id": "pc-1",
+      "nombre": "Sótano 2 - Bombas de Agua & Planta",
+      "ubicacion": "Sótano 2",
+      "qrToken": "QR-S2-BOMBAS-9921",
+      "orden": 1
+    },
+    {
+      "id": "pc-2",
+      "nombre": "Sótano 1 - Cuarto de Basuras Principal",
+      "ubicacion": "Sótano 1",
+      "qrToken": "QR-S1-SHUT-8834",
+      "orden": 2
+    },
+    {
+      "id": "pc-3",
+      "nombre": "Torre 1 - Hall & Escaleras de Emergencia",
+      "ubicacion": "Torre 1 Piso 1",
+      "qrToken": "QR-T1-HALL-1123",
+      "orden": 3
+    },
+    {
+      "id": "pc-4",
+      "nombre": "Torre 3 - Terraza & Ascensores",
+      "ubicacion": "Torre 3 Piso 10",
+      "qrToken": "QR-T3-TERRAZA-3345",
+      "orden": 4
+    },
+    {
+      "id": "pc-5",
+      "nombre": "Cerramiento Perimetral Norte",
+      "ubicacion": "Zona Exterior",
+      "qrToken": "QR-PERIMETRO-N-5567",
+      "orden": 5
+    },
+    {
+      "id": "pc-6",
+      "nombre": "Zona Húmeda & Piscina",
+      "ubicacion": "Club House",
+      "qrToken": "QR-PISCINA-CH-7789",
+      "orden": 6
+    }
+  ],
+  "registrosRondas": [
+    {
+      "id": "rd-1",
+      "fecha": "2026-09-03T14:57:09.728Z",
+      "puntoId": "pc-1",
+      "nombrePunto": "Sótano 2 - Bombas de Agua & Planta",
+      "guarda": "Carlos Rodríguez",
+      "estado": "normal",
+      "observaciones": "Nivel de agua y presión de manómetros en rango normal. Sin fugas."
+    },
+    {
+      "id": "rd-2",
+      "fecha": "2026-09-03T15:27:09.729Z",
+      "puntoId": "pc-2",
+      "nombrePunto": "Sótano 1 - Cuarto de Basuras Principal",
+      "guarda": "Carlos Rodríguez",
+      "estado": "normal",
+      "observaciones": "Cuarto aseado y cerrado correctamente."
+    },
+    {
+      "id": "rd-3",
+      "fecha": "2026-09-03T15:57:09.729Z",
+      "puntoId": "pc-3",
+      "nombrePunto": "Torre 1 - Hall & Escaleras de Emergencia",
+      "guarda": "Carlos Rodríguez",
+      "estado": "novedad",
+      "observaciones": "Lámpara de emergencia parpadeando en piso 4. Se notifica a mantenimiento."
+    }
+  ]
+}

@@ -58,6 +58,7 @@ export default function MinutaBotWidget() {
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const [context, setContext] = useState({});
 
   const [messages, setMessages] = useState([
     {
@@ -161,7 +162,10 @@ export default function MinutaBotWidget() {
     setLoading(true);
 
     try {
-      const res = await queryChatbot(query);
+      const res = await queryChatbot(query, context);
+      if (res.context) {
+        setContext(res.context);
+      }
       const botMsgId = 'bot-' + Date.now();
       const botMsg = {
         id: botMsgId,

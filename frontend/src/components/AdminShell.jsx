@@ -22,7 +22,9 @@ import {
   Activity,
   ShieldCheck,
   BookOpen,
-  Bot
+  Bot,
+  Calendar,
+  QrCode
 } from 'lucide-react';
 import {
   downloadLoginLogsCSV,
@@ -37,6 +39,7 @@ const NAV_GROUPS = [
       { key: 'porteria', label: 'Tablero Operativo', icon: LayoutDashboard, path: '/admin' },
       { key: 'mapa', label: 'Plano / Mapa Maestro', icon: MapPin, path: '/admin/mapa' },
       { key: 'minuta', label: 'Minuta Digital', icon: FileText, path: '/admin/minuta' },
+      { key: 'rondas', label: 'Rondas & Puntos QR', icon: QrCode, path: '/admin/rondas' },
     ]
   },
   {
@@ -46,6 +49,7 @@ const NAV_GROUPS = [
       { key: 'paquetes', label: 'Paquetería & PINs', icon: Package, path: '/admin/paquetes' },
       { key: 'parqueadero', label: 'Parqueaderos (4h)', icon: Car, path: '/admin/parqueadero' },
       { key: 'trasteos', label: 'Mudanzas / Trasteos', icon: Truck, path: '/admin/trasteos' },
+      { key: 'reservas', label: 'Reserva Zonas Comunes', icon: Calendar, path: '/admin/reservas' },
     ]
   },
   {
@@ -96,6 +100,8 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
     if (path.includes('/admin/parqueadero')) return 'parqueadero';
     if (path.includes('/admin/trasteos')) return 'trasteos';
     if (path.includes('/admin/unidades')) return 'unidades';
+    if (path.includes('/admin/rondas')) return 'rondas';
+    if (path.includes('/admin/reservas')) return 'reservas';
     if (path.includes('/admin/info')) return 'info';
     if (path.includes('/admin/chatbot')) return 'chatbot';
     if (path.includes('/admin/users')) return 'users';
@@ -111,10 +117,12 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
         porteria: '/admin',
         mapa: '/admin/mapa',
         minuta: '/admin/minuta',
-        paquetes: '/admin/paquetes',
+        rondas: '/admin/rondas',
         accesos: '/admin/accesos',
+        paquetes: '/admin/paquetes',
         parqueadero: '/admin/parqueadero',
         trasteos: '/admin/trasteos',
+        reservas: '/admin/reservas',
         unidades: '/admin/unidades',
         info: '/admin/info',
         chatbot: '/admin/chatbot',
@@ -281,10 +289,12 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
                 {activeView === 'porteria' ? 'Tablero Operativo' :
                  activeView === 'mapa' ? 'Plano / Mapa Maestro' :
                  activeView === 'minuta' ? 'Minuta Digital' :
+                 activeView === 'rondas' ? 'Rondas & Puntos QR' :
                  activeView === 'accesos' ? 'Accesos y Visitas' :
                  activeView === 'paquetes' ? 'Paquetería' :
                  activeView === 'parqueadero' ? 'Parqueaderos' :
                  activeView === 'trasteos' ? 'Mudanzas' :
+                 activeView === 'reservas' ? 'Reserva de Zonas' :
                  activeView === 'unidades' ? 'Censo Inmuebles' :
                  activeView === 'info' ? 'Guía & Zonas Comunes' :
                  activeView === 'chatbot' ? 'MinutaBot IA' :
