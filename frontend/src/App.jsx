@@ -37,8 +37,6 @@ const InfoCondominioView = lazy(() => import('./components/InfoCondominioView'))
 const ChatbotAdminView = lazy(() => import('./components/ChatbotAdminView'));
 import MinutaBotWidget from './components/MinutaBotWidget';
 
-// Vistas secundarias
-const UserView = lazy(() => import('./components/UserView'));
 
 class ErrorBoundary extends Component {
   constructor(props) {

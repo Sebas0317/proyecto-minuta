@@ -20,14 +20,17 @@ function queueBackup(fn) {
 const BACKUP_DIR = path.join(__dirname, '../../backups');
 const DATA_DIR = path.join(__dirname, '../..');
 const DATA_FILES = [
-  'rooms.json',
-  'consumos.json',
-  'history.json',
-  'stateHistory.json',
-  'prices.json',
+  'unidades.json',
+  'minuta.json',
+  'paquetes.json',
+  'accesos.json',
+  'parqueaderos.json',
+  'trasteos.json',
   'users.json',
-  'reservas.json',
+  'chatbot_knowledge.json',
   'codes.json',
+  'history.json',
+  'stateHistory.json'
 ];
 const MAX_BACKUP_DAYS = 30;
 

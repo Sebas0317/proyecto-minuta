@@ -1,6 +1,6 @@
 import { Building2 } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
-import HotelTitle from './HotelTitle';
+import BrandTitle from './BrandTitle';
 import PantallaCheckin from './PantallaCheckin';
 
 export default function RegisterView() {
@@ -20,7 +20,7 @@ export default function RegisterView() {
           </div>
           <div className="flex items-center gap-3">
             <Building2 className="w-6 h-6 text-green-600" />
-            <HotelTitle variant="inline" />
+            <BrandTitle variant="inline" />
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ import {
   requestPasswordRecovery,
   verifyRecoveryCode,
 } from '../services/api';
-import HotelTitle from './HotelTitle';
+import BrandTitle from './BrandTitle';
 
 export default function ForgotPasswordScreen({ onBack }) {
   const [step, setStep] = useState('email');
@@ -94,7 +94,7 @@ export default function ForgotPasswordScreen({ onBack }) {
       <div className="login-bg min-h-screen flex items-center justify-center p-4">
         <div className="login-container max-w-[420px] w-full text-center">
           <div className="login-header mb-6">
-            <HotelTitle variant="login" />
+            <BrandTitle variant="login" />
           </div>
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -122,7 +122,7 @@ export default function ForgotPasswordScreen({ onBack }) {
     <div className="login-bg min-h-screen flex items-center justify-center p-4">
       <div className="login-container max-w-[420px] w-full">
         <div className="login-header mb-6">
-          <HotelTitle variant="login" />
+          <BrandTitle variant="login" />
         </div>
 
         <p className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-6 text-center">

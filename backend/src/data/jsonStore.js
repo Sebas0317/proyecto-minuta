@@ -1,13 +1,9 @@
 'use strict';
 
-/**
- * Bridge module — re-exports persistence.js with saveXxx aliases
- * for residential complex (Minuta) and legacy hotel entities.
- */
 const mod = require('./persistence');
 
 module.exports = {
-  // Residential / Minuta
+  // Residencial / Minuta
   getUnidades: mod.getUnidades,
   saveUnidades: mod.setUnidades,
   getMinuta: mod.getMinuta,
@@ -21,21 +17,11 @@ module.exports = {
   getParqueaderos: mod.getParqueaderos,
   saveParqueaderos: mod.setParqueaderos,
 
-  // General & Users
+  // General & Usuarios
   getUsers: mod.getUsers,
   saveUsers: mod.setUsers,
   getHistory: mod.getHistory,
   saveHistory: mod.setHistory,
   getStateHistory: mod.getStateHistory,
   saveStateHistory: mod.setStateHistory,
-
-  // Legacy fallback
-  getRooms: mod.getRooms,
-  saveRooms: mod.setRooms,
-  getConsumos: mod.getConsumos,
-  saveConsumos: mod.setConsumos,
-  getPrices: mod.getPrices,
-  savePrices: mod.setPrices,
-  getReservas: mod.getReservas,
-  saveReservas: mod.setReservas,
 };

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { verify2FA } from '../services/api';
-import HotelTitle from './HotelTitle';
+import BrandTitle from './BrandTitle';
 
 export default function TwoFactorScreen({ userId, onVerified, onBack, email }) {
   const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -74,7 +74,7 @@ export default function TwoFactorScreen({ userId, onVerified, onBack, email }) {
     <div className="login-bg min-h-screen flex items-center justify-center p-4">
       <div className="login-container max-w-[420px] w-full">
         <div className="login-header mb-6">
-          <HotelTitle variant="login" />
+          <BrandTitle variant="login" />
         </div>
 
         {success ? (

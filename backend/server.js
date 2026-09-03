@@ -58,15 +58,10 @@ const {
 } = require('./src/middleware/rateLimiters');
 
 // Import routes
-const roomsRoutes = require('./src/routes/rooms');
-const consumosRoutes = require('./src/routes/consumos');
-const pricesRoutes = require('./src/routes/prices');
 const authRoutes = require('./src/routes/auth');
 const historyRoutes = require('./src/routes/history');
 const stateHistoryRoutes = require('./src/routes/stateHistory');
 const healthRoutes = require('./src/routes/health');
-const accountingRoutes = require('./src/routes/accounting');
-const reservasRoutes = require('./src/routes/reservas');
 const usersRoutes = require('./src/routes/users');
 // Rutas de Minuta y Conjuntos Residenciales
 const unidadesRoutes = require('./src/routes/unidades');
@@ -227,25 +222,6 @@ app.get('/', (_req, res) => res.json({
 
 // ── ROUTES (v1 + unversioned for backward compatibility) ──
 
-// Rooms routes (rate limiters applied per-route inside the router)
-app.use('/v1/rooms', roomsRoutes);
-app.use('/rooms', roomsRoutes);
-
-// Consumos routes (write rate limiting)
-app.use('/v1/consumos', writeRateLimiter, consumosRoutes);
-app.use('/consumos', writeRateLimiter, consumosRoutes);
-
-// Protected routes — require admin authentication
-app.use('/v1/history', requireAuth, historyRoutes);
-app.use('/history', requireAuth, historyRoutes);
-app.use('/v1/state-history', requireAuth, stateHistoryRoutes);
-app.use('/state-history', requireAuth, stateHistoryRoutes);
-app.use('/v1/prices', pricesRoutes);
-app.use('/prices', pricesRoutes);
-app.use('/v1/accounting', accountingRoutes);
-app.use('/accounting', accountingRoutes);
-app.use('/v1/reservas', requireAuth, reservasRoutes);
-app.use('/reservas', requireAuth, reservasRoutes);
 app.use('/v1/users', authRateLimiter, usersRoutes);
 app.use('/users', authRateLimiter, usersRoutes);
 

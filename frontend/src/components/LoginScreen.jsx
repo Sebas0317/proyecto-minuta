@@ -20,7 +20,7 @@ import {
   setUserInfo,
 } from '../services/api';
 import ForgotPasswordScreen from './ForgotPasswordScreen';
-import HotelTitle from './HotelTitle';
+import BrandTitle from './BrandTitle';
 
 // ── Animated Background ──
 
@@ -243,7 +243,7 @@ function RoleCards({ onSelectAdmin, onSelectUser }) {
       >
         <GlassCard className="p-8 sm:p-10">
           <div className="text-center mb-8">
-            <HotelTitle variant="login" />
+            <BrandTitle variant="login" />
           </div>
           <motion.p
             initial={{ opacity: 0 }}
@@ -422,7 +422,7 @@ function AdminLogin({ onBack, onRole }) {
       >
         <GlassCard className="p-6 sm:p-8">
           <div className="text-center mb-6">
-            <HotelTitle variant="login" />
+            <BrandTitle variant="login" />
           </div>
 
           <AnimatePresence mode="wait">
