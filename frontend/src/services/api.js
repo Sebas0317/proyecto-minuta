@@ -190,7 +190,9 @@ async function apiFetch(endpoint, options = {}, timeout = 10000) {
       ...options.headers,
     },
     credentials: 'include',
-    body: options.body ? JSON.stringify(options.body) : undefined,
+    body: options.body !== undefined
+      ? (typeof options.body === 'string' ? options.body : JSON.stringify(options.body))
+      : undefined,
     signal: AbortSignal.timeout(timeout),
   };
 

@@ -13,10 +13,10 @@
           "id": "vot-1",
           "pregunta": "¿Aprueba el presupuesto general de gastos para el periodo 2026-2027 ($185.000.000 COP)?",
           "estado": "activa",
-          "votosSi": 69.2,
+          "votosSi": 70.45,
           "votosNo": 11.15,
           "votosBlanco": 3.1,
-          "totalVotado": 83.45
+          "totalVotado": 84.7
         },
         {
           "id": "vot-2",

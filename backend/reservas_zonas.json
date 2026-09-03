@@ -1,5 +1,20 @@
 [
   {
+    "id": "res-1788457480416-1788457480416-f81f4a",
+    "espacio": "Cancha Sintética Fútbol 5",
+    "apto": "204",
+    "torre": "1",
+    "solicitante": "Test Residente",
+    "telefono": "3001234567",
+    "fechaReserva": "2026-12-21",
+    "horaInicio": "20:00",
+    "horaFin": "21:30",
+    "estado": "confirmada",
+    "deposito": 0,
+    "observaciones": "Partido vecinal de fin de año",
+    "fechaCreacion": "2026-09-03T17:44:40.416Z"
+  },
+  {
     "id": "res-1788457265491-1788457265491-38a6cf",
     "espacio": "Cancha Sintética Fútbol 5",
     "apto": "204",

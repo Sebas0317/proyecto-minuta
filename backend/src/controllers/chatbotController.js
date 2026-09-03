@@ -268,18 +268,30 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
 
   // 3. CONSULTA DE PAQUETERÍA CON MEMORIA
   const esConsultaPaquete = /paquete|encomienda|guia|recibo|correspondencia|lleg|pedido|entrega/i.test(textoNormalizado);
-  if (esConsultaPaquete && aptoNumero) {
+  if (esConsultaPaquete) {
+    if (!aptoNumero) {
+      await logAnalytics(textoOriginal, 'paquetes');
+      return {
+        tipo: 'solicitar_apto_paquete',
+        titulo: 'Consulta de Paquetería y Encomiendas',
+        respuesta: `📦 **Consulta de Paquetería en Portería:**\n\nPara verificar si tienes paquetes, encomiendas o recibos públicos pendientes de retiro, por favor indícame tu número de apartamento (ej: *"¿Tengo paquetes en el apto 204?"* o *"Paquete para el 101"*).`,
+        accionRapida: { tipo: 'link', label: 'Ver Módulo de Paquetería', ruta: '/admin/paquetes' },
+        updatedContext: { ...context, waitingFor: 'apto_paquete' }
+      };
+    }
+
     const paquetes = await getPaquetes();
     const pendientes = (paquetes || []).filter(
       p => String(p.apto) === String(aptoNumero) && p.estado !== 'entregado'
     );
 
     if (pendientes.length === 0) {
+      await logAnalytics(textoOriginal, 'paquetes');
       return {
         tipo: 'dinamico_paquetes',
         titulo: `Paquetería - Apto ${aptoNumero}`,
         respuesta: `📦 No tienes paquetes ni encomiendas pendientes por retirar en portería para el **Apartamento ${aptoNumero}**.\n\nApenas llegue un pedido, el sistema te notificará automáticamente con tu código PIN de retiro.`,
-        accionRapida: { tipo: 'link', label: 'Ver Estado de Portería', ruta: '/admin/porteria' },
+        accionRapida: { tipo: 'link', label: 'Ver Estado de Portería', ruta: '/admin/paquetes' },
         updatedContext: { ...context, apto: aptoNumero }
       };
     }
@@ -341,8 +353,12 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
 // ── CONTROLADOR PRINCIPAL: PROCESAR MENSAJE DEL USUARIO CON MEMORIA ──
 async function queryChatbot(req, res) {
   try {
-    const message = req.body.message || req.body.question;
-    const context = req.body.context || {};
+    let body = req.body || {};
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch { body = { message: body }; }
+    }
+    const message = (typeof body === 'object' && body !== null) ? (body.message || body.question) : (typeof body === 'string' ? body : '');
+    const context = (typeof body === 'object' && body !== null && body.context) ? body.context : {};
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'El mensaje es requerido' });
     }

@@ -1,5 +1,22 @@
 [
   {
+    "id": "pkg-1788457480176-1788457480176-c20e3c",
+    "unidadId": "1-101",
+    "torre": "1",
+    "apto": "101",
+    "destinatario": "Propietario Test",
+    "empresa": "Servientrega",
+    "guia": "TEST-GUIA-1788457480171",
+    "descripcion": "Paquete recibido en portería",
+    "estado": "entregado",
+    "fechaIngreso": "2026-09-03T17:44:40.176Z",
+    "fechaEntrega": "2026-09-03T17:44:40.210Z",
+    "guardaIngreso": "admin",
+    "guardaEntrega": "admin",
+    "codigoRetiro": "8776",
+    "retiradoPor": "Propietario Test"
+  },
+  {
     "id": "pkg-1788457265259-1788457265259-f5856a",
     "unidadId": "1-101",
     "torre": "1",
