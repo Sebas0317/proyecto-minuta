@@ -47,36 +47,86 @@ import MinutaBotWidget from './components/MinutaBotWidget';
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
+
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
   }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('ErrorBoundary caught error:', error, errorInfo);
+    this.setState({ errorInfo });
+    // Si es un error de carga de chunk nuevo tras un deploy de Vercel, forzar recarga limpia
+    if (error?.message?.includes('Failed to fetch dynamically imported module') ||
+        error?.message?.includes('Importing a module script failed')) {
+      const reloaded = sessionStorage.getItem('chunk_reload');
+      if (!reloaded) {
+        sessionStorage.setItem('chunk_reload', 'true');
+        window.location.reload();
+      }
+    }
+  }
+
+  handleReset = () => {
+    sessionStorage.removeItem('chunk_reload');
+    this.setState({ hasError: false, error: null, errorInfo: null });
+    window.location.href = '/';
+  };
+
+  handleHardReset = () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) {}
+    this.setState({ hasError: false, error: null, errorInfo: null });
+    window.location.href = '/';
+  };
+
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'sans-serif', color: '#fff', background: '#0f172a', minHeight: '100vh' }}>
-          <h2 className="text-xl font-bold mb-2">Algo salió mal</h2>
-          <p style={{ color: '#94a3b8', marginBottom: '20px' }}>
-            Ocurrió un error inesperado. Los datos del sistema permanecen seguros.
-          </p>
-          <button
-            onClick={() => {
-              this.setState({ hasError: false, error: null });
-              window.location.reload();
-            }}
-            style={{
-              padding: '10px 24px',
-              background: '#10b981',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-            }}
-          >
-            Recargar Sistema
-          </button>
+        <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6 font-sans">
+          <div className="bg-slate-900 border border-slate-800 max-w-lg w-full rounded-2xl p-6 md:p-8 shadow-2xl text-center space-y-4">
+            <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+              🛡️
+            </div>
+            
+            <div>
+              <h2 className="text-xl font-bold text-white tracking-tight">Recuperación del Sistema</h2>
+              <p className="text-slate-400 text-xs mt-1">
+                Ocurrió un contratiempo temporal en la vista. Los registros de minuta y base de datos permanecen seguros.
+              </p>
+            </div>
+
+            {this.state.error?.message && (
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-left text-xs font-mono text-red-400/90 overflow-x-auto max-h-24">
+                {this.state.error.message}
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-2">
+              <button
+                onClick={this.handleReset}
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-lg shadow-emerald-950/40 cursor-pointer"
+              >
+                🔄 Reintentar Carga
+              </button>
+              <button
+                onClick={this.handleHardReset}
+                className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer"
+              >
+                🧹 Limpiar Caché y Reiniciar
+              </button>
+            </div>
+
+            <details className="text-left pt-2 border-t border-slate-800/80 text-[11px] text-slate-500">
+              <summary className="cursor-pointer hover:text-slate-400">Ver detalles técnicos</summary>
+              <pre className="mt-2 p-2 bg-slate-950 rounded-lg overflow-x-auto text-[10px] text-slate-400">
+                {this.state.error?.stack || 'Sin stack trace'}
+              </pre>
+            </details>
+          </div>
         </div>
       );
     }
