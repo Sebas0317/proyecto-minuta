@@ -2,9 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/accesosController');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, optionalAuth } = require('../middleware/auth');
 
-router.get('/', requireAuth, controller.getAllAccesos);
+router.get('/', optionalAuth, controller.getAllAccesos);
 router.post('/ingreso', requireAuth, controller.registrarIngreso);
 router.patch('/:id/salida', requireAuth, controller.registrarSalida);
 

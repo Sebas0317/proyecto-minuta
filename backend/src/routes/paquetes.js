@@ -2,9 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/paqueteriaController');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, optionalAuth } = require('../middleware/auth');
 
-router.get('/', requireAuth, controller.getAllPaquetes);
+router.get('/', optionalAuth, controller.getAllPaquetes);
 router.get('/unidad/:apto', controller.getPaquetesByApto);
 router.post('/', requireAuth, controller.createPaquete);
 router.patch('/:id/notificar', requireAuth, controller.notificarPaquete);
