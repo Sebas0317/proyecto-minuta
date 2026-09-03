@@ -1,11 +1,21 @@
 {
-  "totalConsultas": 4,
+  "totalConsultas": 6,
   "categorias": {
-    "convivencia": 2,
+    "convivencia": 4,
     "certificados": 1,
     "emergencias": 1
   },
   "historico": [
+    {
+      "pregunta": "articulo 12",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:35:21.285Z"
+    },
+    {
+      "pregunta": "articulo 18",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:35:21.273Z"
+    },
     {
       "pregunta": "¡Auxilio fuego e incendio en el sótano 1!",
       "categoria": "emergencias",

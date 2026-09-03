@@ -124,14 +124,22 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
 
   // 2. 📜 CONSULTOR DEL MANUAL DE CONVIVENCIA Y LEY 675
   const manual = await getManual();
-  if (/manual|reglamento|convivencia|articulo|multa|sancion|prohibido|norma|ley 675|decibel|fiesta|ruido/i.test(textoNormalizado)) {
+  if (/manual|reglamento|convivencia|articulo|art\b|multa|sancion|prohibido|norma|ley 675|decibel|fiesta|ruido/i.test(textoNormalizado)) {
     let artMatch = null;
-    if (/ruido|musica|silencio|fiesta|hora|decibel/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('12'));
-    else if (/mascota|perro|gato|raza|bozal|correa|heces/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('18'));
-    else if (/mudanza|trasteo|carga|ascensor|sabado|domingo/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('24'));
-    else if (/piscina|humeda|gorro|ducha|cloro|lunes/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('31'));
-    else if (/pago|mora|descuento|pronto pago|interes|expensa/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('45'));
-    else if (/parqueadero|velocidad|rampa|bahia|cepo/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('52'));
+    const matchNumero = textoNormalizado.match(/art[íi]culo\s*(\d+)/i) || textoNormalizado.match(/art\s*(\d+)/i) || textoNormalizado.match(/\b(\d+)\b/);
+    if (matchNumero) {
+      const num = matchNumero[1];
+      artMatch = manual.find(m => m.articulo.includes(num));
+    }
+
+    if (!artMatch) {
+      if (/ruido|musica|silencio|fiesta|hora|decibel/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('12'));
+      else if (/mascota|perro|gato|raza|bozal|correa|heces/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('18'));
+      else if (/mudanza|trasteo|carga|ascensor|sabado|domingo/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('24'));
+      else if (/piscina|humeda|gorro|ducha|cloro|lunes/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('31'));
+      else if (/pago|mora|descuento|pronto pago|interes|expensa/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('45'));
+      else if (/parqueadero|velocidad|rampa|bahia|cepo/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('52'));
+    }
 
     if (artMatch) {
       await logAnalytics(textoOriginal, 'convivencia');
@@ -140,6 +148,15 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
         titulo: `${artMatch.articulo}: ${artMatch.tema}`,
         respuesta: `📜 **${artMatch.articulo} del Manual de Convivencia**\n*(${artMatch.tema})*\n\n📌 **Disposición Oficial:**\n"${artMatch.norma}"\n\n⚖️ **Régimen Sancionatorio:**\n${artMatch.sancion}\n\n*Reglamento aprobado conforme a la Ley 675 de 2001.*`,
         accionRapida: { tipo: 'link', label: 'Consultar Guía del Conjunto', ruta: '/admin/info' },
+        updatedContext: { ...context, apto: aptoNumero }
+      };
+    } else {
+      await logAnalytics(textoOriginal, 'convivencia');
+      return {
+        tipo: 'manual_convivencia_general',
+        titulo: 'Manual de Convivencia & Régimen de Propiedad Horizontal (Ley 675)',
+        respuesta: `📜 **Manual de Convivencia & Normas Principales:**\n\n• **Art. 12 (Ruido & Silencio):** Prohibido música alta después de las 10:00 PM (dom a jue) y 12:00 AM (vie y sáb).\n• **Art. 18 (Mascotas):** Uso de correa en zonas comunes; bozal obligatorio para razas de manejo especial.\n• **Art. 24 (Mudanzas):** Lunes a Sábado de 08:00 AM a 05:00 PM previa autorización de paz y salvo.\n• **Art. 31 (Piscina):** Ducha previa, gorro y lycra obligatorios. Cerrada los Lunes por química.\n• **Art. 45 (Administración):** 10% de descuento por pronto pago hasta el día 10 de cada mes.\n• **Art. 52 (Parqueaderos):** Velocidad máx. 10 km/h y 4 horas máx. para visitantes.`,
+        accionRapida: { tipo: 'link', label: 'Ver Manual Completo', ruta: '/admin/info' },
         updatedContext: { ...context, apto: aptoNumero }
       };
     }

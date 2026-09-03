@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Waves,
   Dumbbell,
@@ -16,6 +17,9 @@ import {
   FileText,
   Search,
   ExternalLink,
+  Calendar,
+  Truck,
+  Phone,
   Info
 } from 'lucide-react';
 
@@ -30,6 +34,7 @@ const CATEGORIES = [
 ];
 
 export default function InfoCondominioView() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('recreacion');
   const [search, setSearch] = useState('');
 
@@ -56,6 +61,28 @@ export default function InfoCondominioView() {
             <CheckCircle className="w-4 h-4" /> Normativa Vigente 2026
           </span>
         </div>
+      </div>
+
+      {/* BARRA DE BÚSQUEDA EN TIEMPO REAL */}
+      <div className="bg-slate-800/70 border border-slate-700 p-4 rounded-2xl flex flex-col md:flex-row gap-3 items-center justify-between shadow-lg">
+        <div className="flex-1 w-full relative">
+          <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por piscina, gimnasio, basura, mudanza, cuenta de pago o teléfono de emergencia..."
+            className="w-full bg-slate-900 border border-slate-700 text-white pl-10 pr-4 py-2 rounded-xl text-xs outline-none focus:border-emerald-500"
+          />
+        </div>
+        {search && (
+          <button
+            onClick={() => setSearch('')}
+            className="text-xs text-slate-400 hover:text-white bg-slate-700 px-3 py-1.5 rounded-lg"
+          >
+            Limpiar Filtro
+          </button>
+        )}
       </div>
 
       {/* TABS DE CATEGORÍAS */}
@@ -117,71 +144,103 @@ export default function InfoCondominioView() {
             </div>
           </div>
 
-          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
-              <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                <Shield className="w-5 h-5 text-blue-400" /> Cancha Sintética Fútbol 5
-              </h3>
-              <span className="text-[10px] bg-blue-950 text-blue-300 border border-blue-800 px-2 py-0.5 rounded-full font-bold">
-                Grama Sintética
-              </span>
+          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-blue-400" /> Cancha Sintética Fútbol 5
+                </h3>
+                <span className="text-[10px] bg-blue-950 text-blue-300 border border-blue-800 px-2 py-0.5 rounded-full font-bold">
+                  Grama Sintética
+                </span>
+              </div>
+              <div className="space-y-1.5 text-xs text-slate-300">
+                <p><strong className="text-slate-400">Horario:</strong> Lunes a Domingo (08:00 AM - 10:00 PM)</p>
+                <p><strong className="text-slate-400">Reserva:</strong> Turnos de 1h 30m en el sistema de reservas.</p>
+                <p><strong className="text-slate-400">Calzado:</strong> Solo tenis de fútbol sintético (no taches de aluminio).</p>
+                <p className="text-emerald-400 font-semibold">Gratuito para residentes al día en administración.</p>
+              </div>
             </div>
-            <div className="space-y-1.5 text-xs text-slate-300">
-              <p><strong className="text-slate-400">Horario:</strong> Lunes a Domingo (08:00 AM - 10:00 PM)</p>
-              <p><strong className="text-slate-400">Reserva:</strong> Turnos de 1h 30m vía citófono o portería.</p>
-              <p><strong className="text-slate-400">Calzado:</strong> Solo tenis de fútbol sintético (prohibido taches de aluminio).</p>
-              <p className="text-emerald-400 font-semibold">Gratuito para residentes al día en administración.</p>
-            </div>
+            <button
+              onClick={() => navigate('/admin/reservas')}
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow"
+            >
+              <Calendar className="w-3.5 h-3.5" /> Apartar Turno en Cancha
+            </button>
           </div>
 
-          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
-              <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                <Building className="w-5 h-5 text-purple-400" /> Salón Social de Eventos
-              </h3>
-              <span className="text-[10px] bg-purple-950 text-purple-300 border border-purple-800 px-2 py-0.5 rounded-full font-bold">
-                Aforo 120 Personas
-              </span>
+          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                  <Building className="w-5 h-5 text-purple-400" /> Salón Social de Eventos
+                </h3>
+                <span className="text-[10px] bg-purple-950 text-purple-300 border border-purple-800 px-2 py-0.5 rounded-full font-bold">
+                  Aforo 120 Personas
+                </span>
+              </div>
+              <div className="space-y-1.5 text-xs text-slate-300">
+                <p><strong className="text-slate-400">Capacidad:</strong> 120 personas sentadas con mesas y cocina auxiliar.</p>
+                <p><strong className="text-slate-400">Límite de Sonido:</strong> 02:00 AM (música a volumen moderado).</p>
+                <p><strong className="text-slate-400">Depósito Reembolsable:</strong> $200.000 COP para garantía de aseo y daños.</p>
+                <p><strong className="text-slate-400">Reserva:</strong> Mínimo 8 días de anticipación con administración.</p>
+              </div>
             </div>
-            <div className="space-y-1.5 text-xs text-slate-300">
-              <p><strong className="text-slate-400">Capacidad:</strong> 120 personas sentadas con mesas y cocina auxiliar.</p>
-              <p><strong className="text-slate-400">Límite de Sonido:</strong> 02:00 AM (música a volumen moderado).</p>
-              <p><strong className="text-slate-400">Depósito Reembolsable:</strong> $200.000 COP para garantía de aseo y daños.</p>
-              <p><strong className="text-slate-400">Reserva:</strong> Mínimo 8 días de anticipación con administración.</p>
-            </div>
+            <button
+              onClick={() => navigate('/admin/reservas')}
+              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow"
+            >
+              <Calendar className="w-3.5 h-3.5" /> Reservar Salón Social
+            </button>
           </div>
 
-          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
-              <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-amber-400" /> Zona BBQ & Kiosco
-              </h3>
-              <span className="text-[10px] bg-amber-950 text-amber-300 border border-amber-800 px-2 py-0.5 rounded-full font-bold">
-                Asadores a Carbón
-              </span>
+          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-amber-400" /> Zona BBQ & Kiosco
+                </h3>
+                <span className="text-[10px] bg-amber-950 text-amber-300 border border-amber-800 px-2 py-0.5 rounded-full font-bold">
+                  Asadores a Carbón
+                </span>
+              </div>
+              <div className="space-y-1.5 text-xs text-slate-300">
+                <p><strong className="text-slate-400">Horario:</strong> 11:00 AM - 09:00 PM</p>
+                <p><strong className="text-slate-400">Bloques:</strong> Máximo 4 horas continuas de uso.</p>
+                <p><strong className="text-slate-400">Compromiso:</strong> Entregar parrillas limpias y carbón apagado con agua.</p>
+                <p><strong className="text-slate-400">Reserva:</strong> Con 24 horas de antelación en portería.</p>
+              </div>
             </div>
-            <div className="space-y-1.5 text-xs text-slate-300">
-              <p><strong className="text-slate-400">Horario:</strong> 11:00 AM - 09:00 PM</p>
-              <p><strong className="text-slate-400">Bloques:</strong> Máximo 4 horas continuas de uso.</p>
-              <p><strong className="text-slate-400">Compromiso:</strong> Entregar parrillas limpias y carbón apagado con agua.</p>
-              <p><strong className="text-slate-400">Reserva:</strong> Con 24 horas de antelación en portería.</p>
-            </div>
+            <button
+              onClick={() => navigate('/admin/reservas')}
+              className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow"
+            >
+              <Calendar className="w-3.5 h-3.5" /> Reservar Zona BBQ
+            </button>
           </div>
 
-          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
-              <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" /> Parque Infantil & Zona Mascotas
-              </h3>
-              <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">
-                Área Familiar
-              </span>
+          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-emerald-400" /> Parque Infantil & Zona Mascotas
+                </h3>
+                <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">
+                  Área Familiar
+                </span>
+              </div>
+              <div className="space-y-1.5 text-xs text-slate-300">
+                <p><strong className="text-slate-400">Parque Infantil:</strong> 08:00 AM - 07:30 PM (menores de 10 años).</p>
+                <p><strong className="text-slate-400">Pipican / Canino:</strong> 24 Horas con iluminación nocturna.</p>
+                <p><strong className="text-slate-400">Regla Mascotas:</strong> Uso de correa obligatorio y recolección de heces.</p>
+              </div>
             </div>
-            <div className="space-y-1.5 text-xs text-slate-300">
-              <p><strong className="text-slate-400">Parque Infantil:</strong> 08:00 AM - 07:30 PM (menores de 10 años).</p>
-              <p><strong className="text-slate-400">Pipican / Zona Canina:</strong> 24 Horas con iluminación nocturna.</p>
-              <p><strong className="text-slate-400">Regla Mascotas:</strong> Uso de correa obligatorio y recolección de heces en bolsas biodegradables.</p>
-            </div>
+            <button
+              onClick={() => navigate('/admin/mascotas')}
+              className="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow"
+            >
+              🐶 Ver Censo de Mascotas & Carnets
+            </button>
           </div>
         </div>
       )}
@@ -307,15 +366,25 @@ export default function InfoCondominioView() {
             </div>
           </div>
 
-          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3">
-            <h3 className="font-bold text-white text-sm flex items-center gap-2 border-b border-slate-700 pb-3">
-              <Car className="w-5 h-5 text-purple-400" /> Mudanzas & Trasteos
-            </h3>
-            <div className="space-y-2 text-xs text-slate-300">
-              <p><strong className="text-slate-400">Horario:</strong> Lunes a Sábado de 08:00 AM a 05:00 PM</p>
-              <p><strong className="text-slate-400">Domingos y Festivos:</strong> Prohibidos los trasteos.</p>
-              <p><strong className="text-slate-400">Requisitos:</strong> Paz y Salvo de administración y depósito de $100.000 COP por protección de ascensores.</p>
+          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-purple-400" /> Mudanzas & Trasteos (Art. 24)
+                </h3>
+              </div>
+              <div className="space-y-2 text-xs text-slate-300 mt-2">
+                <p><strong className="text-slate-400">Horario:</strong> Lunes a Sábado de 08:00 AM a 05:00 PM</p>
+                <p><strong className="text-slate-400">Domingos y Festivos:</strong> Prohibidos los trasteos.</p>
+                <p><strong className="text-slate-400">Requisitos:</strong> Paz y Salvo de administración y depósito de $100.000 COP por protección de ascensores.</p>
+              </div>
             </div>
+            <button
+              onClick={() => navigate('/admin/trasteos')}
+              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow mt-2"
+            >
+              📦 Gestionar Mudanzas
+            </button>
           </div>
         </div>
       )}
@@ -323,15 +392,25 @@ export default function InfoCondominioView() {
       {/* 5. PARQUEADEROS, BODEGAS & BICICLETAS */}
       {activeTab === 'parqueaderos' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3">
-            <h3 className="font-bold text-white text-sm flex items-center gap-2 border-b border-slate-700 pb-3">
-              <Car className="w-5 h-5 text-blue-400" /> Bahías Privadas & Visitantes
-            </h3>
-            <div className="space-y-2 text-xs text-slate-300">
-              <p><strong className="text-slate-400">Velocidad Máxima:</strong> 10 km/h con luces medias encendidas.</p>
-              <p><strong className="text-slate-400">Tiempo Cortesía Visitantes:</strong> 4 horas continuas.</p>
-              <p className="text-emerald-400 font-semibold">Si prestas tu bahía privada a otro residente, infórmalo en portería para evitar reportes de invasión.</p>
+          <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                  <Car className="w-5 h-5 text-blue-400" /> Bahías Privadas & Visitantes (Art. 52)
+                </h3>
+              </div>
+              <div className="space-y-2 text-xs text-slate-300 mt-2">
+                <p><strong className="text-slate-400">Velocidad Máxima:</strong> 10 km/h con luces medias encendidas.</p>
+                <p><strong className="text-slate-400">Tiempo Cortesía Visitantes:</strong> 4 horas continuas.</p>
+                <p className="text-emerald-400 font-semibold">Si prestas tu bahía privada a otro residente, infórmalo en portería para evitar reportes de invasión.</p>
+              </div>
             </div>
+            <button
+              onClick={() => navigate('/admin/parqueadero')}
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow mt-2"
+            >
+              🚗 Ver Bahías Libres & Tiempo
+            </button>
           </div>
 
           <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-3">
@@ -364,7 +443,7 @@ export default function InfoCondominioView() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-4">
             <h3 className="font-bold text-white text-base flex items-center gap-2 border-b border-slate-700 pb-3">
-              <CreditCard className="w-5 h-5 text-emerald-400" /> Canales de Pago & Fechas de Cuotas
+              <CreditCard className="w-5 h-5 text-emerald-400" /> Canales de Pago & Fechas de Cuotas (Art. 45)
             </h3>
             <div className="space-y-2.5 text-xs text-slate-300">
               <div className="bg-emerald-950/60 border border-emerald-800/80 p-3.5 rounded-xl space-y-1">
@@ -398,28 +477,36 @@ export default function InfoCondominioView() {
             <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Interno Condominio</span>
             <h3 className="font-bold text-white text-base">Portería Principal 24/7</h3>
             <p className="text-xs text-slate-300">Citófono: <strong className="text-emerald-400 font-mono text-sm">Ext. 100 / 101</strong></p>
-            <p className="text-xs text-slate-300">Celular Turno: <strong className="text-emerald-400 font-mono">320 114 4778</strong></p>
+            <a href="tel:3201144778" className="text-xs text-emerald-400 font-mono flex items-center gap-1.5 hover:underline">
+              <Phone className="w-3.5 h-3.5" /> 320 114 4778
+            </a>
           </div>
 
           <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-2">
             <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Seguridad Ciudadana</span>
             <h3 className="font-bold text-white text-base">Policía Nacional (CAI)</h3>
             <p className="text-xs text-slate-300">Línea Nacional: <strong className="text-blue-400 font-mono text-sm">123</strong></p>
-            <p className="text-xs text-slate-300">Cuadrante Sector: <strong className="text-blue-400 font-mono">300 200 4455</strong></p>
+            <a href="tel:3002004455" className="text-xs text-blue-400 font-mono flex items-center gap-1.5 hover:underline">
+              <Phone className="w-3.5 h-3.5" /> Cuadrante: 300 200 4455
+            </a>
           </div>
 
           <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-2">
             <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider">Bomberos & Rescate</span>
             <h3 className="font-bold text-white text-base">Cuerpo de Bomberos</h3>
             <p className="text-xs text-slate-300">Emergencias Fuego: <strong className="text-red-400 font-mono text-sm">119</strong></p>
-            <p className="text-xs text-slate-300">Central Telefónica: <strong className="text-red-400 font-mono">(601) 382 2500</strong></p>
+            <a href="tel:6013822500" className="text-xs text-red-400 font-mono flex items-center gap-1.5 hover:underline">
+              <Phone className="w-3.5 h-3.5" /> Central: (601) 382 2500
+            </a>
           </div>
 
           <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-2">
             <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Servicio Público</span>
             <h3 className="font-bold text-white text-base">Gas Natural (Vanti)</h3>
             <p className="text-xs text-slate-300">Línea de Escape / Fuga: <strong className="text-amber-400 font-mono text-sm">164</strong></p>
-            <p className="text-xs text-slate-300">Gratuita: <strong className="text-amber-400 font-mono">01 8000 912 800</strong></p>
+            <a href="tel:018000912800" className="text-xs text-amber-400 font-mono flex items-center gap-1.5 hover:underline">
+              <Phone className="w-3.5 h-3.5" /> Gratuita: 01 8000 912 800
+            </a>
           </div>
 
           <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-2">
@@ -433,7 +520,9 @@ export default function InfoCondominioView() {
             <span className="text-[10px] text-yellow-400 font-bold uppercase tracking-wider">Servicio Eléctrico</span>
             <h3 className="font-bold text-white text-base">Energía (Enel Codensa)</h3>
             <p className="text-xs text-slate-300">Fallas de Energía: <strong className="text-yellow-400 font-mono text-sm">115</strong></p>
-            <p className="text-xs text-slate-300">Fijo: <strong className="text-yellow-400 font-mono">(601) 711 5115</strong></p>
+            <a href="tel:6017115115" className="text-xs text-yellow-400 font-mono flex items-center gap-1.5 hover:underline">
+              <Phone className="w-3.5 h-3.5" /> Fijo: (601) 711 5115
+            </a>
           </div>
         </div>
       )}

@@ -5,8 +5,6 @@ import { fetchSecurityEvents, fetchUsers } from '../services/api';
 import SecurityDashboard from './SecurityDashboard';
 
 export default function SecurityView() {
-  const { rooms } = useOutletContext();
-
   const { data: secEvents } = useQuery({
     queryKey: queryKeys.securityEvents,
     queryFn: () => fetchSecurityEvents(200),
@@ -23,7 +21,6 @@ export default function SecurityView() {
     <SecurityDashboard
       events={secEvents || []}
       users={secUsers || []}
-      rooms={rooms}
     />
   );
 }
