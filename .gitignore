@@ -42,7 +42,4 @@ cloudflared.exe
 # AI context
 CLAUDE.md
 .claude/
-
-# Root lock
-package-lock.json
 .env*
