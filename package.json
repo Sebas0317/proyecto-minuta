@@ -1,0 +1,37 @@
+{
+  "name": "proyecto-minuta-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema Integral de Portería y Minuta de Vigilancia",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "test": "cd backend && npm test"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^10.4.0",
+    "@upstash/redis": "^1.38.0",
+    "bcryptjs": "^3.0.3",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "csurf": "^1.11.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "node-cache": "^5.1.2",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.11",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "pino-roll": "^4.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "ws": "^8.21.0",
+    "xlsx": "^0.18.5"
+  }
+}
