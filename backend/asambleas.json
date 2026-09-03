@@ -12,13 +12,13 @@
         "id": "vot-01",
         "pregunta": "¿Aprueba el Presupuesto General de Gastos e Inversión para el periodo 2026-2027?",
         "opciones": {
-          "si": 70.2,
+          "si": 71.45,
           "no": 4.8,
           "blanco": 2.45
         },
-        "totalVotado": 77.45,
+        "totalVotado": 78.7,
         "estado": "abierta",
-        "votosSi": 70.2
+        "votosSi": 71.45
       },
       {
         "id": "vot-02",
