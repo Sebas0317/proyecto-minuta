@@ -32,8 +32,8 @@
       "tipo": "moto"
     },
     "fechaIngreso": "2026-09-03T16:02:12.816Z",
-    "fechaSalida": null,
-    "estado": "en_conjunto",
+    "fechaSalida": "2026-09-03T16:27:08.383Z",
+    "estado": "finalizado",
     "autorizadoPor": "Mauricio Restrepo",
     "guarda": "Jhon Beltrán"
   },

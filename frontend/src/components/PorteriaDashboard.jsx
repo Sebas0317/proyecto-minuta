@@ -26,6 +26,7 @@ export default function PorteriaDashboard() {
   const [showPaqueteModal, setShowPaqueteModal] = useState(false);
   const [showMinutaModal, setShowMinutaModal] = useState(false);
   const [showEntregaModal, setShowEntregaModal] = useState(null);
+  const [tabVisitas, setTabVisitas] = useState('activos'); // 'activos' | 'salidas'
 
   const [ingresoForm, setIngresoForm] = useState({
     tipo: 'visitante',
@@ -153,10 +154,20 @@ export default function PorteriaDashboard() {
     }
   };
 
+  const calcularPermanencia = (ingreso, salida) => {
+    if (!ingreso) return '—';
+    const start = new Date(ingreso);
+    const end = salida ? new Date(salida) : new Date();
+    const diffMs = Math.max(0, end - start);
+    const mins = Math.max(1, Math.floor(diffMs / 60000));
+    const hrs = Math.floor(mins / 60);
+    return hrs > 0 ? `${hrs}h ${mins % 60}m` : `${mins} min`;
+  };
+
   const handleSalida = async (accesoId, nombre) => {
     try {
       await registrarSalida(accesoId);
-      toast.success(`Salida de ${nombre} registrada`);
+      toast.success(`Salida de ${nombre} registrada y asentada en la minuta`);
       loadData();
     } catch (err) {
       toast.error('Error al registrar salida');
@@ -499,56 +510,116 @@ export default function PorteriaDashboard() {
       {/* GRID DE MONITOREO PRINCIPAL: ACCESOS ACTIVOS & PAQUETES PENDIENTES */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        {/* PANEL DE VISITAS ACTIVAS EN CONJUNTO */}
+        {/* PANEL DE VISITAS ACTIVAS & SALIDAS EN CONJUNTO */}
         <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-xl flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <UserCheck className="w-5 h-5 text-emerald-400" /> Visitantes y Domicilios Activos
-            </h3>
-            <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold">
-              {accesos.filter(a => a.estado === 'en_conjunto').length} dentro
-            </span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 border-b border-slate-700/80 pb-3">
+            <div className="flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-emerald-400" />
+              <h3 className="text-base font-bold text-white">Visitantes y Domicilios</h3>
+            </div>
+            
+            <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-700 text-xs">
+              <button
+                onClick={() => setTabVisitas('activos')}
+                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                  tabVisitas === 'activos'
+                    ? 'bg-emerald-600 text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                🟢 Activos ({accesos.filter(a => a.estado === 'en_conjunto').length})
+              </button>
+              <button
+                onClick={() => setTabVisitas('salidas')}
+                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                  tabVisitas === 'salidas'
+                    ? 'bg-slate-700 text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                📜 Salidas Recientes ({accesos.filter(a => a.estado === 'finalizado').length})
+              </button>
+            </div>
           </div>
 
           <div className="space-y-3 flex-1 overflow-y-auto max-h-[380px] pr-1">
-            {accesos.filter(a => a.estado === 'en_conjunto').length === 0 ? (
-              <div className="text-center py-12 text-slate-500">
-                <UserCheck className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                <p>No hay visitantes activos en este momento.</p>
-              </div>
-            ) : (
-              accesos.filter(a => a.estado === 'en_conjunto').map((a) => (
-                <div key={a.id} className="bg-slate-900/70 border border-slate-700/80 p-3.5 rounded-xl flex items-center justify-between gap-3 hover:border-slate-600 transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-slate-800 text-emerald-400 rounded-xl font-bold text-xs">
-                      {a.apto}
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-white text-sm flex items-center gap-2">
-                        {a.nombre}
-                        <span className="text-xs font-normal px-2 py-0.5 bg-slate-800 text-slate-400 rounded capitalize">{a.tipo}</span>
-                      </h4>
-                      <p className="text-xs text-slate-400">
-                        Destino: <strong className="text-slate-300">{a.torre} - {a.apto}</strong> • Motivo: {a.motivo}
-                      </p>
-                      {a.vehiculo?.placa && (
-                        <span className="text-[11px] text-purple-400 font-semibold mt-0.5 inline-block">
-                          🚗 Placa: {a.vehiculo.placa} ({a.parqueaderoAsignado || 'Sin bahía'})
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleSalida(a.id, a.nombre)}
-                      className="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/40 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1"
-                    >
-                      <LogOut className="w-3.5 h-3.5" /> Salida
-                    </button>
-                  </div>
+            {tabVisitas === 'activos' ? (
+              accesos.filter(a => a.estado === 'en_conjunto').length === 0 ? (
+                <div className="text-center py-12 text-slate-500">
+                  <UserCheck className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                  <p>No hay visitantes activos en este momento.</p>
                 </div>
-              ))
+              ) : (
+                accesos.filter(a => a.estado === 'en_conjunto').map((a) => (
+                  <div key={a.id} className="bg-slate-900/70 border border-slate-700/80 p-3.5 rounded-xl flex items-center justify-between gap-3 hover:border-slate-600 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-xl font-bold text-xs">
+                        {a.apto}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white text-sm flex items-center gap-2">
+                          {a.nombre}
+                          <span className="text-[11px] font-bold px-2 py-0.5 bg-slate-800 text-slate-300 rounded-full capitalize border border-slate-700">{a.tipo}</span>
+                        </h4>
+                        <p className="text-xs text-slate-400">
+                          Destino: <strong className="text-slate-300">{a.torre} - {a.apto}</strong> • Motivo: {a.motivo}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <span className="text-[11px] text-emerald-400 font-mono font-bold bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded-md">
+                            ⏳ {calcularPermanencia(a.fechaIngreso, null)}
+                          </span>
+                          {a.vehiculo?.placa && (
+                            <span className="text-[11px] text-purple-400 font-mono font-bold bg-purple-950/60 border border-purple-800/80 px-2 py-0.5 rounded-md">
+                              🚗 {a.vehiculo.placa} ({a.parqueaderoAsignado || 'Sin bahía'})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleSalida(a.id, a.nombre)}
+                        className="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/40 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                        title="Registrar salida de portería"
+                      >
+                        <LogOut className="w-3.5 h-3.5" /> Registrar Salida
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )
+            ) : (
+              accesos.filter(a => a.estado === 'finalizado').slice(0, 10).length === 0 ? (
+                <div className="text-center py-12 text-slate-500">
+                  <Clock className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                  <p>No hay registro de salidas recientes aún.</p>
+                </div>
+              ) : (
+                accesos.filter(a => a.estado === 'finalizado').slice(0, 10).map((a) => (
+                  <div key={a.id} className="bg-slate-900/40 border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-slate-800 text-slate-400 rounded-lg font-mono font-bold text-xs">
+                        {a.apto}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-200">{a.nombre} <span className="text-slate-400 font-normal">({a.tipo})</span></h4>
+                        <p className="text-slate-400 text-[11px]">
+                          {a.torre} - {a.apto} • Salida: <strong className="text-slate-300">{new Date(a.fechaSalida).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</strong>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-emerald-400 font-mono font-bold block">
+                        ⏱️ {calcularPermanencia(a.fechaIngreso, a.fechaSalida)}
+                      </span>
+                      <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full">
+                        Finalizado
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )
             )}
           </div>
         </div>

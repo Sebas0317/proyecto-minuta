@@ -1,6 +1,6 @@
 'use strict';
 
-const { getAccesos, saveAccesos, getParqueaderos, saveParqueaderos } = require('../data/jsonStore');
+const { getAccesos, saveAccesos, getParqueaderos, saveParqueaderos, getMinuta, saveMinuta } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
@@ -55,6 +55,8 @@ async function registrarIngreso(req, res) {
       return res.status(400).json({ error: 'Nombre, Torre y Apartamento de destino son obligatorios' });
     }
 
+    const guardaResponsable = guarda || req.user?.username || req.user?.firstName || 'Guarda de Turno';
+
     const nuevoAcceso = {
       id: `acc-${Date.now()}-${generateId(4)}`,
       tipo: tipo || 'visitante', // visitante, domicilio, contratista, servicio
@@ -70,7 +72,7 @@ async function registrarIngreso(req, res) {
       fechaSalida: null,
       estado: 'en_conjunto', // en_conjunto, finalizado
       autorizadoPor: autorizadoPor || 'Residente',
-      guarda: guarda || req.user?.username || req.user?.firstName || 'Guarda de Turno'
+      guarda: guardaResponsable
     };
 
     // Si tiene vehículo y se asignó parqueadero, ocuparlo
@@ -91,6 +93,25 @@ async function registrarIngreso(req, res) {
     accesos.unshift(nuevoAcceso);
     await saveAccesos(accesos);
 
+    // Asentar en la minuta digital
+    try {
+      const minuta = await getMinuta();
+      minuta.unshift({
+        id: `min-${Date.now()}-${generateId(4)}`,
+        fecha: nuevoAcceso.fechaIngreso,
+        tipo: 'acceso',
+        titulo: `Ingreso: ${nuevoAcceso.nombre} (${nuevoAcceso.tipo})`,
+        descripcion: `Ingreso autorizado para ${nuevoAcceso.nombre} (Doc: ${nuevoAcceso.documento}) hacia ${nuevoAcceso.torre} Apto ${nuevoAcceso.apto}. Motivo: ${nuevoAcceso.motivo}. Autorizado por: ${nuevoAcceso.autorizadoPor}.${nuevoAcceso.vehiculo?.placa ? ` Vehículo: ${nuevoAcceso.vehiculo.placa}.` : ''}`,
+        guarda: guardaResponsable,
+        severidad: 'info',
+        unidadId: nuevoAcceso.unidadId,
+        evidencia: null
+      });
+      await saveMinuta(minuta);
+    } catch (e) {
+      logger.warn({ error: e.message }, 'No se pudo asentar ingreso en minuta');
+    }
+
     logger.info({ id: nuevoAcceso.id, nombre, torre, apto }, 'Ingreso registrado en portería');
     res.status(201).json(nuevoAcceso);
   } catch (err) {
@@ -109,8 +130,17 @@ async function registrarSalida(req, res) {
       return res.status(404).json({ error: 'Registro de acceso no encontrado' });
     }
 
+    const guardaResponsable = req.user?.username || req.user?.firstName || acceso.guarda || 'Guarda de Turno';
     acceso.estado = 'finalizado';
     acceso.fechaSalida = new Date().toISOString();
+
+    // Cálculo de permanencia
+    const start = new Date(acceso.fechaIngreso);
+    const end = new Date(acceso.fechaSalida);
+    const diffMs = Math.max(0, end - start);
+    const mins = Math.max(1, Math.floor(diffMs / 60000));
+    const hrs = Math.floor(mins / 60);
+    const duracionStr = hrs > 0 ? `${hrs}h ${mins % 60}m` : `${mins} min`;
 
     // Si tenía parqueadero asignado, liberarlo
     if (acceso.parqueaderoAsignado) {
@@ -128,7 +158,27 @@ async function registrarSalida(req, res) {
     }
 
     await saveAccesos(accesos);
-    logger.info({ id }, 'Salida registrada en portería');
+
+    // Asentar en la minuta digital
+    try {
+      const minuta = await getMinuta();
+      minuta.unshift({
+        id: `min-${Date.now()}-${generateId(4)}`,
+        fecha: acceso.fechaSalida,
+        tipo: 'acceso',
+        titulo: `Salida: ${acceso.nombre} (${acceso.tipo})`,
+        descripcion: `Se registra salida de ${acceso.nombre} (Doc: ${acceso.documento || 'Sin doc'}). Destino fue ${acceso.torre} Apto ${acceso.apto}. Tiempo de permanencia: ${duracionStr}.${acceso.vehiculo?.placa ? ` Vehículo: ${acceso.vehiculo.placa} retirado.` : ''}`,
+        guarda: guardaResponsable,
+        severidad: 'info',
+        unidadId: acceso.unidadId,
+        evidencia: null
+      });
+      await saveMinuta(minuta);
+    } catch (e) {
+      logger.warn({ error: e.message }, 'No se pudo asentar salida en minuta');
+    }
+
+    logger.info({ id, nombre: acceso.nombre, duracion: duracionStr }, 'Salida registrada en portería');
     res.json(acceso);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al registrar salida');
