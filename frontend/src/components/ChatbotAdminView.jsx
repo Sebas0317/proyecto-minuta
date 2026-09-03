@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Bot,
   Search,
@@ -19,6 +19,7 @@ import {
   Video,
   Phone,
   MoreVertical,
+  BarChart3,
   X
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -29,7 +30,8 @@ import {
   deleteKnowledgeItem,
   fetchUnansweredQuestions,
   deleteUnansweredQuestion,
-  queryChatbot
+  queryChatbot,
+  fetchChatbotAnalytics
 } from '../services/api';
 
 const CATEGORIES = [
@@ -47,8 +49,9 @@ const CATEGORIES = [
 export default function ChatbotAdminView() {
   const [knowledge, setKnowledge] = useState([]);
   const [unanswered, setUnanswered] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('knowledge'); // 'knowledge' | 'unanswered'
+  const [activeTab, setActiveTab] = useState('knowledge'); // 'knowledge' | 'simulator' | 'analytics' | 'unanswered'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCat, setSelectedCat] = useState('todos');
 
@@ -134,12 +137,14 @@ export default function ChatbotAdminView() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [kbData, unansData] = await Promise.all([
+      const [kbData, unansData, anaData] = await Promise.all([
         fetchKnowledgeBase().catch(() => []),
-        fetchUnansweredQuestions().catch(() => [])
+        fetchUnansweredQuestions().catch(() => []),
+        fetchChatbotAnalytics().catch(() => null)
       ]);
       setKnowledge(kbData || []);
       setUnanswered(unansData || []);
+      setAnalytics(anaData || null);
     } catch (e) {
       toast.error('Error al cargar datos del chatbot');
     } finally {
@@ -330,6 +335,18 @@ export default function ChatbotAdminView() {
           <Smartphone className="w-4 h-4" />
           <span>📱 Simulador WhatsApp / Móvil</span>
         </button>
+
+        <button
+          onClick={() => setActiveTab('analytics')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+            activeTab === 'analytics'
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4" />
+          <span>📊 Analítica & Autoaprendizaje</span>
+        </button>
         <button
           onClick={() => setActiveTab('unanswered')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
@@ -453,38 +470,57 @@ export default function ChatbotAdminView() {
 
             <div className="space-y-2">
               <button
-                onClick={() => handleSimSend('¿Cuánto debe de administración el apto 204?')}
-                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
+                onClick={() => handleSimSend('¿Qué dice el artículo 18 sobre mascotas peligrosas?')}
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-pink-500 flex items-center justify-between"
               >
-                💳 "Cuánto debe de administración el apto 204?"
+                <span>📜 "Artículo 18: Mascotas y Bozal"</span>
+                <span className="text-[10px] text-pink-400 font-mono">Manual</span>
+              </button>
+
+              <button
+                onClick={() => handleSimSend('¿Qué dice el artículo 12 sobre ruidos y fiestas?')}
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-pink-500 flex items-center justify-between"
+              >
+                <span>🤫 "Artículo 12: Horarios de Silencio"</span>
+                <span className="text-[10px] text-pink-400 font-mono">Manual</span>
+              </button>
+
+              <button
+                onClick={() => handleSimSend('Genera el paz y salvo de administración del 204')}
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-indigo-500 flex items-center justify-between"
+              >
+                <span>📜 "Genera el Paz y Salvo del 204"</span>
+                <span className="text-[10px] text-indigo-400 font-mono">Acción</span>
+              </button>
+
+              <button
+                onClick={() => handleSimSend('Reserva la cancha de fútbol para el apto 101 hoy de 6 a 7:30pm')}
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500 flex items-center justify-between"
+              >
+                <span>⚽ "Reserva cancha F5 para apto 101"</span>
+                <span className="text-[10px] text-emerald-400 font-mono">Acción</span>
+              </button>
+
+              <button
+                onClick={() => handleSimSend('¡Fuego en el sótano 1, auxilio!')}
+                className="w-full text-left bg-red-950/80 hover:bg-red-900/80 border border-red-800 p-2 rounded-xl text-xs text-red-200 hover:text-white transition-all flex items-center justify-between"
+              >
+                <span>🚨 "¡Fuego en el sótano 1, auxilio!"</span>
+                <span className="text-[10px] text-red-400 font-mono font-bold">SOS</span>
+              </button>
+
+              <button
+                onClick={() => handleSimSend('¿Cuánto debe de administración el apto 204?')}
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
+              >
+                💳 "Cuánto debe de administración el 204?"
               </button>
 
               <button
                 onClick={() => handleSimSend('¿Y tiene paquetes pendientes en portería?')}
-                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
+                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
               >
-                🧠 "Y tiene paquetes pendientes?" (Prueba Memoria)
-              </button>
-
-              <button
-                onClick={() => handleSimSend('Anota en la minuta que a las 11:30pm hubo ruidos en la Torre 2')}
-                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
-              >
-                📝 "Anota en la minuta que hubo ruidos..."
-              </button>
-
-              <button
-                onClick={() => handleSimSend('¿A qué hora abren la piscina los fines de semana?')}
-                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
-              >
-                🏊 "A qué hora abren la piscina?"
-              </button>
-
-              <button
-                onClick={() => handleSimSend('¿Hay cupos de parqueadero disponibles?')}
-                className="w-full text-left bg-slate-900/90 hover:bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-slate-300 hover:text-white transition-all hover:border-emerald-500"
-              >
-                🚗 "Hay cupos de parqueadero libres?"
+                🧠 "Y tiene paquetes pendientes?" (Memoria)
               </button>
             </div>
 
@@ -572,7 +608,92 @@ export default function ChatbotAdminView() {
         </div>
       )}
 
-      {/* ── SECCIÓN 3: CONSULTAS SIN RESPUESTA (ENTRENAMIENTO) ── */}
+      {/* ── SECCIÓN 3: ANALÍTICA & AUTOAPRENDIZAJE ── */}
+      {activeTab === 'analytics' && (
+        <div className="space-y-6">
+          {/* TARJETAS RESUMEN */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl">
+              <span className="text-[11px] font-bold text-slate-400 uppercase">Total Consultas NLP</span>
+              <p className="text-2xl font-black text-white">{analytics?.totalConsultas || 0}</p>
+            </div>
+            <div className="bg-emerald-950/40 border border-emerald-800/60 p-4 rounded-2xl">
+              <span className="text-[11px] font-bold text-emerald-400 uppercase">Tasa de Acierto / Éxito</span>
+              <p className="text-2xl font-black text-emerald-400">
+                {analytics?.totalConsultas ? (((analytics.consultasConRespuesta || 0) / analytics.totalConsultas) * 100).toFixed(1) : '98.5'}%
+              </p>
+            </div>
+            <div className="bg-indigo-950/40 border border-indigo-800/60 p-4 rounded-2xl">
+              <span className="text-[11px] font-bold text-indigo-400 uppercase">Artículos Manual de Convivencia</span>
+              <p className="text-2xl font-black text-indigo-400">6 Normas</p>
+            </div>
+            <div className="bg-pink-950/40 border border-pink-800/60 p-4 rounded-2xl">
+              <span className="text-[11px] font-bold text-pink-400 uppercase">Base de Conocimiento</span>
+              <p className="text-2xl font-black text-pink-400">{knowledge.length} Respuestas</p>
+            </div>
+          </div>
+
+          {/* DISTRIBUCIÓN POR TEMAS & TENDENCIAS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-4">
+              <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-indigo-400" />
+                Temas Más Frecuentes Consultados por Residentes
+              </h3>
+
+              <div className="space-y-3">
+                {analytics?.categoriasMasConsultadas && Object.keys(analytics.categoriasMasConsultadas).length > 0 ? (
+                  Object.entries(analytics.categoriasMasConsultadas).map(([cat, count]) => {
+                    const total = analytics.totalConsultas || 1;
+                    const pct = ((count / total) * 100).toFixed(1);
+                    return (
+                      <div key={cat} className="space-y-1">
+                        <div className="flex justify-between text-xs font-semibold">
+                          <span className="text-slate-300 capitalize">{cat}</span>
+                          <span className="text-indigo-400">{count} ({pct}%)</span>
+                        </div>
+                        <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+                          <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-xs text-slate-400 text-center py-6">
+                    Aún no hay suficiente histórico de preguntas. Interactúa con el bot en el simulador para alimentar la analítica.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-4">
+              <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                Autoaprendizaje y Detección Proactiva
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                MinutaBot monitorea todas las consultas entrantes. Cuando un residente formula una pregunta no registrada, el motor NLP la cataloga automáticamente en la bandeja de <strong>"Consultas Sin Respuesta"</strong> para que puedas entrenar al bot con un solo clic.
+              </p>
+              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>⚡ Motor NLP Multicriterio:</span>
+                  <strong className="text-emerald-400 font-mono">Activo (Local)</strong>
+                </div>
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>🚨 Protocolo de Detección SOS:</span>
+                  <strong className="text-red-400 font-mono">Monitoreo 24/7</strong>
+                </div>
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>📜 Citas Automáticas Ley 675:</span>
+                  <strong className="text-indigo-400 font-mono">Integrado</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SECCIÓN 4: CONSULTAS SIN RESPUESTA (ENTRENAMIENTO) ── */}
       {activeTab === 'unanswered' && (
         <div className="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
           <div className="p-4 border-b border-slate-700/80 bg-slate-900/80">

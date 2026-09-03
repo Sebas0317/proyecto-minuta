@@ -1,0 +1,30 @@
+{
+  "totalConsultas": 4,
+  "categorias": {
+    "convivencia": 2,
+    "certificados": 1,
+    "emergencias": 1
+  },
+  "historico": [
+    {
+      "pregunta": "¡Auxilio fuego e incendio en el sótano 1!",
+      "categoria": "emergencias",
+      "fecha": "2026-09-03T17:29:53.829Z"
+    },
+    {
+      "pregunta": "Genera el paz y salvo de administración del 204",
+      "categoria": "certificados",
+      "fecha": "2026-09-03T17:29:53.807Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 12 sobre el horario de silencio?",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:29:53.798Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 18 sobre las mascotas?",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:29:53.785Z"
+    }
+  ]
+}

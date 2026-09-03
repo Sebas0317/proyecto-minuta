@@ -1,0 +1,72 @@
+[
+  {
+    "id": "eq-1",
+    "tipo": "extintor",
+    "nombre": "Extintor ABC Multiproposito 20 Lbs",
+    "ubicacion": "Torre 1 - Piso 1 Hall",
+    "torre": "1",
+    "piso": 1,
+    "capacidad": "20 Lbs",
+    "agente": "Polvo Químico Seco (PQS)",
+    "fechaRecarga": "2025-10-15",
+    "fechaVencimiento": "2026-10-15",
+    "estado": "operativo",
+    "observaciones": "Manómetro en zona verde, precinto y pasador intactos."
+  },
+  {
+    "id": "eq-2",
+    "tipo": "extintor",
+    "nombre": "Extintor Solkaflam 3700 Gramos (Equipos Eléctricos)",
+    "ubicacion": "Sótano 2 - Cuarto de Bombas & Tableros",
+    "torre": "Sótano 2",
+    "piso": -2,
+    "capacidad": "3700 g",
+    "agente": "Solkaflam 123",
+    "fechaRecarga": "2025-08-20",
+    "fechaVencimiento": "2026-08-20",
+    "estado": "por_vencer",
+    "observaciones": "Próximo a cumplir 1 año. Programar recarga anual."
+  },
+  {
+    "id": "eq-3",
+    "tipo": "bomba",
+    "nombre": "Bomba Hidroneumática Principal #1",
+    "ubicacion": "Sótano 2 - Cuarto de Bombas",
+    "torre": "Sótano 2",
+    "piso": -2,
+    "capacidad": "7.5 HP",
+    "agente": "Presión de Agua",
+    "fechaRecarga": "2026-01-10",
+    "fechaVencimiento": "2026-07-10",
+    "estado": "operativo",
+    "observaciones": "Mantenimiento preventivo semestral al día."
+  },
+  {
+    "id": "eq-4",
+    "tipo": "planta",
+    "nombre": "Planta Eléctrica de Emergencia Diésel",
+    "ubicacion": "Sótano 2 - Cuarto de Planta",
+    "torre": "Sótano 2",
+    "piso": -2,
+    "capacidad": "150 kVA",
+    "agente": "Diésel / Transferencia Automática",
+    "fechaRecarga": "2026-02-01",
+    "fechaVencimiento": "2026-08-01",
+    "estado": "operativo",
+    "observaciones": "Tanque al 90%, batería con 12.8V."
+  },
+  {
+    "id": "eq-5",
+    "tipo": "botiquin",
+    "nombre": "Botiquín Tipo B Reglamentario",
+    "ubicacion": "Portería Principal",
+    "torre": "Portería",
+    "piso": 1,
+    "capacidad": "Reglamentario FOPAE",
+    "agente": "Insumos Médicos Primeros Auxilios",
+    "fechaRecarga": "2026-03-01",
+    "fechaVencimiento": "2027-03-01",
+    "estado": "operativo",
+    "observaciones": "Insumos completos, gasas y sueros vigentes."
+  }
+]

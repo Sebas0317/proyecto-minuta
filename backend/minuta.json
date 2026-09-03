@@ -1,5 +1,16 @@
 [
   {
+    "id": "min-sos-1788456593819",
+    "fecha": "2026-09-03T17:29:53.819Z",
+    "tipo": "emergencia",
+    "radicado": "SOS-6916",
+    "aptoAfectado": "Zonas Comunes",
+    "guardaTurno": "MinutaBot (Alerta Automática SOS)",
+    "descripcion": "🚨 [ALERTA SOS EMITIDA POR CHATBOT]: \"¡Auxilio fuego e incendio en el sótano 1!\"",
+    "severidad": "peligro",
+    "estado": "abierta"
+  },
+  {
     "id": "min-1788454708114-1788454708114-6ec7fd",
     "fecha": "2026-09-03T16:58:28.114Z",
     "tipo": "novedad",

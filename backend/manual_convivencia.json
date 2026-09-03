@@ -1,0 +1,38 @@
+[
+  {
+    "articulo": "Artículo 12",
+    "tema": "Horarios de Silencio y Control de Decibeles",
+    "norma": "El horario de silencio obligatorio rige todos los días de 10:00 PM a 07:00 AM. Durante estas horas el nivel sonoro no podrá exceder los 45 dB. Fiestas en apartamentos con música amplificada están prohibidas en días laborales y domingos después de las 10:00 PM.",
+    "sancion": "Llamado de atención de portería, reiteración acarrea multa equivalente a 1 cuota de administración ordinaria ($280.000 COP) según Art. 59 de la Ley 675."
+  },
+  {
+    "articulo": "Artículo 18",
+    "tema": "Tenencia de Mascotas y Animales de Manejo Especial",
+    "norma": "Todas las mascotas deben transitar por áreas comunes sujetas con traílla o correa en todo momento. Se prohíbe dejarlas sueltas en pasillos o sótanos. Los caninos clasificados por la Ley 1801 como de manejo especial (Pitbull, Rottweiler, Dóberman, etc.) deben portar bozal reglamentario y contar con póliza de responsabilidad civil extracontractual.",
+    "sancion": "Multa de 5 salarios mínimos diarios legales vigentes por no recoger heces o transitar sin correa/bozal."
+  },
+  {
+    "articulo": "Artículo 24",
+    "tema": "Mudanzas, Trasteos y Movimiento de Cargas",
+    "norma": "Las mudanzas solo podrán realizarse de Lunes a Sábado entre las 08:00 AM y las 05:00 PM. Se prohíben trasteos los días Domingos y Festivos. Para el uso del ascensor se requiere depósito de garantía de $100.000 COP y forrado previo con cobijas protectoras.",
+    "sancion": "Prohibición de salida o entrada por parte de portería si no cuenta con Paz y Salvo expedido por la administración."
+  },
+  {
+    "articulo": "Artículo 31",
+    "tema": "Uso de la Piscina Climatizada y Zonas Húmedas",
+    "norma": "El horario de la piscina es de Martes a Domingo de 06:00 AM a 09:00 PM. Los Lunes permanece cerrada por choque químico y aspirado. Es obligatorio el uso de gorro de natación, traje en tela lycra y ducha previa. Menores de 12 años deben estar siempre acompañados de un adulto responsable.",
+    "sancion": "Suspensión del carnet de uso de zonas húmedas por 30 días en caso de desacato."
+  },
+  {
+    "articulo": "Artículo 45",
+    "tema": "Pago de Expensas Comunes y Régimen de Mora",
+    "norma": "La cuota ordinaria de administración debe cancelarse dentro de los primeros 10 días calendario de cada mes para acceder al 10% de descuento por pronto pago. A partir del día 11 se causarán intereses moratorios a la tasa máxima legal permitida por la Superintendencia Financiera.",
+    "sancion": "Restricción en el uso de salón social, parqueadero comunal de visitantes y publicación en lista de deudores morosos."
+  },
+  {
+    "articulo": "Artículo 52",
+    "tema": "Parqueaderos, Invasión de Bahías y Límites de Velocidad",
+    "norma": "La velocidad máxima en sótanos y rampas es de 10 km/h con luces medias encendidas. El uso indebido de bahías privadas ajenas generará llamado de atención inmediato. Los parqueaderos de visitantes tienen un tiempo máximo de 4 horas continuas de cortesía.",
+    "sancion": "Cobro de tarifa plena de parqueadero por hora adicional e inmovilización con cepo de bloqueo."
+  }
+]

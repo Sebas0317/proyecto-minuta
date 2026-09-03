@@ -24,13 +24,18 @@ import {
   BookOpen,
   Bot,
   Calendar,
-  QrCode
+  QrCode,
+  Flame,
+  Vote,
+  Heart,
+  AlertOctagon
 } from 'lucide-react';
 import {
   downloadLoginLogsCSV,
   fetchLastLogin,
   fetchLoginLogs,
 } from '../services/api';
+import BotonPanicoModal from './BotonPanicoModal';
 
 const NAV_GROUPS = [
   {
@@ -55,6 +60,9 @@ const NAV_GROUPS = [
   {
     title: 'GESTIÓN & SEGURIDAD',
     items: [
+      { key: 'asambleas', label: 'Asambleas & Votos', icon: Vote, path: '/admin/asambleas' },
+      { key: 'equipos', label: 'Extintores & Equipos', icon: Flame, path: '/admin/equipos' },
+      { key: 'mascotas', label: 'Censo de Mascotas', icon: Heart, path: '/admin/mascotas' },
       { key: 'unidades', label: 'Censo de Inmuebles', icon: Building2, path: '/admin/unidades' },
       { key: 'info', label: 'Guía & Zonas Comunes', icon: BookOpen, path: '/admin/info' },
       { key: 'chatbot', label: 'MinutaBot IA & Q&A', icon: Bot, path: '/admin/chatbot' },
@@ -75,6 +83,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(false);
+  const [showPanicModal, setShowPanicModal] = useState(false);
   const [logs, setLogs] = useState([]);
   const [logsLoading, setLogsLoading] = useState(false);
   const [horaActual, setHoraActual] = useState(new Date());
@@ -102,6 +111,9 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
     if (path.includes('/admin/unidades')) return 'unidades';
     if (path.includes('/admin/rondas')) return 'rondas';
     if (path.includes('/admin/reservas')) return 'reservas';
+    if (path.includes('/admin/asambleas')) return 'asambleas';
+    if (path.includes('/admin/equipos')) return 'equipos';
+    if (path.includes('/admin/mascotas')) return 'mascotas';
     if (path.includes('/admin/info')) return 'info';
     if (path.includes('/admin/chatbot')) return 'chatbot';
     if (path.includes('/admin/users')) return 'users';
@@ -123,6 +135,9 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
         parqueadero: '/admin/parqueadero',
         trasteos: '/admin/trasteos',
         reservas: '/admin/reservas',
+        asambleas: '/admin/asambleas',
+        equipos: '/admin/equipos',
+        mascotas: '/admin/mascotas',
         unidades: '/admin/unidades',
         info: '/admin/info',
         chatbot: '/admin/chatbot',
@@ -295,6 +310,9 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
                  activeView === 'parqueadero' ? 'Parqueaderos' :
                  activeView === 'trasteos' ? 'Mudanzas' :
                  activeView === 'reservas' ? 'Reserva de Zonas' :
+                 activeView === 'asambleas' ? 'Asambleas & Votaciones' :
+                 activeView === 'equipos' ? 'Extintores & Equipos' :
+                 activeView === 'mascotas' ? 'Censo de Mascotas' :
                  activeView === 'unidades' ? 'Censo Inmuebles' :
                  activeView === 'info' ? 'Guía & Zonas Comunes' :
                  activeView === 'chatbot' ? 'MinutaBot IA' :
@@ -304,6 +322,14 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowPanicModal(true)}
+              className="flex items-center gap-1.5 text-xs font-black bg-red-600 hover:bg-red-500 text-white px-3.5 py-1.5 rounded-full shadow-lg shadow-red-950/60 animate-pulse transition-all hover:scale-105 cursor-pointer"
+            >
+              <AlertOctagon className="w-4 h-4" />
+              <span>🚨 SOS PÁNICO</span>
+            </button>
+
             <span className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-full">
               <Activity className="w-3.5 h-3.5 animate-pulse" /> Sistema Conectado
             </span>
@@ -358,6 +384,12 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
           </div>
         </main>
       </div>
+
+      {/* MODAL SOS DE PÁNICO Y EMERGENCIA */}
+      <BotonPanicoModal
+        isOpen={showPanicModal}
+        onClose={() => setShowPanicModal(false)}
+      />
     </div>
   );
 }

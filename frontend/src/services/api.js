@@ -1189,4 +1189,101 @@ export async function updateEstadoReservaZona(id, data) {
   });
 }
 
+// ── ASAMBLEAS & VOTACIONES DIGITALES ──
+export async function fetchAsambleas() {
+  return apiFetch('/asambleas', { method: 'GET' });
+}
+
+export async function createAsamblea(data) {
+  return apiFetch('/asambleas', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateQuorum(id, quorumRegistrado) {
+  return apiFetch(`/asambleas/${id}/quorum`, {
+    method: 'PATCH',
+    body: JSON.stringify({ quorumRegistrado }),
+  });
+}
+
+export async function addVotacion(id, pregunta) {
+  return apiFetch(`/asambleas/${id}/votaciones`, {
+    method: 'POST',
+    body: JSON.stringify({ pregunta }),
+  });
+}
+
+export async function castVote(id, votId, opcion, coeficiente) {
+  return apiFetch(`/asambleas/${id}/votaciones/${votId}/votar`, {
+    method: 'POST',
+    body: JSON.stringify({ opcion, coeficiente }),
+  });
+}
+
+export async function closeVotacion(id, votId) {
+  return apiFetch(`/asambleas/${id}/votaciones/${votId}/cerrar`, {
+    method: 'PATCH',
+  });
+}
+
+// ── EQUIPOS DE EMERGENCIA & EXTINTORES ──
+export async function fetchEquipos(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  return apiFetch(`/equipos${query ? '?' + query : ''}`, { method: 'GET' });
+}
+
+export async function createEquipo(data) {
+  return apiFetch('/equipos', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateEquipo(id, data) {
+  return apiFetch(`/equipos/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteEquipo(id) {
+  return apiFetch(`/equipos/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ── CENSO DE MASCOTAS & CARNET QR ──
+export async function fetchMascotas(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  return apiFetch(`/mascotas${query ? '?' + query : ''}`, { method: 'GET' });
+}
+
+export async function createMascota(data) {
+  return apiFetch('/mascotas', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateMascota(id, data) {
+  return apiFetch(`/mascotas/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteMascota(id) {
+  return apiFetch(`/mascotas/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ── ANALÍTICA Y AUTOAPRENDIZAJE DEL CHATBOT ──
+export async function fetchChatbotAnalytics() {
+  return apiFetch('/chatbot/analytics', { method: 'GET' });
+}
+
+
 

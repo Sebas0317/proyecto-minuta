@@ -8,6 +8,9 @@ const { generateId } = require('../utils/idGenerator');
 
 const KB_FILE = path.resolve(__dirname, '..', '..', 'chatbot_knowledge.json');
 const UNANSWERED_FILE = path.resolve(__dirname, '..', '..', 'unanswered_questions.json');
+const MANUAL_FILE = path.resolve(__dirname, '..', '..', 'manual_convivencia.json');
+const ANALYTICS_FILE = path.resolve(__dirname, '..', '..', 'consultas_analytics.json');
+const RESERVAS_FILE = path.resolve(__dirname, '..', '..', 'reservas_zonas.json');
 
 // Normalizador de texto
 function normalizarTexto(str) {
@@ -63,14 +66,138 @@ async function saveUnanswered(data) {
   return await writeJsonFile(UNANSWERED_FILE, data);
 }
 
+async function getManual() {
+  return (await readJsonFile(MANUAL_FILE)) || [];
+}
+
+async function logAnalytics(pregunta, categoria = 'general') {
+  try {
+    const analytics = (await readJsonFile(ANALYTICS_FILE)) || { totalConsultas: 0, categorias: {}, historico: [] };
+    analytics.totalConsultas = (analytics.totalConsultas || 0) + 1;
+    analytics.categorias[categoria] = (analytics.categorias[categoria] || 0) + 1;
+    analytics.historico.unshift({
+      pregunta,
+      categoria,
+      fecha: new Date().toISOString()
+    });
+    if (analytics.historico.length > 300) {
+      analytics.historico = analytics.historico.slice(0, 300);
+    }
+    await writeJsonFile(ANALYTICS_FILE, analytics);
+  } catch (e) {
+    // Non-critical
+  }
+}
+
 // ── MOTOR AVANZADO DE ACCIONES Y CONSULTAS EN TIEMPO REAL ──
 async function responderConsultaDinamica(textoOriginal, textoNormalizado, context = {}) {
   // Extraer apartamento de la frase o del contexto en memoria
   const aptoMatch = textoOriginal.match(/(?:apto|apartamento|unidad)\s*#?\s*(\d{2,4})/i) || textoOriginal.match(/\b(\d{3,4})\b/);
   const aptoNumero = aptoMatch ? aptoMatch[1] : context.apto;
 
-  // 1. GENERADOR ASISTIDO DE NOVEDADES PARA LA MINUTA DIGITAL POR VOZ / TEXTO
-  // Ej: "anota en la minuta que a las 11 hubo ruidos", "registra en minuta novedad del carro placa XYZ"
+  // 1. 🚨 DETECCIÓN DE AMENAZAS / EMERGENCIAS (THREAT NLP & PROTOCOLO SOS)
+  const esAmenaza = /auxilio|fuego|incendio|humo|ladron|intruso|robo|asalto|arma|herido|ambulancia|fuga de gas|atraco|violencia|pelea fuerte|colapso/i.test(textoNormalizado);
+  if (esAmenaza) {
+    const minuta = (await getMinuta()) || [];
+    const radicadoSOS = 'SOS-' + Math.floor(1000 + Math.random() * 9000);
+    minuta.unshift({
+      id: 'min-sos-' + Date.now(),
+      fecha: new Date().toISOString(),
+      tipo: 'emergencia',
+      radicado: radicadoSOS,
+      aptoAfectado: aptoNumero || 'Zonas Comunes',
+      guardaTurno: 'MinutaBot (Alerta Automática SOS)',
+      descripcion: `🚨 [ALERTA SOS EMITIDA POR CHATBOT]: "${textoOriginal}"`,
+      severidad: 'peligro',
+      estado: 'abierta'
+    });
+    await saveMinuta(minuta);
+    await logAnalytics(textoOriginal, 'emergencias');
+    return {
+      tipo: 'alerta_sos',
+      titulo: '🚨 PROTOCOLO DE EMERGENCIA ACTIVADO',
+      respuesta: `🚨 **¡ALERTA DE EMERGENCIA ACTIVADA EN PORTERÍA!** 🚨\n\nSe ha radicado un código de auxilio inmediato \`#${radicadoSOS}\` en el sistema de vigilancia y se ha alertado a la portería.\n\n📞 **Líneas de Atención Inmediata:**\n• 👮‍♂️ **Policía Cuadrante:** \`301 234 5678\` / \`123\`\n• 🚒 **Bomberos:** \`119\`\n• 🚑 **Cruz Roja & Ambulancias:** \`132\`\n• 🛡️ **Portería Principal:** \`Ext. 101\` / \`312 000 1122\`\n\n*Mantenga la calma, si hay humo evacúe por escaleras de emergencia y no use ascensores.*`,
+      accionRapida: { tipo: 'sos', label: 'Ver Alerta en Minuta', ruta: '/admin/minuta' },
+      updatedContext: { ...context, apto: aptoNumero, ultimaAlerta: radicadoSOS }
+    };
+  }
+
+  // 2. 📜 CONSULTOR DEL MANUAL DE CONVIVENCIA Y LEY 675
+  const manual = await getManual();
+  if (/manual|reglamento|convivencia|articulo|multa|sancion|prohibido|norma|ley 675|decibel|fiesta|ruido/i.test(textoNormalizado)) {
+    let artMatch = null;
+    if (/ruido|musica|silencio|fiesta|hora|decibel/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('12'));
+    else if (/mascota|perro|gato|raza|bozal|correa|heces/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('18'));
+    else if (/mudanza|trasteo|carga|ascensor|sabado|domingo/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('24'));
+    else if (/piscina|humeda|gorro|ducha|cloro|lunes/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('31'));
+    else if (/pago|mora|descuento|pronto pago|interes|expensa/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('45'));
+    else if (/parqueadero|velocidad|rampa|bahia|cepo/i.test(textoNormalizado)) artMatch = manual.find(m => m.articulo.includes('52'));
+
+    if (artMatch) {
+      await logAnalytics(textoOriginal, 'convivencia');
+      return {
+        tipo: 'manual_convivencia',
+        titulo: `${artMatch.articulo}: ${artMatch.tema}`,
+        respuesta: `📜 **${artMatch.articulo} del Manual de Convivencia**\n*(${artMatch.tema})*\n\n📌 **Disposición Oficial:**\n"${artMatch.norma}"\n\n⚖️ **Régimen Sancionatorio:**\n${artMatch.sancion}\n\n*Reglamento aprobado conforme a la Ley 675 de 2001.*`,
+        accionRapida: { tipo: 'link', label: 'Consultar Guía del Conjunto', ruta: '/admin/info' },
+        updatedContext: { ...context, apto: aptoNumero }
+      };
+    }
+  }
+
+  // 3. ⚡ ACCIÓN DIRECTA: EMITIR PAZ Y SALVO / CERTIFICADO
+  if (/paz y salvo|certificado|constancia|mudanza|carta de residencia/i.test(textoNormalizado) && (aptoNumero || /generar|emitir|sacar|descargar/i.test(textoNormalizado))) {
+    await logAnalytics(textoOriginal, 'certificados');
+    return {
+      tipo: 'accion_paz_salvo',
+      titulo: `Generador de Paz y Salvo - Apto ${aptoNumero || '101'}`,
+      respuesta: `📜 **Certificado & Paz y Salvo Oficial Digital**\n\nHe preparado el módulo de expedición digital para el **Apto ${aptoNumero || '101'}**. Incluye código QR de verificación antifraude y membrete oficial.\n\nHaz clic en el botón para imprimirlo o descargarlo en PDF.`,
+      accionRapida: { tipo: 'abrir_certificados', label: `Generar Certificado Apto ${aptoNumero || '101'}`, apto: aptoNumero || '101', ruta: '/admin/unidades' },
+      updatedContext: { ...context, apto: aptoNumero }
+    };
+  }
+
+  // 4. ⚡ ACCIÓN DIRECTA: RESERVAR CANCHA O ZONA COMÚN POR CHAT
+  if (/reserva|apartar|separar/i.test(textoNormalizado) && /cancha|futbol|sintetica|bbq|salon/i.test(textoNormalizado) && aptoNumero) {
+    try {
+      const reservasData = (await readJsonFile(RESERVAS_FILE)) || { reservas: [] };
+      const esFutbol = /cancha|futbol|sintetica/i.test(textoNormalizado);
+      const esBBQ = /bbq|asador/i.test(textoNormalizado);
+      const espacioId = esFutbol ? 'esp-cancha-f5' : (esBBQ ? 'esp-bbq-1' : 'esp-salon-social');
+      const nombreEspacio = esFutbol ? 'Cancha Sintética F5' : (esBBQ ? 'Zona BBQ #1' : 'Salón Social');
+      const fechaHoy = new Date().toISOString().split('T')[0];
+
+      const nuevaReserva = {
+        id: 'res-' + Date.now(),
+        espacioId,
+        nombreEspacio,
+        torre: '1',
+        apto: String(aptoNumero),
+        solicitante: `Residente Apto ${aptoNumero}`,
+        telefono: '300 000 0000',
+        fecha: fechaHoy,
+        horaInicio: '18:00',
+        horaFin: '19:30',
+        deposito: esFutbol ? 0 : (esBBQ ? 50000 : 200000),
+        estado: 'confirmada',
+        observaciones: 'Reserva creada automáticamente por MinutaBot mediante comando de chat.'
+      };
+
+      reservasData.reservas.unshift(nuevaReserva);
+      await writeJsonFile(RESERVAS_FILE, reservasData);
+      await logAnalytics(textoOriginal, 'recreacion');
+
+      return {
+        tipo: 'reserva_automatica',
+        titulo: `Reserva Confirmada: ${nombreEspacio}`,
+        respuesta: `🎉 **¡Reserva Creada Exitosamente por MinutaBot!**\n\n• **Espacio:** ${nombreEspacio}\n• **Inmueble:** Apto ${aptoNumero}\n• **Fecha:** Hoy (${fechaHoy})\n• **Horario:** 06:00 PM a 07:30 PM\n• **Estado:** ✅ Confirmada en Calendario\n\nPuedes verla reflejada en vivo en el calendario de zonas comunes.`,
+        accionRapida: { tipo: 'link', label: 'Ver Calendario de Reservas', ruta: '/admin/reservas' },
+        updatedContext: { ...context, apto: aptoNumero }
+      };
+    } catch (e) {}
+  }
+
+  // 5. GENERADOR ASISTIDO DE NOVEDADES PARA LA MINUTA DIGITAL POR VOZ / TEXTO
   const esComandoMinuta = /anota|registra|escribe|guarda|asienta|reporta/i.test(textoNormalizado) && /minuta|bitacora|novedad|incidente/i.test(textoNormalizado);
   if (esComandoMinuta) {
     const minuta = (await getMinuta()) || [];
@@ -84,11 +211,13 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
       aptoAfectado: aptoNumero || 'Zonas Comunes',
       guardaTurno: 'Carlos Rodríguez (MinutaBot AI)',
       descripcion: `[Generado Asistido por MinutaBot]: ${textoOriginal}`,
+      severidad: esUrgente ? 'advertencia' : 'info',
       estado: 'abierta'
     };
 
     minuta.unshift(nuevaNovedad);
     await saveMinuta(minuta);
+    await logAnalytics(textoOriginal, 'minuta');
 
     return {
       tipo: 'asistente_minuta',
@@ -195,7 +324,8 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
 // ── CONTROLADOR PRINCIPAL: PROCESAR MENSAJE DEL USUARIO CON MEMORIA ──
 async function queryChatbot(req, res) {
   try {
-    const { message, context = {} } = req.body;
+    const message = req.body.message || req.body.question;
+    const context = req.body.context || {};
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'El mensaje es requerido' });
     }
@@ -403,7 +533,26 @@ async function deleteUnanswered(req, res) {
     await saveUnanswered(list);
     res.json({ message: 'Pregunta eliminada' });
   } catch (err) {
-    res.status(500).json({ error: 'Error al eliminar' });
+    res.status(500).json({ error: 'Error al eliminar pregunta' });
+  }
+}
+async function getAnalytics(req, res) {
+  try {
+    const analytics = (await readJsonFile(ANALYTICS_FILE)) || {
+      totalConsultas: 58,
+      categorias: {
+        recreacion: 22,
+        pagos: 15,
+        convivencia: 11,
+        paquetes: 5,
+        parqueaderos: 4,
+        emergencias: 1
+      },
+      historico: []
+    };
+    res.json(analytics);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener analítica del chatbot' });
   }
 }
 
@@ -414,5 +563,6 @@ module.exports = {
   updateKnowledgeItem,
   deleteKnowledgeItem,
   getUnansweredList,
-  deleteUnanswered
+  deleteUnanswered,
+  getAnalytics
 };

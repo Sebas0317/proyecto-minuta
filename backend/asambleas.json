@@ -1,0 +1,34 @@
+{
+  "asambleas": [
+    {
+      "id": "asmb-2026-1",
+      "titulo": "Asamblea General Ordinaria de Copropietarios 2026",
+      "fecha": "2026-09-03",
+      "horaInicio": "08:00 AM",
+      "estado": "en_curso",
+      "totalCoeficiente": 100,
+      "quorumRegistrado": 78.45,
+      "votaciones": [
+        {
+          "id": "vot-1",
+          "pregunta": "¿Aprueba el presupuesto general de gastos para el periodo 2026-2027 ($185.000.000 COP)?",
+          "estado": "activa",
+          "votosSi": 64.2,
+          "votosNo": 11.15,
+          "votosBlanco": 3.1,
+          "totalVotado": 78.45
+        },
+        {
+          "id": "vot-2",
+          "pregunta": "¿Aprueba la cuota extraordinaria de $150.000 COP para impermeabilización de terrazas de Torre 1 y 2?",
+          "estado": "cerrada",
+          "votosSi": 72.1,
+          "votosNo": 4.8,
+          "votosBlanco": 1.55,
+          "totalVotado": 78.45,
+          "resultado": "APROBADA"
+        }
+      ]
+    }
+  ]
+}

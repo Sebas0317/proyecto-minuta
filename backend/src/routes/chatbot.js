@@ -11,5 +11,6 @@ router.put('/knowledge/:id', controller.updateKnowledgeItem);
 router.delete('/knowledge/:id', controller.deleteKnowledgeItem);
 router.get('/unanswered', controller.getUnansweredList);
 router.delete('/unanswered/:id', controller.deleteUnanswered);
+router.get('/analytics', controller.getAnalytics);
 
 module.exports = router;

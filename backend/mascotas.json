@@ -1,0 +1,51 @@
+[
+  {
+    "id": "pet-1",
+    "nombre": "Rocky",
+    "especie": "perro",
+    "raza": "Golden Retriever",
+    "apto": "102",
+    "torre": "1",
+    "propietario": "Andrés Cepeda",
+    "telefono": "311 445 6677",
+    "color": "Dorado",
+    "vacunaAntirrabica": true,
+    "fechaVacuna": "2026-02-15",
+    "manejoEspecial": false,
+    "qrToken": "PET-ROCKY-102-T1",
+    "observaciones": "Dócil, porta collar con placa de identificación."
+  },
+  {
+    "id": "pet-2",
+    "nombre": "Luna",
+    "especie": "gato",
+    "raza": "Siamés",
+    "apto": "201",
+    "torre": "2",
+    "propietario": "Mariana Gómez",
+    "telefono": "315 889 0011",
+    "color": "Blanco con café",
+    "vacunaAntirrabica": true,
+    "fechaVacuna": "2025-11-20",
+    "manejoEspecial": false,
+    "qrToken": "PET-LUNA-201-T2",
+    "observaciones": "Gato de interior con malla de seguridad en balcón."
+  },
+  {
+    "id": "pet-3",
+    "nombre": "Thor",
+    "especie": "perro",
+    "raza": "Rottweiler",
+    "apto": "305",
+    "torre": "3",
+    "propietario": "Felipe Morales",
+    "telefono": "320 554 9988",
+    "color": "Negro con fuego",
+    "vacunaAntirrabica": true,
+    "fechaVacuna": "2026-01-10",
+    "manejoEspecial": true,
+    "polizaResponsabilidad": "POL-SEGUROS-883419",
+    "qrToken": "PET-THOR-305-T3",
+    "observaciones": "Raza de manejo especial. Obligatorio bozal y correa corta en áreas comunes. Póliza vigente."
+  }
+]

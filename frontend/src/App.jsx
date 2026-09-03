@@ -37,6 +37,9 @@ const InfoCondominioView = lazy(() => import('./components/InfoCondominioView'))
 const ChatbotAdminView = lazy(() => import('./components/ChatbotAdminView'));
 const RondasView = lazy(() => import('./components/RondasView'));
 const ReservasZonasView = lazy(() => import('./components/ReservasZonasView'));
+const AsambleasView = lazy(() => import('./components/AsambleasView'));
+const EquiposEmergenciaView = lazy(() => import('./components/EquiposEmergenciaView'));
+const MascotasView = lazy(() => import('./components/MascotasView'));
 import MinutaBotWidget from './components/MinutaBotWidget';
 
 
@@ -266,6 +269,9 @@ export default function App() {
               <Route path="unidades" element={<UnidadesView />} />
               <Route path="rondas" element={<RondasView />} />
               <Route path="reservas" element={<ReservasZonasView />} />
+              <Route path="asambleas" element={<AsambleasView />} />
+              <Route path="equipos" element={<EquiposEmergenciaView />} />
+              <Route path="mascotas" element={<MascotasView />} />
               <Route path="info" element={<InfoCondominioView />} />
               <Route path="chatbot" element={<ChatbotAdminView />} />
               <Route path="users" element={<PantallaUsuarios userRole={rol} />} />
