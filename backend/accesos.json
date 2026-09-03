@@ -1,56 +1,75 @@
 [
   {
-    "id": "acc-1",
+    "id": "acc-101",
     "tipo": "visitante",
-    "nombre": "Felipe Mendoza",
-    "documento": "1029384756",
+    "nombre": "Santiago Valencia",
+    "documento": "1032445890",
     "unidadId": "t1-101",
     "torre": "Torre 1",
     "apto": "101",
     "motivo": "Visita familiar",
     "vehiculo": {
-      "placa": "QWE456",
+      "placa": "KLP890",
       "tipo": "carro"
     },
-    "fechaIngreso": "2026-09-01T14:00:00.000Z",
+    "fechaIngreso": "2026-09-03T14:50:12.816Z",
     "fechaSalida": null,
     "estado": "en_conjunto",
-    "autorizadoPor": "Carlos Alberto Gómez",
-    "guarda": "Daniel Bautista"
+    "autorizadoPor": "Carlos Alberto Gómez (Propietario)",
+    "guarda": "Carlos Méndez"
   },
   {
-    "id": "acc-2",
+    "id": "acc-102",
     "tipo": "domicilio",
-    "nombre": "Alexander Rojas (Rappi)",
-    "documento": "80998877",
-    "unidadId": "t1-201",
-    "torre": "Torre 1",
-    "apto": "201",
-    "motivo": "Entrega de comida",
+    "nombre": "Julián Castro (Rappi)",
+    "documento": "80774411",
+    "unidadId": "t2-401",
+    "torre": "Torre 2",
+    "apto": "401",
+    "motivo": "Entrega de Domicilio",
     "vehiculo": {
-      "placa": "ABC45D",
+      "placa": "MTO45E",
       "tipo": "moto"
     },
-    "fechaIngreso": "2026-09-01T15:30:00.000Z",
-    "fechaSalida": "2026-09-01T15:45:00.000Z",
-    "estado": "finalizado",
-    "autorizadoPor": "Juan Sebastián Sandoval",
-    "guarda": "Daniel Bautista"
-  },
-  {
-    "id": "acc-3",
-    "tipo": "contratista",
-    "nombre": "Mario Plomería y Gas",
-    "documento": "79882341",
-    "unidadId": "t2-101",
-    "torre": "Torre 2",
-    "apto": "101",
-    "motivo": "Reparación de tubería en cocina",
-    "vehiculo": null,
-    "fechaIngreso": "2026-09-01T10:00:00.000Z",
+    "fechaIngreso": "2026-09-03T16:02:12.816Z",
     "fechaSalida": null,
     "estado": "en_conjunto",
-    "autorizadoPor": "Gloria Stella Restrepo",
-    "guarda": "Daniel Bautista"
+    "autorizadoPor": "Mauricio Restrepo",
+    "guarda": "Jhon Beltrán"
+  },
+  {
+    "id": "acc-103",
+    "tipo": "contratista",
+    "nombre": "Héctor Fabio (Electricista)",
+    "documento": "19445871",
+    "unidadId": "t1-302",
+    "torre": "Torre 1",
+    "apto": "302",
+    "motivo": "Arreglo de breakers eléctricos",
+    "vehiculo": null,
+    "fechaIngreso": "2026-09-03T11:50:12.816Z",
+    "fechaSalida": "2026-09-03T15:20:12.816Z",
+    "estado": "finalizado",
+    "autorizadoPor": "Diana Carolina Jaramillo",
+    "guarda": "Carlos Méndez"
+  },
+  {
+    "id": "acc-104",
+    "tipo": "visitante",
+    "nombre": "Marcela Bermúdez",
+    "documento": "52899441",
+    "unidadId": "t3-501",
+    "torre": "Torre 3",
+    "apto": "501",
+    "motivo": "Reunión de trabajo",
+    "vehiculo": {
+      "placa": "WTR992",
+      "tipo": "carro"
+    },
+    "fechaIngreso": "2026-09-03T10:20:12.816Z",
+    "fechaSalida": "2026-09-03T12:50:12.816Z",
+    "estado": "finalizado",
+    "autorizadoPor": "Santiago Henao",
+    "guarda": "Nelson Morales"
   }
 ]

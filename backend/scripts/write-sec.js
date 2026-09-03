@@ -1,4 +1,6 @@
-import {
+const fs = require('fs');
+
+const code = `import {
   Activity,
   AlertTriangle,
   CheckCircle,
@@ -147,11 +149,11 @@ export default function SecurityDashboard({
         {STAT_CARDS.map((card) => (
           <div
             key={card.label}
-            className={`${card.bg} border ${card.border} rounded-2xl p-4 shadow-lg flex flex-col justify-between space-y-2`}
+            className={\`\${card.bg} border \${card.border} rounded-2xl p-4 shadow-lg flex flex-col justify-between space-y-2\`}
           >
             <div className="flex items-center justify-between">
-              <card.icon className={`w-5 h-5 ${card.color}`} />
-              <span className={`text-2xl font-black ${card.color}`}>
+              <card.icon className={\`w-5 h-5 \${card.color}\`} />
+              <span className={\`text-2xl font-black \${card.color}\`}>
                 {card.value}
               </span>
             </div>
@@ -207,7 +209,7 @@ export default function SecurityDashboard({
                     <tr key={ev.id} className="hover:bg-slate-700/40 transition-colors">
                       <td className="px-5 py-3.5">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}`}
+                          className={\`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border \${cfg.bg} \${cfg.color} \${cfg.border}\`}
                         >
                           <Icon className="w-3.5 h-3.5" />
                           {cfg.label}
@@ -236,3 +238,7 @@ export default function SecurityDashboard({
     </div>
   );
 }
+`;
+
+fs.writeFileSync('c:/Users/kevin/Desktop/PROYECTOS/minuta/frontend/src/components/SecurityDashboard.jsx', code);
+console.log('✓ SecurityDashboard.jsx updated to full dark mode');

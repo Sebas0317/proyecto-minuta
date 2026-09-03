@@ -100,8 +100,21 @@ export default function AccesosView() {
       toast.error('Error al registrar salida');
     }
   };
+
+  const calcularTiempo = (ingreso, salida) => {
+    if (!ingreso) return '—';
+    const start = new Date(ingreso);
+    const end = salida ? new Date(salida) : new Date();
+    const diffMs = Math.max(0, end - start);
+    const mins = Math.floor(diffMs / 60000);
+    const hrs = Math.floor(mins / 60);
+    const remMins = mins % 60;
+    if (hrs > 0) return `${hrs}h ${remMins}m`;
+    return `${mins} min`;
+  };
+
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-6 space-y-6">
+    <div className="space-y-6">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-800/80 backdrop-blur border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl">
         <div className="flex items-center gap-3">
@@ -109,24 +122,25 @@ export default function AccesosView() {
             <UserCheck className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-              Control de Accesos y Visitas <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">Entradas / Salidas</span>
+            <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+              Control de Accesos y Visitas <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">Registro de Portería</span>
             </h1>
-            <p className="text-slate-400 text-sm">Registro en tiempo real de visitantes, domiciliarios, contratistas y vehículos</p>
+            <p className="text-slate-400 text-sm">Registro en tiempo real de visitantes, domiciliarios, contratistas, permanencia y bitácora de salidas</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
           <button
             onClick={() => setShowModal(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-emerald-900/30 transition-all hover:scale-[1.02]"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-emerald-900/30 transition-all hover:scale-[1.02]"
           >
-            <Plus className="w-5 h-5" />
-            <span>Registrar Ingreso</span>
+            <Plus className="w-4 h-4" />
+            <span>+ Registrar Ingreso</span>
           </button>
           <button
             onClick={loadData}
             className="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl transition-all"
+            title="Recargar"
           >
             <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
           </button>
@@ -149,7 +163,7 @@ export default function AccesosView() {
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value)}
-            className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-emerald-500"
+            className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold outline-none focus:border-emerald-500"
           >
             <option value="en_conjunto">Activos en Conjunto</option>
             <option value="finalizado">Historial de Salidas</option>
@@ -158,7 +172,7 @@ export default function AccesosView() {
           <select
             value={filtroTipo}
             onChange={(e) => setFiltroTipo(e.target.value)}
-            className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-emerald-500"
+            className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold outline-none focus:border-emerald-500"
           >
             <option value="">Todos los Tipos</option>
             <option value="visitante">Visitantes</option>
@@ -172,14 +186,15 @@ export default function AccesosView() {
       {/* TABLA DE ACCESOS */}
       <div className="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-slate-900/90 text-xs uppercase text-slate-400 font-semibold border-b border-slate-700">
+          <table className="w-full text-left text-xs text-slate-300">
+            <thead className="bg-slate-900/90 text-[11px] uppercase text-slate-400 font-bold border-b border-slate-700">
               <tr>
                 <th className="p-4">Destino</th>
                 <th className="p-4">Persona / Motivo</th>
                 <th className="p-4">Tipo</th>
                 <th className="p-4">Vehículo</th>
                 <th className="p-4">Ingreso</th>
+                <th className="p-4">Permanencia</th>
                 <th className="p-4">Estado</th>
                 <th className="p-4 text-right">Acción</th>
               </tr>
@@ -187,7 +202,7 @@ export default function AccesosView() {
             <tbody className="divide-y divide-slate-700/60">
               {accesos.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center py-12 text-slate-500">
+                  <td colSpan="8" className="text-center py-12 text-slate-500">
                     No hay registros de accesos con los filtros seleccionados.
                   </td>
                 </tr>
@@ -196,41 +211,44 @@ export default function AccesosView() {
                   <tr key={a.id} className="hover:bg-slate-700/30 transition-colors">
                     <td className="p-4 font-bold text-white whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <span className="p-1.5 bg-slate-700 text-emerald-400 rounded-lg text-xs font-mono">{a.apto}</span>
+                        <span className="p-1.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-lg text-xs font-mono font-bold">{a.apto}</span>
                         <span>{a.torre}</span>
                       </div>
                     </td>
                     <td className="p-4">
-                      <div className="font-semibold text-white">{a.nombre}</div>
-                      <div className="text-xs text-slate-400">CC: {a.documento} • Motivo: {a.motivo}</div>
-                      <div className="text-[11px] text-slate-500">Autoriza: {a.autorizadoPor}</div>
+                      <div className="font-bold text-white text-sm">{a.nombre}</div>
+                      <div className="text-xs text-slate-400">CC: {a.documento} • {a.motivo}</div>
+                      <div className="text-[11px] text-slate-500 pt-0.5">Autoriza: {a.autorizadoPor || 'Propietario'}</div>
                     </td>
                     <td className="p-4 capitalize">
-                      <span className="bg-slate-700/80 px-2 py-1 rounded text-xs text-slate-300 font-medium">
+                      <span className="bg-slate-900 px-2.5 py-1 rounded-full text-[11px] text-slate-300 font-bold border border-slate-700">
                         {a.tipo}
                       </span>
                     </td>
                     <td className="p-4">
                       {a.vehiculo?.placa ? (
                         <div>
-                          <span className="font-mono font-bold text-purple-400">{a.vehiculo.placa}</span>
-                          <span className="text-xs text-slate-400 block">{a.vehiculo.tipo} ({a.parqueaderoAsignado || 'Sin bahía'})</span>
+                          <span className="font-mono font-bold text-purple-400 bg-purple-950/60 border border-purple-800 px-2 py-0.5 rounded text-xs">{a.vehiculo.placa}</span>
+                          <span className="text-[11px] text-slate-400 block pt-0.5">{a.vehiculo.tipo} ({a.parqueaderoAsignado || 'Sin bahía'})</span>
                         </div>
                       ) : (
-                        <span className="text-slate-500 text-xs">Peatonal</span>
+                        <span className="text-slate-500 text-xs italic">Peatonal</span>
                       )}
                     </td>
                     <td className="p-4 whitespace-nowrap font-mono text-xs">
-                      <div>{new Date(a.fechaIngreso).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</div>
+                      <div className="text-white font-bold">{new Date(a.fechaIngreso).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</div>
                       <div className="text-[11px] text-slate-500">{new Date(a.fechaIngreso).toLocaleDateString('es-CO')}</div>
+                    </td>
+                    <td className="p-4 whitespace-nowrap font-mono text-xs font-bold text-emerald-400">
+                      {calcularTiempo(a.fechaIngreso, a.fechaSalida)}
                     </td>
                     <td className="p-4 whitespace-nowrap">
                       {a.estado === 'en_conjunto' ? (
-                        <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs px-2.5 py-1 rounded-full font-bold">
-                          En Conjunto
+                        <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[11px] px-2.5 py-1 rounded-full font-bold animate-pulse">
+                          🟢 En Conjunto
                         </span>
                       ) : (
-                        <span className="bg-slate-700 text-slate-400 text-xs px-2.5 py-1 rounded-full">
+                        <span className="bg-slate-800 text-slate-400 border border-slate-700 text-[11px] px-2.5 py-1 rounded-full font-semibold">
                           Finalizado
                         </span>
                       )}
@@ -239,12 +257,12 @@ export default function AccesosView() {
                       {a.estado === 'en_conjunto' ? (
                         <button
                           onClick={() => handleSalida(a.id, a.nombre)}
-                          className="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/40 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1"
+                          className="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/40 px-3 py-1.5 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1"
                         >
-                          <LogOut className="w-3.5 h-3.5" /> Salida
+                          <LogOut className="w-3.5 h-3.5" /> Registrar Salida
                         </button>
                       ) : (
-                        <span className="text-xs text-slate-500 font-mono">
+                        <span className="text-xs text-slate-400 font-mono">
                           Salida: {new Date(a.fechaSalida).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       )}

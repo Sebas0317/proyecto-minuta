@@ -33,6 +33,7 @@ const TrasteosView = lazy(() => import('./components/TrasteosView'));
 const UnidadesView = lazy(() => import('./components/UnidadesView'));
 const PantallaUsuarios = lazy(() => import('./components/PantallaUsuarios'));
 const SecurityView = lazy(() => import('./components/SecurityView'));
+const InfoCondominioView = lazy(() => import('./components/InfoCondominioView'));
 
 // Vistas secundarias
 const UserView = lazy(() => import('./components/UserView'));
@@ -261,6 +262,7 @@ export default function App() {
               <Route path="parqueadero" element={<ParqueaderoView />} />
               <Route path="trasteos" element={<TrasteosView />} />
               <Route path="unidades" element={<UnidadesView />} />
+              <Route path="info" element={<InfoCondominioView />} />
               <Route path="users" element={<PantallaUsuarios userRole={rol} />} />
               <Route path="security" element={<SecurityView />} />
             </Route>

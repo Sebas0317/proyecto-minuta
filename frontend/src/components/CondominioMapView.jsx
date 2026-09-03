@@ -503,40 +503,62 @@ export default function CondominioMapView() {
               </div>
             </div>
 
-            {/* SECCIÓN PARQUEADEROS & VEHÍCULOS */}
+            {/* SECCIÓN PARQUEADEROS, BODEGAS & BICICLETAS */}
             <div className="bg-slate-900/80 border border-slate-700/80 p-4 rounded-xl space-y-3">
               <h4 className="text-xs font-bold text-purple-400 uppercase flex items-center gap-1.5">
-                <Car className="w-4 h-4" /> Parqueaderos Privados y Vehículos Asignados
+                <Car className="w-4 h-4" /> Parqueaderos, Bodegas y Bicicleteros Asignados
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div>
-                  <p className="text-slate-400">Bahías Privadas Compradas:</p>
+                  <p className="text-slate-400">Bahías Privadas:</p>
                   {selectedUnidad.parqueaderosPrivados?.length > 0 ? (
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex flex-wrap gap-1.5 mt-1">
                       {selectedUnidad.parqueaderosPrivados.map(b => (
-                        <span key={b} className="bg-purple-950/60 text-purple-300 border border-purple-800 px-2.5 py-1 rounded-lg font-mono font-bold">
+                        <span key={b} className="bg-purple-950/60 text-purple-300 border border-purple-800 px-2 py-0.5 rounded-lg font-mono font-bold">
                           {b}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-amber-400 font-semibold mt-1">❌ No compró cupo de parqueadero</p>
+                    <p className="text-amber-400 font-semibold mt-1">❌ Sin parqueadero</p>
                   )}
                 </div>
 
                 <div>
-                  <p className="text-slate-400">Vehículos del Apartamento:</p>
-                  {selectedUnidad.vehiculos?.length > 0 ? (
-                    selectedUnidad.vehiculos.map((v, i) => (
-                      <p key={i} className="text-white font-mono font-bold mt-1">
-                        🚗 {v.placa} ({v.marca}) - Bahía: {v.parqueaderoAsignado}
-                      </p>
-                    ))
+                  <p className="text-slate-400">Bodega / Depósito:</p>
+                  {selectedUnidad.bodega ? (
+                    <span className="inline-block mt-1 bg-amber-950/60 text-amber-300 border border-amber-800 px-2.5 py-0.5 rounded-lg font-mono font-bold">
+                      📦 {selectedUnidad.bodega}
+                    </span>
                   ) : (
-                    <p className="text-slate-500 mt-1">Sin vehículo registrado</p>
+                    <p className="text-slate-500 mt-1">Sin cuarto útil</p>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-slate-400">Cupo Bicicletero:</p>
+                  {selectedUnidad.bicicletero ? (
+                    <span className="inline-block mt-1 bg-emerald-950/60 text-emerald-300 border border-emerald-800 px-2.5 py-0.5 rounded-lg font-mono font-bold">
+                      🚲 {selectedUnidad.bicicletero}
+                    </span>
+                  ) : (
+                    <p className="text-slate-500 mt-1">Sin cupo asignado</p>
                   )}
                 </div>
               </div>
+
+              {selectedUnidad.vehiculos?.length > 0 && (
+                <div className="pt-2 border-t border-slate-800 text-xs">
+                  <p className="text-slate-400 font-semibold">Vehículos Registrados:</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {selectedUnidad.vehiculos.map((v, i) => (
+                      <span key={i} className="bg-slate-950 border border-slate-700 px-2 py-1 rounded-lg text-white font-mono font-bold">
+                        🚗 {v.placa} ({v.marca}) • Bahía: {v.parqueaderoAsignado}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* SECCIÓN ESTADO FINANCIERO Y SERVICIOS PÚBLICOS */}
