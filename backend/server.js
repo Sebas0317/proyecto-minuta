@@ -313,53 +313,33 @@ if (!process.env.VERCEL && process.env.NODE_ENV !== 'test') {
       initWebSocket(server);
 
       logger.info(`Proyecto Minuta API running on http://localhost:${PORT}`);
-
-      // ── OPTIONAL HTTPS (self-signed dev certs) ──
-      if (process.env.NODE_ENV !== 'test') {
-        const certPath = path.join(__dirname, 'certs', 'dev-cert.pem');
-        const keyPath = path.join(__dirname, 'certs', 'dev-key.pem');
-        if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
-          const httpsOpts = {
-            cert: fs.readFileSync(certPath),
-            key: fs.readFileSync(keyPath),
-          };
-          const httpsServer = https.createServer(httpsOpts, app);
-          const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
-          httpsServer.listen(HTTPS_PORT, '0.0.0.0', () => {
-            initWebSocket(httpsServer);
-            logger.info(`Proyecto Minuta API running on https://localhost:${HTTPS_PORT}`);
-          });
-        }
-      }
-
       logger.info(`API Documentation: http://localhost:${PORT}/api-docs`);
       logger.info(`Health Check: http://localhost:${PORT}/health/detailed`);
 
-      // Avoid expensive startup side-effects during tests.
-      if (process.env.NODE_ENV !== 'test') {
-        // Run JSON integrity check on startup
-        const { startupValidation } = require('./src/utils/jsonValidator');
+      // Run JSON integrity check on startup
+      const { startupValidation } = require('./src/utils/jsonValidator');
+      if (typeof startupValidation === 'function') {
         startupValidation().then(report => {
-          if (report.overall) {
+          if (report?.valid === report?.total) {
             logger.info('JSON integrity check passed');
           } else {
-            logger.warn('JSON integrity check found issues');
+            logger.warn('JSON integrity check completed with notices');
           }
         }).catch(err => {
           logger.warn({ err }, 'JSON integrity check failed (non-critical)');
         });
-
-        // Create initial backup on startup
-        if (!process.env.DISABLE_BACKUP) {
-          createBackup().then(() => {
-            logger.info('Initial backup created successfully');
-          }).catch(err => {
-            logger.warn({ err }, 'Initial backup failed (non-critical)');
-          });
-        }
-
-        seedUsers();
       }
+
+      // Create initial backup on startup
+      if (!process.env.DISABLE_BACKUP) {
+        createBackup().then(() => {
+          logger.info('Initial backup created successfully');
+        }).catch(err => {
+          logger.warn({ err }, 'Initial backup failed (non-critical)');
+        });
+      }
+
+      seedUsers();
     });
   });
 } else {
@@ -367,7 +347,7 @@ if (!process.env.VERCEL && process.env.NODE_ENV !== 'test') {
   seedUsers();
 }
 
-module.exports = app; // Export for Vercel serverless
+module.exports = app;
 module.exports.app = app;
 
 // Live getter so tests can access `server` even though it's assigned asynchronously

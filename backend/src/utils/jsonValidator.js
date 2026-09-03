@@ -14,9 +14,13 @@ const JSON_FILES = [
   'parqueaderos.json',
   'trasteos.json',
   'users.json',
-  'chatbot_knowledge.json',
-  'history.json',
-  'stateHistory.json'
+  'asambleas.json',
+  'equipos_emergencia.json',
+  'mascotas.json',
+  'reservas_zonas.json',
+  'knowledge_base.json',
+  'manual_convivencia.json',
+  'consultas_analytics.json'
 ];
 const MAX_BACKUPS = 10;
 
@@ -45,5 +49,6 @@ async function validateAllJsonFiles() {
 
 module.exports = {
   validateAllJsonFiles,
+  startupValidation: validateAllJsonFiles,
   JSON_FILES
 };
