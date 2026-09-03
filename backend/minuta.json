@@ -1,5 +1,49 @@
 [
   {
+    "id": "min-sos-1788459921371",
+    "fecha": "2026-09-03T18:25:21.371Z",
+    "tipo": "emergencia",
+    "radicado": "SOS-9244",
+    "aptoAfectado": "Zonas Comunes",
+    "guardaTurno": "MinutaBot (Alerta Automática SOS)",
+    "descripcion": "🚨 [ALERTA SOS EMITIDA POR CHATBOT]: \"¡Auxilio fuego e incendio en el sótano 1!\"",
+    "severidad": "peligro",
+    "estado": "abierta"
+  },
+  {
+    "id": "min-1788459921030-1788459921030-d820f3",
+    "fecha": "2026-09-03T18:25:21.008Z",
+    "tipo": "acceso",
+    "titulo": "Salida: Visitante Test (visitante)",
+    "descripcion": "Se registra salida de Visitante Test (Doc: 10203040). Destino fue Torre 2 Apto 302. Tiempo de permanencia: 1 min.",
+    "guarda": "admin",
+    "severidad": "info",
+    "unidadId": "torre2-302",
+    "evidencia": null
+  },
+  {
+    "id": "min-1788459920970-1788459920970-dbc8e5",
+    "fecha": "2026-09-03T18:25:20.947Z",
+    "tipo": "acceso",
+    "titulo": "Ingreso: Visitante Test (visitante)",
+    "descripcion": "Ingreso autorizado para Visitante Test (Doc: 10203040) hacia Torre 2 Apto 302. Motivo: Visita general. Autorizado por: Residente.",
+    "guarda": "admin",
+    "severidad": "info",
+    "unidadId": "torre2-302",
+    "evidencia": null
+  },
+  {
+    "id": "min-1788459920493-1788459920493-c07521",
+    "fecha": "2026-09-03T18:25:20.493Z",
+    "tipo": "recorrido",
+    "titulo": "Test de Vigilancia Perimetral",
+    "descripcion": "Ronda de prueba sin novedades en Torre 1",
+    "guarda": "Guarda Test",
+    "severidad": "informativa",
+    "unidadId": null,
+    "evidencia": null
+  },
+  {
     "id": "min-sos-1788457480600",
     "fecha": "2026-09-03T17:44:40.600Z",
     "tipo": "emergencia",

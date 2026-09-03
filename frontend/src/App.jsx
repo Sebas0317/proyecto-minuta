@@ -40,6 +40,7 @@ const ReservasZonasView = lazy(() => import('./components/ReservasZonasView'));
 const AsambleasView = lazy(() => import('./components/AsambleasView'));
 const EquiposEmergenciaView = lazy(() => import('./components/EquiposEmergenciaView'));
 const MascotasView = lazy(() => import('./components/MascotasView'));
+const PortalResidenteView = lazy(() => import('./components/PortalResidenteView'));
 import MinutaBotWidget from './components/MinutaBotWidget';
 
 
@@ -128,7 +129,11 @@ export default function App() {
     if (!rol) return;
     const guestRoutes = ['/', '/login/admin', '/login/forgot', '/forgot'];
     if (!guestRoutes.includes(location.pathname)) return;
-    navigate('/admin', { replace: true });
+    if (rol === 'user' || rol === 'cliente' || rol === 'residente') {
+      navigate('/residente', { replace: true });
+    } else {
+      navigate('/admin', { replace: true });
+    }
   }, [rol, location.pathname, navigate]);
 
   const [showSessionModal, setShowSessionModal] = useState(false);
@@ -277,6 +282,12 @@ export default function App() {
               <Route path="users" element={<PantallaUsuarios userRole={rol} />} />
               <Route path="security" element={<SecurityView />} />
             </Route>
+
+            {/* Portal de Residentes (Propietarios & Arrendatarios) */}
+            <Route
+              path="/residente"
+              element={<PortalResidenteView />}
+            />
 
             {/* Redirección por defecto */}
             <Route path="*" element={<SafeNavigate to="/" replace />} />

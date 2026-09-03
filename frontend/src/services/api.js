@@ -1287,5 +1287,38 @@ export async function fetchChatbotAnalytics() {
   return apiFetch('/chatbot/analytics', { method: 'GET' });
 }
 
+// ── PORTAL DEL RESIDENTE & PRE-AUTORIZACIONES ──
+export async function fetchUnidadesSummary() {
+  return apiFetch('/unidades/public/list', { method: 'GET' });
+}
+
+export async function fetchUnidadPortalData(id) {
+  return apiFetch(`/unidades/portal/${id}`, { method: 'GET' });
+}
+
+export async function preautorizarAcceso(data) {
+  return apiFetch('/accesos/preautorizar', {
+    method: 'POST',
+    body: data,
+  });
+}
+
+export async function fetchPreautorizadosUnidad(unidadId, params = {}) {
+  const query = new URLSearchParams(params).toString();
+  return apiFetch(`/accesos/preautorizados/${unidadId}${query ? '?' + query : ''}`, { method: 'GET' });
+}
+
+export async function aprobarAccesoPreautorizado(id, data = {}) {
+  return apiFetch(`/accesos/${id}/aprobar-preautorizado`, {
+    method: 'PATCH',
+    body: data,
+  });
+}
+
+export async function fetchPaquetesUnidad(apto, params = {}) {
+  const query = new URLSearchParams(params).toString();
+  return apiFetch(`/paquetes/unidad/${apto}${query ? '?' + query : ''}`, { method: 'GET' });
+}
+
 
 

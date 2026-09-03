@@ -323,6 +323,13 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
 
           <div className="flex items-center gap-3">
             <button
+              onClick={() => navigate('/residente')}
+              className="hidden sm:flex items-center gap-1.5 text-xs font-bold bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/40 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow"
+            >
+              <span>🏢 Portal Residentes</span>
+            </button>
+
+            <button
               onClick={() => setShowPanicModal(true)}
               className="flex items-center gap-1.5 text-xs font-black bg-red-600 hover:bg-red-500 text-white px-3.5 py-1.5 rounded-full shadow-lg shadow-red-950/60 animate-pulse transition-all hover:scale-105 cursor-pointer"
             >

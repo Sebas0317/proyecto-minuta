@@ -137,9 +137,31 @@ async function entregarPaquete(req, res) {
   }
 }
 
+// ── CONSULTAR PAQUETES DE UN APARTAMENTO ESPECÍFICO (PORTAL DEL RESIDENTE) ──
+async function getPaquetesByApto(req, res) {
+  try {
+    const paquetes = await getPaquetes();
+    const { apto } = req.params;
+    const { torre } = req.query;
+
+    const list = (paquetes || []).filter(p => {
+      const matchApto = String(p.apto) === String(apto) || p.unidadId === apto;
+      const matchTorre = torre ? p.torre?.toLowerCase() === torre.toLowerCase() : true;
+      return matchApto && matchTorre;
+    });
+
+    list.sort((a, b) => new Date(b.fechaIngreso) - new Date(a.fechaIngreso));
+    res.json(list);
+  } catch (err) {
+    logger.error({ error: err.message }, 'Error al obtener paquetes por apartamento');
+    res.status(500).json({ error: 'Error interno al consultar paquetería del inmueble' });
+  }
+}
+
 module.exports = {
   getAllPaquetes,
   createPaquete,
   notificarPaquete,
-  entregarPaquete
+  entregarPaquete,
+  getPaquetesByApto
 };

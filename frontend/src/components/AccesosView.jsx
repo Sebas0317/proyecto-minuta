@@ -166,6 +166,7 @@ export default function AccesosView() {
             className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold outline-none focus:border-emerald-500"
           >
             <option value="en_conjunto">Activos en Conjunto</option>
+            <option value="preautorizado">🟣 Visitas Pre-autorizadas (Pases QR)</option>
             <option value="finalizado">Historial de Salidas</option>
             <option value="">Todos los Registros</option>
           </select>
@@ -176,6 +177,7 @@ export default function AccesosView() {
           >
             <option value="">Todos los Tipos</option>
             <option value="visitante">Visitantes</option>
+            <option value="familiar">Familiares</option>
             <option value="domicilio">Domicilios</option>
             <option value="contratista">Contratistas</option>
             <option value="servicio">Servicio General</option>
@@ -216,7 +218,14 @@ export default function AccesosView() {
                       </div>
                     </td>
                     <td className="p-4">
-                      <div className="font-bold text-white text-sm">{a.nombre}</div>
+                      <div className="font-bold text-white text-sm flex items-center gap-2">
+                        <span>{a.nombre}</span>
+                        {a.paseQR && (
+                          <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-1.5 py-0.2 rounded font-mono font-bold">
+                            {a.paseQR}
+                          </span>
+                        )}
+                      </div>
                       <div className="text-xs text-slate-400">CC: {a.documento} • {a.motivo}</div>
                       <div className="text-[11px] text-slate-500 pt-0.5">Autoriza: {a.autorizadoPor || 'Propietario'}</div>
                     </td>
@@ -236,16 +245,26 @@ export default function AccesosView() {
                       )}
                     </td>
                     <td className="p-4 whitespace-nowrap font-mono text-xs">
-                      <div className="text-white font-bold">{new Date(a.fechaIngreso).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</div>
-                      <div className="text-[11px] text-slate-500">{new Date(a.fechaIngreso).toLocaleDateString('es-CO')}</div>
+                      {a.fechaIngreso ? (
+                        <>
+                          <div className="text-white font-bold">{new Date(a.fechaIngreso).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</div>
+                          <div className="text-[11px] text-slate-500">{new Date(a.fechaIngreso).toLocaleDateString('es-CO')}</div>
+                        </>
+                      ) : (
+                        <span className="text-purple-400 font-semibold">Esperado: {a.fechaEsperada || 'Hoy'}</span>
+                      )}
                     </td>
                     <td className="p-4 whitespace-nowrap font-mono text-xs font-bold text-emerald-400">
-                      {calcularTiempo(a.fechaIngreso, a.fechaSalida)}
+                      {a.fechaIngreso ? calcularTiempo(a.fechaIngreso, a.fechaSalida) : '—'}
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      {a.estado === 'en_conjunto' ? (
+                      {a.estado === 'en_conjunto' || a.estado === 'activo' ? (
                         <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[11px] px-2.5 py-1 rounded-full font-bold animate-pulse">
                           🟢 En Conjunto
+                        </span>
+                      ) : a.estado === 'preautorizado' ? (
+                        <span className="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[11px] px-2.5 py-1 rounded-full font-bold">
+                          🟣 Pre-autorizado
                         </span>
                       ) : (
                         <span className="bg-slate-800 text-slate-400 border border-slate-700 text-[11px] px-2.5 py-1 rounded-full font-semibold">
@@ -254,16 +273,32 @@ export default function AccesosView() {
                       )}
                     </td>
                     <td className="p-4 text-right whitespace-nowrap">
-                      {a.estado === 'en_conjunto' ? (
+                      {a.estado === 'en_conjunto' || a.estado === 'activo' ? (
                         <button
                           onClick={() => handleSalida(a.id, a.nombre)}
                           className="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/40 px-3 py-1.5 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1"
                         >
                           <LogOut className="w-3.5 h-3.5" /> Registrar Salida
                         </button>
+                      ) : a.estado === 'preautorizado' ? (
+                        <button
+                          onClick={async () => {
+                            try {
+                              const { aprobarAccesoPreautorizado } = await import('../services/api');
+                              await aprobarAccesoPreautorizado(a.id);
+                              toast.success(`Ingreso de ${a.nombre} validado en portería`);
+                              loadData();
+                            } catch (e) {
+                              toast.error(e.message || 'Error al validar ingreso');
+                            }
+                          }}
+                          className="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-xl transition-all inline-flex items-center gap-1 shadow-lg shadow-purple-950/40"
+                        >
+                          <CheckCircle className="w-3.5 h-3.5" /> Dar Ingreso (Validar)
+                        </button>
                       ) : (
                         <span className="text-xs text-slate-400 font-mono">
-                          Salida: {new Date(a.fechaSalida).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
+                          Salida: {a.fechaSalida ? new Date(a.fechaSalida).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : '—'}
                         </span>
                       )}
                     </td>

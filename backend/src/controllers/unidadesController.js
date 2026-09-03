@@ -142,10 +142,56 @@ async function deleteUnidad(req, res) {
   }
 }
 
+// ── RESUMEN PÚBLICO DE UNIDADES PARA SELECTOR DEL PORTAL ──
+async function getPublicUnidadesSummary(req, res) {
+  try {
+    const unidades = await getUnidades();
+    const summary = (unidades || []).map(u => ({
+      id: u.id,
+      torre: u.torre,
+      numero: u.numero,
+      piso: u.piso,
+      tipoOcupacion: u.tipoOcupacion || 'propietario',
+      propietarioNombre: u.propietario?.nombre || 'Residente',
+      alDia: u.estadoFinanciero?.administracion?.alDia ?? true
+    }));
+    res.json(summary);
+  } catch (err) {
+    logger.error({ error: err.message }, 'Error al obtener resumen de unidades');
+    res.status(500).json({ error: 'Error interno al consultar resumen de unidades' });
+  }
+}
+
+// ── CONSULTA DE DATOS PARA EL PORTAL DEL RESIDENTE ──
+async function getUnidadPortalData(req, res) {
+  try {
+    const unidades = await getUnidades();
+    const { id } = req.params;
+    const cleanId = id.trim().toLowerCase();
+
+    const unidad = (unidades || []).find(u => 
+      u.id?.toLowerCase() === cleanId || 
+      String(u.numero) === cleanId ||
+      `${u.torre?.toLowerCase().replace(/\s+/g, '')}-${u.numero}` === cleanId
+    );
+
+    if (!unidad) {
+      return res.status(404).json({ error: 'Inmueble no encontrado en el condominio' });
+    }
+
+    res.json(unidad);
+  } catch (err) {
+    logger.error({ error: err.message }, 'Error al consultar portal de unidad');
+    res.status(500).json({ error: 'Error interno al cargar portal de unidad' });
+  }
+}
+
 module.exports = {
   getAllUnidades,
   getUnidadById,
   createUnidad,
   updateUnidad,
-  deleteUnidad
+  deleteUnidad,
+  getPublicUnidadesSummary,
+  getUnidadPortalData
 };

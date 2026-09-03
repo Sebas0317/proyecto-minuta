@@ -267,11 +267,14 @@ function RoleCards({ onSelectAdmin, onSelectUser }) {
               className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition-all duration-300 hover:border-emerald-500/30 hover:bg-white/[0.06] hover:shadow-lg hover:shadow-emerald-900/10"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-400/10 transition-all duration-500" />
-              <span className="relative block text-lg sm:text-xl font-extrabold text-white mb-1">
-                Administración
-              </span>
-              <span className="relative block text-sm text-white/40 group-hover:text-white/60 transition-colors">
-                Supervisión — Censo de inmuebles, personal, auditoría y seguridad
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xl">🛡️</span>
+                <span className="relative block text-lg sm:text-xl font-extrabold text-white">
+                  Administración & Puesto de Portería
+                </span>
+              </div>
+              <span className="relative block text-xs sm:text-sm text-white/50 group-hover:text-white/70 transition-colors leading-relaxed">
+                Supervisión & Guardia de Seguridad — Minuta digital, control de accesos, paquetería, bahías de parqueadero, rondas y auditoría
               </span>
             </motion.button>
             <motion.button
@@ -279,14 +282,17 @@ function RoleCards({ onSelectAdmin, onSelectUser }) {
               whileHover={{ scale: 1.01, y: -2 }}
               whileTap={{ scale: 0.99 }}
               onClick={onSelectUser}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition-all duration-300 hover:border-emerald-500/30 hover:bg-white/[0.06] hover:shadow-lg hover:shadow-emerald-900/10"
+              className="group relative overflow-hidden rounded-2xl border border-purple-500/20 bg-purple-500/[0.03] p-5 text-left transition-all duration-300 hover:border-purple-500/40 hover:bg-purple-500/[0.06] hover:shadow-lg hover:shadow-purple-900/20"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-400/10 transition-all duration-500" />
-              <span className="relative block text-lg sm:text-xl font-extrabold text-white mb-1">
-                Puesto de Portería
-              </span>
-              <span className="relative block text-sm text-white/40 group-hover:text-white/60 transition-colors">
-                Operación de Guardia — Minuta digital, accesos, paquetería y parqueadero
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-purple-400/20 transition-all duration-500" />
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xl">🏢</span>
+                <span className="relative block text-lg sm:text-xl font-extrabold text-white">
+                  Portal de Residentes & Propietarios
+                </span>
+              </div>
+              <span className="relative block text-xs sm:text-sm text-purple-200/60 group-hover:text-purple-200/80 transition-colors leading-relaxed">
+                Autogestión de Inmuebles — Paquetes con PIN, pre-autorizar visitas con Pase QR, reservas de zonas, MinutaBot IA, asambleas y paz y salvo
               </span>
             </motion.button>
           </motion.div>
@@ -296,7 +302,7 @@ function RoleCards({ onSelectAdmin, onSelectUser }) {
             transition={{ delay: 0.6 }}
             className="text-xs text-white/30 text-center mt-6"
           >
-            Sistema Interno — Control de Vigilancia Residencial
+            Sistema Integral de Portería y Vigilancia Residencial
           </motion.p>
         </GlassCard>
       </motion.div>
