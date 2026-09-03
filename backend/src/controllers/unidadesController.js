@@ -152,7 +152,8 @@ async function getPublicUnidadesSummary(req, res) {
       numero: u.numero,
       piso: u.piso,
       tipoOcupacion: u.tipoOcupacion || 'propietario',
-      propietarioNombre: u.propietario?.nombre || 'Residente',
+      estado: u.estado || u.estadoComercial || (u.propietario?.nombre ? 'habitado' : 'vacio'),
+      propietarioNombre: u.propietario?.nombre || 'Inmueble Desocupado / Vacío',
       alDia: u.estadoFinanciero?.administracion?.alDia ?? true
     }));
     res.json(summary);
