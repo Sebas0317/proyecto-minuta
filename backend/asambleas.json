@@ -1,34 +1,36 @@
-{
-  "asambleas": [
-    {
-      "id": "asmb-2026-1",
-      "titulo": "Asamblea General Ordinaria de Copropietarios 2026",
-      "fecha": "2026-09-03",
-      "horaInicio": "08:00 AM",
-      "estado": "en_curso",
-      "totalCoeficiente": 100,
-      "quorumRegistrado": 78.45,
-      "votaciones": [
-        {
-          "id": "vot-1",
-          "pregunta": "¿Aprueba el presupuesto general de gastos para el periodo 2026-2027 ($185.000.000 COP)?",
-          "estado": "activa",
-          "votosSi": 72.95,
-          "votosNo": 11.15,
-          "votosBlanco": 3.1,
-          "totalVotado": 87.2
+[
+  {
+    "id": "asm-2026-01",
+    "titulo": "Asamblea General Ordinaria de Copropietarios 2026",
+    "fecha": "2026-09-15",
+    "horaInicio": "08:00 AM",
+    "estado": "en_curso",
+    "quorumRegistrado": 72.45,
+    "totalCoeficiente": 100,
+    "votaciones": [
+      {
+        "id": "vot-01",
+        "pregunta": "¿Aprueba el Presupuesto General de Gastos e Inversión para el periodo 2026-2027?",
+        "opciones": {
+          "si": 66.45,
+          "no": 4.8,
+          "blanco": 2.45
         },
-        {
-          "id": "vot-2",
-          "pregunta": "¿Aprueba la cuota extraordinaria de $150.000 COP para impermeabilización de terrazas de Torre 1 y 2?",
-          "estado": "cerrada",
-          "votosSi": 72.1,
-          "votosNo": 4.8,
-          "votosBlanco": 1.55,
-          "totalVotado": 78.45,
-          "resultado": "APROBADA"
-        }
-      ]
-    }
-  ]
-}
+        "totalVotado": 73.7,
+        "estado": "abierta",
+        "votosSi": 66.45
+      },
+      {
+        "id": "vot-02",
+        "pregunta": "¿Autoriza la instalación del nuevo sistema de circuito cerrado de cámaras y control biométrico en acceso vehicular?",
+        "opciones": {
+          "si": 58.9,
+          "no": 10.15,
+          "blanco": 3.4
+        },
+        "totalVotado": 72.45,
+        "estado": "abierta"
+      }
+    ]
+  }
+]

@@ -4,14 +4,17 @@ const asambleasFilePath = path.join(__dirname, '../../asambleas.json');
 
 function readData() {
   try {
-    return JSON.parse(fs.readFileSync(asambleasFilePath, 'utf8'));
+    const raw = JSON.parse(fs.readFileSync(asambleasFilePath, 'utf8'));
+    if (Array.isArray(raw)) return { asambleas: raw };
+    return raw && Array.isArray(raw.asambleas) ? raw : { asambleas: [] };
   } catch (e) {
     return { asambleas: [] };
   }
 }
 
 function writeData(data) {
-  fs.writeFileSync(asambleasFilePath, JSON.stringify(data, null, 2), 'utf8');
+  const toSave = Array.isArray(data) ? data : (data.asambleas || []);
+  fs.writeFileSync(asambleasFilePath, JSON.stringify(toSave, null, 2), 'utf8');
 }
 
 exports.getAsambleas = (req, res) => {
@@ -81,11 +84,26 @@ exports.castVote = (req, res) => {
   if (!vot) return res.status(404).json({ error: 'Votación no encontrada' });
   if (vot.estado === 'cerrada') return res.status(400).json({ error: 'La votación ya está cerrada' });
 
-  if (opcion === 'si') vot.votosSi = Number((vot.votosSi + peso).toFixed(2));
-  else if (opcion === 'no') vot.votosNo = Number((vot.votosNo + peso).toFixed(2));
-  else vot.votosBlanco = Number((vot.votosBlanco + peso).toFixed(2));
+  if (!vot.opciones) {
+    vot.opciones = { si: Number(vot.votosSi) || 0, no: Number(vot.votosNo) || 0, blanco: Number(vot.votosBlanco) || 0 };
+  }
 
-  vot.totalVotado = Number((vot.votosSi + vot.votosNo + vot.votosBlanco).toFixed(2));
+  if (opcion === 'si') {
+    vot.votosSi = Number(((Number(vot.votosSi) || Number(vot.opciones.si) || 0) + peso).toFixed(2));
+    vot.opciones.si = vot.votosSi;
+  } else if (opcion === 'no') {
+    vot.votosNo = Number(((Number(vot.votosNo) || Number(vot.opciones.no) || 0) + peso).toFixed(2));
+    vot.opciones.no = vot.votosNo;
+  } else {
+    vot.votosBlanco = Number(((Number(vot.votosBlanco) || Number(vot.opciones.blanco) || 0) + peso).toFixed(2));
+    vot.opciones.blanco = vot.votosBlanco;
+  }
+
+  const si = Number(vot.opciones.si) || 0;
+  const no = Number(vot.opciones.no) || 0;
+  const blanco = Number(vot.opciones.blanco) || 0;
+  vot.totalVotado = Number((si + no + blanco).toFixed(2));
+
   writeData(data);
   res.json(vot);
 };

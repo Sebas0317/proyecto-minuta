@@ -14,10 +14,10 @@
     "categoria": "visitantes",
     "tipo": "carro",
     "estado": "ocupado",
-    "placa": "KLP890",
-    "apto": "203",
+    "placa": "HJK892",
+    "apto": "101",
     "torre": "Torre 1",
-    "horaIngreso": "2026-09-03T13:45:17.673Z"
+    "horaIngreso": "2026-09-03T19:30:23.429Z"
   },
   {
     "id": "V-03",
@@ -34,10 +34,10 @@
     "categoria": "visitantes",
     "tipo": "carro",
     "estado": "ocupado",
-    "placa": "MTO45E",
-    "apto": "401",
+    "placa": "CXW781",
+    "apto": "302",
     "torre": "Torre 2",
-    "horaIngreso": "2026-09-03T13:45:17.675Z"
+    "horaIngreso": "2026-09-03T18:45:23.429Z"
   },
   {
     "id": "V-05",
@@ -73,11 +73,11 @@
     "id": "V-08",
     "categoria": "visitantes",
     "tipo": "carro",
-    "estado": "disponible",
-    "placa": null,
-    "apto": null,
-    "torre": null,
-    "horaIngreso": null
+    "estado": "ocupado",
+    "placa": "UPZ220",
+    "apto": "501",
+    "torre": "Torre 4",
+    "horaIngreso": "2026-09-03T17:55:23.429Z"
   },
   {
     "id": "V-09",
@@ -92,7 +92,7 @@
   {
     "id": "V-10",
     "categoria": "visitantes",
-    "tipo": "moto",
+    "tipo": "carro",
     "estado": "disponible",
     "placa": null,
     "apto": null,
@@ -102,7 +102,7 @@
   {
     "id": "V-11",
     "categoria": "visitantes",
-    "tipo": "moto",
+    "tipo": "carro",
     "estado": "disponible",
     "placa": null,
     "apto": null,
@@ -111,6 +111,46 @@
   },
   {
     "id": "V-12",
+    "categoria": "visitantes",
+    "tipo": "carro",
+    "estado": "disponible",
+    "placa": null,
+    "apto": null,
+    "torre": null,
+    "horaIngreso": null
+  },
+  {
+    "id": "M-01",
+    "categoria": "visitantes",
+    "tipo": "moto",
+    "estado": "ocupado",
+    "placa": "KLR45F",
+    "apto": "204",
+    "torre": "Torre 1",
+    "horaIngreso": "2026-09-03T20:00:23.429Z"
+  },
+  {
+    "id": "M-02",
+    "categoria": "visitantes",
+    "tipo": "moto",
+    "estado": "disponible",
+    "placa": null,
+    "apto": null,
+    "torre": null,
+    "horaIngreso": null
+  },
+  {
+    "id": "M-03",
+    "categoria": "visitantes",
+    "tipo": "moto",
+    "estado": "disponible",
+    "placa": null,
+    "apto": null,
+    "torre": null,
+    "horaIngreso": null
+  },
+  {
+    "id": "M-04",
     "categoria": "visitantes",
     "tipo": "moto",
     "estado": "disponible",
@@ -123,963 +163,200 @@
     "id": "P-1101",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "101",
-    "torreAsignada": "Torre 1",
-    "estado": "invadido",
-    "invasion": {
-      "placa": "UBR777",
-      "vehiculoTipo": "carro",
-      "aptoResponsable": "302",
-      "torreResponsable": "Torre 1",
-      "nombreResponsable": "Pedro Pérez (Visita del 302)",
-      "telefonoResponsable": "3157778899",
-      "horaIngreso": "2026-09-03T14:15:17.677Z",
-      "motivo": "Estacionó temporalmente sin avisar al propietario"
-    }
+    "estado": "ocupado",
+    "placa": "KLM1101",
+    "apto": "101",
+    "torre": "Torre 1",
+    "horaIngreso": null
   },
   {
     "id": "P-1102",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "102",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM1102",
+    "apto": "102",
+    "torre": "Torre 1",
+    "horaIngreso": null
   },
   {
     "id": "P-1103",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "103",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM1103",
+    "apto": "103",
+    "torre": "Torre 1",
+    "horaIngreso": null
   },
   {
-    "id": "P-1201",
+    "id": "P-1104",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "201",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1202",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "202",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1203",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "203",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1301",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "301",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1302",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "302",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1303",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "303",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1304",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "304",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1401A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "401",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1401B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "401",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1402",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "402",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1403",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "403",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1404",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "404",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1501A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "501",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1501B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "501",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1502A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "502",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1502B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "502",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1503",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "503",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-1504",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "504",
-    "torreAsignada": "Torre 1",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM1104",
+    "apto": "104",
+    "torre": "Torre 1",
+    "horaIngreso": null
   },
   {
     "id": "P-2101",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "101",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM2101",
+    "apto": "101",
+    "torre": "Torre 2",
+    "horaIngreso": null
   },
   {
     "id": "P-2102",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "102",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM2102",
+    "apto": "102",
+    "torre": "Torre 2",
+    "horaIngreso": null
   },
   {
     "id": "P-2103",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "103",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM2103",
+    "apto": "103",
+    "torre": "Torre 2",
+    "horaIngreso": null
   },
   {
-    "id": "P-2201",
+    "id": "P-2104",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "201",
-    "torreAsignada": "Torre 2",
-    "estado": "invadido",
-    "invasion": {
-      "placa": "QWE456",
-      "vehiculoTipo": "carro",
-      "aptoResponsable": "404",
-      "torreResponsable": "Torre 2",
-      "nombreResponsable": "Gabriel Sánchez (Residente 404)",
-      "telefonoResponsable": "3189991122",
-      "horaIngreso": "2026-09-03T12:45:17.677Z",
-      "motivo": "Préstamo verbal de vecino"
-    }
-  },
-  {
-    "id": "P-2202",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "202",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2203",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "203",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2301",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "301",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2302",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "302",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2303",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "303",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2304",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "304",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2401A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "401",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2401B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "401",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2402",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "402",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2403",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "403",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2404",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "404",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2501A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "501",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2501B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "501",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2502A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "502",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2502B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "502",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2503",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "503",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-2504",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "504",
-    "torreAsignada": "Torre 2",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM2104",
+    "apto": "104",
+    "torre": "Torre 2",
+    "horaIngreso": null
   },
   {
     "id": "P-3101",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "101",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM3101",
+    "apto": "101",
+    "torre": "Torre 3",
+    "horaIngreso": null
   },
   {
     "id": "P-3102",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "102",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM3102",
+    "apto": "102",
+    "torre": "Torre 3",
+    "horaIngreso": null
   },
   {
     "id": "P-3103",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "103",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM3103",
+    "apto": "103",
+    "torre": "Torre 3",
+    "horaIngreso": null
   },
   {
-    "id": "P-3201",
+    "id": "P-3104",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "201",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3202",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "202",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3203",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "203",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3301",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "301",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3302",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "302",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3303",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "303",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3304",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "304",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3401A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "401",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3401B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "401",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3402",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "402",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3403",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "403",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3404",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "404",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3501A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "501",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3501B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "501",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3502A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "502",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3502B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "502",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3503",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "503",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-3504",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "504",
-    "torreAsignada": "Torre 3",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM3104",
+    "apto": "104",
+    "torre": "Torre 3",
+    "horaIngreso": null
   },
   {
     "id": "P-4101",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "101",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM4101",
+    "apto": "101",
+    "torre": "Torre 4",
+    "horaIngreso": null
   },
   {
     "id": "P-4102",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "102",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM4102",
+    "apto": "102",
+    "torre": "Torre 4",
+    "horaIngreso": null
   },
   {
     "id": "P-4103",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "103",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM4103",
+    "apto": "103",
+    "torre": "Torre 4",
+    "horaIngreso": null
   },
   {
-    "id": "P-4201",
+    "id": "P-4104",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "201",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4202",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "202",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4203",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "203",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4301",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "301",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4302",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "302",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4303",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "303",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4304",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "304",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4401A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "401",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4401B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "401",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4402",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "402",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4403",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "403",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4404",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "404",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4501A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "501",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4501B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "501",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4502A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "502",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4502B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "502",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4503",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "503",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-4504",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "504",
-    "torreAsignada": "Torre 4",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM4104",
+    "apto": "104",
+    "torre": "Torre 4",
+    "horaIngreso": null
   },
   {
     "id": "P-5101",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "101",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM5101",
+    "apto": "101",
+    "torre": "Torre 5",
+    "horaIngreso": null
   },
   {
     "id": "P-5102",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "102",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM5102",
+    "apto": "102",
+    "torre": "Torre 5",
+    "horaIngreso": null
   },
   {
     "id": "P-5103",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "103",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM5103",
+    "apto": "103",
+    "torre": "Torre 5",
+    "horaIngreso": null
   },
   {
-    "id": "P-5201",
+    "id": "P-5104",
     "categoria": "privado",
     "tipo": "carro",
-    "aptoAsignado": "201",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5202",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "202",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5203",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "203",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5301",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "301",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5302",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "302",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5303",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "303",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5304",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "304",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5401A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "401",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5401B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "401",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5402",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "402",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5403",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "403",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5404",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "404",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5501A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "501",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5501B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "501",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5502A",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "502",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5502B",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "502",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5503",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "503",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
-  },
-  {
-    "id": "P-5504",
-    "categoria": "privado",
-    "tipo": "carro",
-    "aptoAsignado": "504",
-    "torreAsignada": "Torre 5",
-    "estado": "libre",
-    "invasion": null
+    "estado": "ocupado",
+    "placa": "KLM5104",
+    "apto": "104",
+    "torre": "Torre 5",
+    "horaIngreso": null
   }
 ]

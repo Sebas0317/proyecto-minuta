@@ -1,0 +1,80 @@
+[
+  {
+    "id": "EXT-T1-P1",
+    "tipo": "extintor",
+    "nombre": "Extintor Pasillo Piso 1",
+    "ubicacion": "Junto a puerta de acceso ascensor",
+    "torre": 1,
+    "piso": 1,
+    "capacidad": "20 Lbs",
+    "agente": "Polvo Químico Seco (PQS)",
+    "fechaRecarga": "2026-01-15",
+    "fechaVencimiento": "2027-01-15",
+    "observaciones": "Presión en verde, precinto de seguridad intacto."
+  },
+  {
+    "id": "EXT-T1-P2",
+    "tipo": "extintor",
+    "nombre": "Extintor Pasillo Piso 2",
+    "ubicacion": "Frente a Apto 202",
+    "torre": 1,
+    "piso": 2,
+    "capacidad": "20 Lbs",
+    "agente": "Polvo Químico Seco (PQS)",
+    "fechaRecarga": "2026-01-15",
+    "fechaVencimiento": "2027-01-15",
+    "observaciones": "Inspección conforme."
+  },
+  {
+    "id": "EXT-T1-P3",
+    "tipo": "extintor",
+    "nombre": "Extintor Pasillo Piso 3",
+    "ubicacion": "Frente a Apto 302",
+    "torre": 1,
+    "piso": 3,
+    "capacidad": "20 Lbs",
+    "agente": "Polvo Químico Seco (PQS)",
+    "fechaRecarga": "2026-01-15",
+    "fechaVencimiento": "2027-01-15",
+    "observaciones": "Inspección conforme."
+  },
+  {
+    "id": "EXT-T2-P1",
+    "tipo": "extintor",
+    "nombre": "Extintor Lobby Torre 2",
+    "ubicacion": "Hall de entrada",
+    "torre": 2,
+    "piso": 1,
+    "capacidad": "20 Lbs",
+    "agente": "Polvo Químico Seco (PQS)",
+    "fechaRecarga": "2026-01-15",
+    "fechaVencimiento": "2027-01-15",
+    "observaciones": "Inspección conforme."
+  },
+  {
+    "id": "EXT-SOT-BOMB",
+    "tipo": "extintor",
+    "nombre": "Extintor Cuarto de Bombas",
+    "ubicacion": "Sótano 1 - Cuarto Técnico",
+    "torre": "Sótano",
+    "piso": -1,
+    "capacidad": "10 Lbs",
+    "agente": "CO2 (Dióxido de Carbono)",
+    "fechaRecarga": "2026-03-10",
+    "fechaVencimiento": "2027-03-10",
+    "observaciones": "Especial para equipos eléctricos y bombas."
+  },
+  {
+    "id": "DEA-PORT-01",
+    "tipo": "botiquin",
+    "nombre": "Desfibrilador Automático Externo (DEA) & Botiquín Tipo B",
+    "ubicacion": "Portería Principal - Muro de Emergencias",
+    "torre": "Portería",
+    "piso": 1,
+    "capacidad": "Kit Completo",
+    "agente": "Médico Primeros Auxilios",
+    "fechaRecarga": "2026-02-01",
+    "fechaVencimiento": "2027-02-01",
+    "observaciones": "Batería del DEA al 100%, parches para adulto y pediátricos vigentes."
+  }
+]
