@@ -141,5 +141,22 @@
     "lastIp": null,
     "createdAt": "2026-09-03T16:09:59.123Z",
     "updatedAt": "2026-09-03T16:09:59.127Z"
+  },
+  {
+    "id": "1788457125634-7a7a07e6",
+    "username": "test_1788457123424",
+    "email": "test_1788457123424@test.com",
+    "passwordHash": "$2b$12$jEG0F2UJnpEPhVTc0ilHmeO2klDWSXAEFbFTRGrEgfkC4Yw/XOSMa",
+    "firstName": "",
+    "lastName": "",
+    "avatar": null,
+    "role": "cliente",
+    "isActive": true,
+    "emailVerified": false,
+    "twoFactorEnabled": false,
+    "lastLogin": "2026-09-03T17:38:46.949Z",
+    "lastIp": "::ffff:127.0.0.1",
+    "createdAt": "2026-09-03T17:38:45.634Z",
+    "updatedAt": "2026-09-03T17:38:46.949Z"
   }
 ]

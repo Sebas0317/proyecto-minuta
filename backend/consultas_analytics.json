@@ -1,11 +1,91 @@
 {
-  "totalConsultas": 6,
+  "totalConsultas": 22,
   "categorias": {
-    "convivencia": 4,
-    "certificados": 1,
-    "emergencias": 1
+    "convivencia": 12,
+    "certificados": 5,
+    "emergencias": 5
   },
   "historico": [
+    {
+      "pregunta": "¡Auxilio fuego e incendio en el sótano 1!",
+      "categoria": "emergencias",
+      "fecha": "2026-09-03T17:41:05.676Z"
+    },
+    {
+      "pregunta": "Genera el paz y salvo de administración del 204",
+      "categoria": "certificados",
+      "fecha": "2026-09-03T17:41:05.630Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 12 sobre el horario de silencio?",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:41:05.603Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 18 sobre las mascotas?",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:41:05.576Z"
+    },
+    {
+      "pregunta": "¡Auxilio fuego e incendio en el sótano 1!",
+      "categoria": "emergencias",
+      "fecha": "2026-09-03T17:40:52.325Z"
+    },
+    {
+      "pregunta": "Genera el paz y salvo de administración del 204",
+      "categoria": "certificados",
+      "fecha": "2026-09-03T17:40:52.277Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 12 sobre el horario de silencio?",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:40:52.246Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 18 sobre las mascotas?",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:40:52.219Z"
+    },
+    {
+      "pregunta": "¡Auxilio fuego e incendio en el sótano 1!",
+      "categoria": "emergencias",
+      "fecha": "2026-09-03T17:40:11.005Z"
+    },
+    {
+      "pregunta": "Genera el paz y salvo de administración del 204",
+      "categoria": "certificados",
+      "fecha": "2026-09-03T17:40:10.959Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 12 sobre el horario de silencio?",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:40:10.932Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 18 sobre las mascotas?",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:40:10.904Z"
+    },
+    {
+      "pregunta": "¡Auxilio fuego e incendio en el sótano 1!",
+      "categoria": "emergencias",
+      "fecha": "2026-09-03T17:39:29.862Z"
+    },
+    {
+      "pregunta": "Genera el paz y salvo de administración del 204",
+      "categoria": "certificados",
+      "fecha": "2026-09-03T17:39:29.812Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 12 sobre el horario de silencio?",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:39:29.779Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 18 sobre las mascotas?",
+      "categoria": "convivencia",
+      "fecha": "2026-09-03T17:39:29.745Z"
+    },
     {
       "pregunta": "articulo 12",
       "categoria": "convivencia",

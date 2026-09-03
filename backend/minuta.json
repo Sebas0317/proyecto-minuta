@@ -1,5 +1,126 @@
 [
   {
+    "id": "min-sos-1788457265655",
+    "fecha": "2026-09-03T17:41:05.655Z",
+    "tipo": "emergencia",
+    "radicado": "SOS-9196",
+    "aptoAfectado": "Zonas Comunes",
+    "guardaTurno": "MinutaBot (Alerta Automática SOS)",
+    "descripcion": "🚨 [ALERTA SOS EMITIDA POR CHATBOT]: \"¡Auxilio fuego e incendio en el sótano 1!\"",
+    "severidad": "peligro",
+    "estado": "abierta"
+  },
+  {
+    "id": "min-1788457265421-1788457265421-0d8163",
+    "fecha": "2026-09-03T17:41:05.403Z",
+    "tipo": "acceso",
+    "titulo": "Salida: Visitante Test (visitante)",
+    "descripcion": "Se registra salida de Visitante Test (Doc: 10203040). Destino fue Torre 2 Apto 302. Tiempo de permanencia: 1 min.",
+    "guarda": "admin",
+    "severidad": "info",
+    "unidadId": "torre2-302",
+    "evidencia": null
+  },
+  {
+    "id": "min-1788457265374-1788457265374-31acdf",
+    "fecha": "2026-09-03T17:41:05.354Z",
+    "tipo": "acceso",
+    "titulo": "Ingreso: Visitante Test (visitante)",
+    "descripcion": "Ingreso autorizado para Visitante Test (Doc: 10203040) hacia Torre 2 Apto 302. Motivo: Visita general. Autorizado por: Residente.",
+    "guarda": "admin",
+    "severidad": "info",
+    "unidadId": "torre2-302",
+    "evidencia": null
+  },
+  {
+    "id": "min-1788457265208-1788457265208-424103",
+    "fecha": "2026-09-03T17:41:05.208Z",
+    "tipo": "recorrido",
+    "titulo": "Test de Vigilancia Perimetral",
+    "descripcion": "Ronda de prueba sin novedades en Torre 1",
+    "guarda": "Guarda Test",
+    "severidad": "informativa",
+    "unidadId": null,
+    "evidencia": null
+  },
+  {
+    "id": "min-sos-1788457252305",
+    "fecha": "2026-09-03T17:40:52.305Z",
+    "tipo": "emergencia",
+    "radicado": "SOS-7970",
+    "aptoAfectado": "Zonas Comunes",
+    "guardaTurno": "MinutaBot (Alerta Automática SOS)",
+    "descripcion": "🚨 [ALERTA SOS EMITIDA POR CHATBOT]: \"¡Auxilio fuego e incendio en el sótano 1!\"",
+    "severidad": "peligro",
+    "estado": "abierta"
+  },
+  {
+    "id": "min-1788457252006-1788457252006-df7bcd",
+    "fecha": "2026-09-03T17:40:51.988Z",
+    "tipo": "acceso",
+    "titulo": "Salida: Visitante Test (visitante)",
+    "descripcion": "Se registra salida de Visitante Test (Doc: 10203040). Destino fue Torre 2 Apto 302. Tiempo de permanencia: 1 min.",
+    "guarda": "admin",
+    "severidad": "info",
+    "unidadId": "torre2-302",
+    "evidencia": null
+  },
+  {
+    "id": "min-1788457251938-1788457251938-82df4d",
+    "fecha": "2026-09-03T17:40:51.920Z",
+    "tipo": "acceso",
+    "titulo": "Ingreso: Visitante Test (visitante)",
+    "descripcion": "Ingreso autorizado para Visitante Test (Doc: 10203040) hacia Torre 2 Apto 302. Motivo: Visita general. Autorizado por: Residente.",
+    "guarda": "admin",
+    "severidad": "info",
+    "unidadId": "torre2-302",
+    "evidencia": null
+  },
+  {
+    "id": "min-1788457251783-1788457251783-d8571c",
+    "fecha": "2026-09-03T17:40:51.784Z",
+    "tipo": "recorrido",
+    "titulo": "Test de Vigilancia Perimetral",
+    "descripcion": "Ronda de prueba sin novedades en Torre 1",
+    "guarda": "Guarda Test",
+    "severidad": "informativa",
+    "unidadId": null,
+    "evidencia": null
+  },
+  {
+    "id": "min-sos-1788457210985",
+    "fecha": "2026-09-03T17:40:10.985Z",
+    "tipo": "emergencia",
+    "radicado": "SOS-1903",
+    "aptoAfectado": "Zonas Comunes",
+    "guardaTurno": "MinutaBot (Alerta Automática SOS)",
+    "descripcion": "🚨 [ALERTA SOS EMITIDA POR CHATBOT]: \"¡Auxilio fuego e incendio en el sótano 1!\"",
+    "severidad": "peligro",
+    "estado": "abierta"
+  },
+  {
+    "id": "min-1788457210624-1788457210624-7a7ebd",
+    "fecha": "2026-09-03T17:40:10.625Z",
+    "tipo": "recorrido",
+    "titulo": "Test de Vigilancia Perimetral",
+    "descripcion": "Ronda de prueba sin novedades en Torre 1",
+    "guarda": "Guarda Test",
+    "severidad": "informativa",
+    "unidadId": null,
+    "evidencia": null
+  },
+  {
+    "id": "min-sos-1788457169841",
+    "fecha": "2026-09-03T17:39:29.841Z",
+    "tipo": "emergencia",
+    "radicado": "SOS-9150",
+    "aptoAfectado": "Zonas Comunes",
+    "guardaTurno": "MinutaBot (Alerta Automática SOS)",
+    "descripcion": "🚨 [ALERTA SOS EMITIDA POR CHATBOT]: \"¡Auxilio fuego e incendio en el sótano 1!\"",
+    "severidad": "peligro",
+    "estado": "abierta"
+  },
+  {
     "id": "min-sos-1788456593819",
     "fecha": "2026-09-03T17:29:53.819Z",
     "tipo": "emergencia",
