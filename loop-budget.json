@@ -1,0 +1,25 @@
+{
+  "currency": "USD",
+  "sessionLimit": 5,
+  "monthlyLimit": 100,
+  "currentSessionCost": 0.020475,
+  "currentMonthCost": 0.020475,
+  "modelPricing": {
+    "gemini-1.5-pro": {
+      "inputPerMillion": 1.25,
+      "outputPerMillion": 5
+    },
+    "gemini-1.5-flash": {
+      "inputPerMillion": 0.075,
+      "outputPerMillion": 0.3
+    },
+    "gemini-2.0-flash": {
+      "inputPerMillion": 0.075,
+      "outputPerMillion": 0.3
+    },
+    "gemini-3.5-flash": {
+      "inputPerMillion": 0.075,
+      "outputPerMillion": 0.3
+    }
+  }
+}

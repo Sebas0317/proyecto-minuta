@@ -1,0 +1,5201 @@
+[
+  {
+    "id": "t1-101",
+    "torre": "Torre 1",
+    "numero": "101",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Mariana Rodríguez",
+      "documento": "1020000137",
+      "telefono": "3111004567",
+      "email": "prop.1.101@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Mariana Rodríguez",
+        "documento": "1020000137",
+        "telefono": "3111004567",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM107",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-1101"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1101"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1101",
+    "pinAcceso": "1003"
+  },
+  {
+    "id": "t1-102",
+    "torre": "Torre 1",
+    "numero": "102",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Laura Marcela Pérez",
+      "documento": "1020000274",
+      "telefono": "3121009134",
+      "email": "prop.1.102@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Laura Marcela Pérez",
+        "documento": "1020000274",
+        "telefono": "3121009134",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "XYZ114",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-1102"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1102"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1102",
+    "pinAcceso": "1006"
+  },
+  {
+    "id": "t1-103",
+    "torre": "Torre 1",
+    "numero": "103",
+    "piso": 1,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Andrés Felipe Morales",
+      "documento": "1020000411",
+      "telefono": "3131013701",
+      "email": "prop.1.103@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Diana Carolina Jaramillo",
+      "inquilinoDoc": "1050000693",
+      "inquilinoTel": "3205009369",
+      "fechaInicio": "2026-02-03",
+      "fechaFin": "2027-02-03",
+      "canonMensual": 1700000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Diana Carolina Jaramillo",
+        "documento": "1050000693",
+        "telefono": "3205009369",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR121",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-1103"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1103"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1103",
+    "pinAcceso": "1009"
+  },
+  {
+    "id": "t1-104",
+    "torre": "Torre 1",
+    "numero": "104",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Claudia Patricia Vargas",
+      "documento": "1020000548",
+      "telefono": "3141018268",
+      "email": "prop.1.104@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Claudia Patricia Vargas",
+        "documento": "1020000548",
+        "telefono": "3141018268",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [],
+    "parqueaderosPrivados": [],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 220000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Inmueble sin bahía privada comprada.",
+    "pinAcceso": "1012"
+  },
+  {
+    "id": "t1-201",
+    "torre": "Torre 1",
+    "numero": "201",
+    "piso": 2,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Mauricio Restrepo",
+      "documento": "1020000685",
+      "telefono": "3101022835",
+      "email": "prop.1.201@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Mauricio Restrepo",
+        "documento": "1020000685",
+        "telefono": "3101022835",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM135",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-1201"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1201"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1201",
+    "pinAcceso": "1015"
+  },
+  {
+    "id": "t1-202",
+    "torre": "Torre 1",
+    "numero": "202",
+    "piso": 2,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Diana Carolina Jaramillo",
+      "documento": "1020000822",
+      "telefono": "3111027402",
+      "email": "prop.1.202@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Santiago Henao",
+      "inquilinoDoc": "1050001386",
+      "inquilinoTel": "3205018738",
+      "fechaInicio": "2026-05-03",
+      "fechaFin": "2027-05-03",
+      "canonMensual": 1800000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Santiago Henao",
+        "documento": "1050001386",
+        "telefono": "3205018738",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "ABC142",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-1202"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1202"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 3,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 780000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1202",
+    "pinAcceso": "1018"
+  },
+  {
+    "id": "t1-203",
+    "torre": "Torre 1",
+    "numero": "203",
+    "piso": 2,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Jorge Iván Ramírez",
+      "documento": "1020000959",
+      "telefono": "3121031969",
+      "email": "prop.1.203@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-1203"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1203",
+    "pinAcceso": "1021"
+  },
+  {
+    "id": "t1-204",
+    "torre": "Torre 1",
+    "numero": "204",
+    "piso": 2,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Valentina Castro",
+      "documento": "1020001096",
+      "telefono": "3131036536",
+      "email": "prop.1.204@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Valentina Castro",
+        "documento": "1020001096",
+        "telefono": "3131036536",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [],
+    "parqueaderosPrivados": [],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 220000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Inmueble sin bahía privada comprada.",
+    "pinAcceso": "1024"
+  },
+  {
+    "id": "t1-301",
+    "torre": "Torre 1",
+    "numero": "301",
+    "piso": 3,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Santiago Henao",
+      "documento": "1020001233",
+      "telefono": "3141041103",
+      "email": "prop.1.301@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino David Alejandro Ríos",
+      "inquilinoDoc": "1050002079",
+      "inquilinoTel": "3205028107",
+      "fechaInicio": "2026-08-03",
+      "fechaFin": "2027-08-03",
+      "canonMensual": 1900000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino David Alejandro Ríos",
+        "documento": "1050002079",
+        "telefono": "3205028107",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR163",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-1301"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1301"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1301",
+    "pinAcceso": "1027"
+  },
+  {
+    "id": "t1-302",
+    "torre": "Torre 1",
+    "numero": "302",
+    "piso": 3,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Esteban Duque",
+      "documento": "1020001370",
+      "telefono": "3101045670",
+      "email": "prop.1.302@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Esteban Duque",
+        "documento": "1020001370",
+        "telefono": "3101045670",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "GHJ170",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-1302"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1302"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1302",
+    "pinAcceso": "1030"
+  },
+  {
+    "id": "t1-303",
+    "torre": "Torre 1",
+    "numero": "303",
+    "piso": 3,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_venta",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Sofía Ospina",
+      "documento": "1020001507",
+      "telefono": "3111050237",
+      "email": "prop.1.303@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-1303"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1303",
+    "pinAcceso": "1033"
+  },
+  {
+    "id": "t1-304",
+    "torre": "Torre 1",
+    "numero": "304",
+    "piso": 3,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "David Alejandro Ríos",
+      "documento": "1020001644",
+      "telefono": "3121054804",
+      "email": "prop.1.304@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Isabella Montoya",
+      "inquilinoDoc": "1050002772",
+      "inquilinoTel": "3205037476",
+      "fechaInicio": "2026-01-03",
+      "fechaFin": "2027-01-03",
+      "canonMensual": 1900000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Isabella Montoya",
+        "documento": "1050002772",
+        "telefono": "3205037476",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "ABC184",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-1304"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1304"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 1,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 260000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": false,
+        "alertas": "Aviso de corte energía por mora",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1304",
+    "pinAcceso": "1036"
+  },
+  {
+    "id": "t1-401",
+    "torre": "Torre 1",
+    "numero": "401",
+    "piso": 4,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "vacio",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Camila Ortiz",
+      "documento": "1020001781",
+      "telefono": "3131059371",
+      "email": "prop.1.401@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-1401A",
+      "P-1401B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1401A, P-1401B",
+    "pinAcceso": "1039"
+  },
+  {
+    "id": "t1-402",
+    "torre": "Torre 1",
+    "numero": "402",
+    "piso": 4,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Alejandro Quintero",
+      "documento": "1020001918",
+      "telefono": "3141063938",
+      "email": "prop.1.402@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-1402"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1402",
+    "pinAcceso": "1042"
+  },
+  {
+    "id": "t1-403",
+    "torre": "Torre 1",
+    "numero": "403",
+    "piso": 4,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Isabella Montoya",
+      "documento": "1020002055",
+      "telefono": "3101068505",
+      "email": "prop.1.403@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Laura Marcela Pérez",
+      "inquilinoDoc": "1050003465",
+      "inquilinoTel": "3205046845",
+      "fechaInicio": "2026-04-03",
+      "fechaFin": "2027-04-03",
+      "canonMensual": 2000000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Laura Marcela Pérez",
+        "documento": "1050003465",
+        "telefono": "3205046845",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR205",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-1403"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1403"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1403",
+    "pinAcceso": "1045"
+  },
+  {
+    "id": "t1-404",
+    "torre": "Torre 1",
+    "numero": "404",
+    "piso": 4,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Carlos Alberto Gómez",
+      "documento": "1020002192",
+      "telefono": "3111073072",
+      "email": "prop.1.404@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Carlos Alberto Gómez",
+        "documento": "1020002192",
+        "telefono": "3111073072",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "GHJ212",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-1404"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1404"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1404",
+    "pinAcceso": "1048"
+  },
+  {
+    "id": "t1-501",
+    "torre": "Torre 1",
+    "numero": "501",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Mariana Rodríguez",
+      "documento": "1020002329",
+      "telefono": "3121077639",
+      "email": "prop.1.501@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Mariana Rodríguez",
+        "documento": "1020002329",
+        "telefono": "3121077639",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM219",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-1501A"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1501A",
+      "P-1501B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1501A, P-1501B",
+    "pinAcceso": "1051"
+  },
+  {
+    "id": "t1-502",
+    "torre": "Torre 1",
+    "numero": "502",
+    "piso": 5,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Laura Marcela Pérez",
+      "documento": "1020002466",
+      "telefono": "3131082206",
+      "email": "prop.1.502@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Mauricio Restrepo",
+      "inquilinoDoc": "1050004158",
+      "inquilinoTel": "3205056214",
+      "fechaInicio": "2026-07-03",
+      "fechaFin": "2027-07-03",
+      "canonMensual": 2100000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Mauricio Restrepo",
+        "documento": "1050004158",
+        "telefono": "3205056214",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "ABC226",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-1502A"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1502A",
+      "P-1502B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 3,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 900000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1502A, P-1502B",
+    "pinAcceso": "1054"
+  },
+  {
+    "id": "t1-503",
+    "torre": "Torre 1",
+    "numero": "503",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Andrés Felipe Morales",
+      "documento": "1020002603",
+      "telefono": "3141086773",
+      "email": "prop.1.503@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Andrés Felipe Morales",
+        "documento": "1020002603",
+        "telefono": "3141086773",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM233",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-1503"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1503"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1503",
+    "pinAcceso": "1057"
+  },
+  {
+    "id": "t1-504",
+    "torre": "Torre 1",
+    "numero": "504",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Claudia Patricia Vargas",
+      "documento": "1020002740",
+      "telefono": "3101091340",
+      "email": "prop.1.504@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Claudia Patricia Vargas",
+        "documento": "1020002740",
+        "telefono": "3101091340",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "XYZ240",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-1504"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-1504"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-1504",
+    "pinAcceso": "1060"
+  },
+  {
+    "id": "t2-101",
+    "torre": "Torre 2",
+    "numero": "101",
+    "piso": 1,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Mauricio Restrepo",
+      "documento": "1020002877",
+      "telefono": "3111095907",
+      "email": "prop.2.101@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-2101"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2101",
+    "pinAcceso": "1063"
+  },
+  {
+    "id": "t2-102",
+    "torre": "Torre 2",
+    "numero": "102",
+    "piso": 1,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_venta",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Diana Carolina Jaramillo",
+      "documento": "1020003014",
+      "telefono": "3121100474",
+      "email": "prop.2.102@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-2102"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2102",
+    "pinAcceso": "1066"
+  },
+  {
+    "id": "t2-103",
+    "torre": "Torre 2",
+    "numero": "103",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Jorge Iván Ramírez",
+      "documento": "1020003151",
+      "telefono": "3131105041",
+      "email": "prop.2.103@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Jorge Iván Ramírez",
+        "documento": "1020003151",
+        "telefono": "3131105041",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM261",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-2103"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2103"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2103",
+    "pinAcceso": "1069"
+  },
+  {
+    "id": "t2-104",
+    "torre": "Torre 2",
+    "numero": "104",
+    "piso": 1,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Valentina Castro",
+      "documento": "1020003288",
+      "telefono": "3141109608",
+      "email": "prop.2.104@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Sofía Ospina",
+      "inquilinoDoc": "1050005544",
+      "inquilinoTel": "3205074952",
+      "fechaInicio": "2026-03-03",
+      "fechaFin": "2027-03-03",
+      "canonMensual": 1700000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Sofía Ospina",
+        "documento": "1050005544",
+        "telefono": "3205074952",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [],
+    "parqueaderosPrivados": [],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 1,
+        "cuotaMensual": 220000,
+        "saldoPendiente": 220000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": false,
+        "alertas": "Aviso de corte energía por mora",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Inmueble sin bahía privada comprada.",
+    "pinAcceso": "1072"
+  },
+  {
+    "id": "t2-201",
+    "torre": "Torre 2",
+    "numero": "201",
+    "piso": 2,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Santiago Henao",
+      "documento": "1020003425",
+      "telefono": "3101114175",
+      "email": "prop.2.201@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Santiago Henao",
+        "documento": "1020003425",
+        "telefono": "3101114175",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM275",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-2201"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2201"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2201",
+    "pinAcceso": "1075"
+  },
+  {
+    "id": "t2-202",
+    "torre": "Torre 2",
+    "numero": "202",
+    "piso": 2,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "vacio",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Esteban Duque",
+      "documento": "1020003562",
+      "telefono": "3111118742",
+      "email": "prop.2.202@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-2202"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2202",
+    "pinAcceso": "1078"
+  },
+  {
+    "id": "t2-203",
+    "torre": "Torre 2",
+    "numero": "203",
+    "piso": 2,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Sofía Ospina",
+      "documento": "1020003699",
+      "telefono": "3121123309",
+      "email": "prop.2.203@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Alejandro Quintero",
+      "inquilinoDoc": "1050006237",
+      "inquilinoTel": "3205084321",
+      "fechaInicio": "2026-06-03",
+      "fechaFin": "2027-06-03",
+      "canonMensual": 1800000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Alejandro Quintero",
+        "documento": "1050006237",
+        "telefono": "3205084321",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR289",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-2203"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2203"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2203",
+    "pinAcceso": "1081"
+  },
+  {
+    "id": "t2-204",
+    "torre": "Torre 2",
+    "numero": "204",
+    "piso": 2,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "David Alejandro Ríos",
+      "documento": "1020003836",
+      "telefono": "3131127876",
+      "email": "prop.2.204@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 220000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Inmueble sin bahía privada comprada.",
+    "pinAcceso": "1084"
+  },
+  {
+    "id": "t2-301",
+    "torre": "Torre 2",
+    "numero": "301",
+    "piso": 3,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Camila Ortiz",
+      "documento": "1020003973",
+      "telefono": "3141132443",
+      "email": "prop.2.301@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Camila Ortiz",
+        "documento": "1020003973",
+        "telefono": "3141132443",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM303",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-2301"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2301"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2301",
+    "pinAcceso": "1087"
+  },
+  {
+    "id": "t2-302",
+    "torre": "Torre 2",
+    "numero": "302",
+    "piso": 3,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Alejandro Quintero",
+      "documento": "1020004110",
+      "telefono": "3101137010",
+      "email": "prop.2.302@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Mariana Rodríguez",
+      "inquilinoDoc": "1050006930",
+      "inquilinoTel": "3205093690",
+      "fechaInicio": "2025-11-03",
+      "fechaFin": "2026-11-03",
+      "canonMensual": 1900000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Mariana Rodríguez",
+        "documento": "1050006930",
+        "telefono": "3205093690",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "ABC310",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-2302"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2302"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 3,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 780000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2302",
+    "pinAcceso": "1090"
+  },
+  {
+    "id": "t2-303",
+    "torre": "Torre 2",
+    "numero": "303",
+    "piso": 3,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Isabella Montoya",
+      "documento": "1020004247",
+      "telefono": "3111141577",
+      "email": "prop.2.303@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Isabella Montoya",
+        "documento": "1020004247",
+        "telefono": "3111141577",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM317",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-2303"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2303"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2303",
+    "pinAcceso": "1093"
+  },
+  {
+    "id": "t2-304",
+    "torre": "Torre 2",
+    "numero": "304",
+    "piso": 3,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Carlos Alberto Gómez",
+      "documento": "1020004384",
+      "telefono": "3121146144",
+      "email": "prop.2.304@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Carlos Alberto Gómez",
+        "documento": "1020004384",
+        "telefono": "3121146144",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "XYZ324",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-2304"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2304"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2304",
+    "pinAcceso": "1096"
+  },
+  {
+    "id": "t2-401",
+    "torre": "Torre 2",
+    "numero": "401",
+    "piso": 4,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_venta",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Mariana Rodríguez",
+      "documento": "1020004521",
+      "telefono": "3131150711",
+      "email": "prop.2.401@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-2401A",
+      "P-2401B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2401A, P-2401B",
+    "pinAcceso": "1099"
+  },
+  {
+    "id": "t2-402",
+    "torre": "Torre 2",
+    "numero": "402",
+    "piso": 4,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Laura Marcela Pérez",
+      "documento": "1020004658",
+      "telefono": "3141155278",
+      "email": "prop.2.402@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Laura Marcela Pérez",
+        "documento": "1020004658",
+        "telefono": "3141155278",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "GHJ338",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-2402"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2402"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2402",
+    "pinAcceso": "1102"
+  },
+  {
+    "id": "t2-403",
+    "torre": "Torre 2",
+    "numero": "403",
+    "piso": 4,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Andrés Felipe Morales",
+      "documento": "1020004795",
+      "telefono": "3101159845",
+      "email": "prop.2.403@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-2403"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2403",
+    "pinAcceso": "1105"
+  },
+  {
+    "id": "t2-404",
+    "torre": "Torre 2",
+    "numero": "404",
+    "piso": 4,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Claudia Patricia Vargas",
+      "documento": "1020004932",
+      "telefono": "3111164412",
+      "email": "prop.2.404@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Jorge Iván Ramírez",
+      "inquilinoDoc": "1050008316",
+      "inquilinoTel": "3205112428",
+      "fechaInicio": "2026-05-03",
+      "fechaFin": "2027-05-03",
+      "canonMensual": 2000000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Jorge Iván Ramírez",
+        "documento": "1050008316",
+        "telefono": "3205112428",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "ABC352",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-2404"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2404"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 1,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 260000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": false,
+        "alertas": "Aviso de corte energía por mora",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2404",
+    "pinAcceso": "1108"
+  },
+  {
+    "id": "t2-501",
+    "torre": "Torre 2",
+    "numero": "501",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Mauricio Restrepo",
+      "documento": "1020005069",
+      "telefono": "3121168979",
+      "email": "prop.2.501@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Mauricio Restrepo",
+        "documento": "1020005069",
+        "telefono": "3121168979",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM359",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-2501A"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2501A",
+      "P-2501B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2501A, P-2501B",
+    "pinAcceso": "1111"
+  },
+  {
+    "id": "t2-502",
+    "torre": "Torre 2",
+    "numero": "502",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Diana Carolina Jaramillo",
+      "documento": "1020005206",
+      "telefono": "3131173546",
+      "email": "prop.2.502@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Diana Carolina Jaramillo",
+        "documento": "1020005206",
+        "telefono": "3131173546",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "XYZ366",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-2502A"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2502A",
+      "P-2502B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2502A, P-2502B",
+    "pinAcceso": "1114"
+  },
+  {
+    "id": "t2-503",
+    "torre": "Torre 2",
+    "numero": "503",
+    "piso": 5,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "vacio",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Jorge Iván Ramírez",
+      "documento": "1020005343",
+      "telefono": "3141178113",
+      "email": "prop.2.503@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-2503"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2503",
+    "pinAcceso": "1117"
+  },
+  {
+    "id": "t2-504",
+    "torre": "Torre 2",
+    "numero": "504",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Valentina Castro",
+      "documento": "1020005480",
+      "telefono": "3101182680",
+      "email": "prop.2.504@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Valentina Castro",
+        "documento": "1020005480",
+        "telefono": "3101182680",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "GHJ380",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-2504"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-2504"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-2504",
+    "pinAcceso": "1120"
+  },
+  {
+    "id": "t3-101",
+    "torre": "Torre 3",
+    "numero": "101",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Santiago Henao",
+      "documento": "1020005617",
+      "telefono": "3111187247",
+      "email": "prop.3.101@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Santiago Henao",
+        "documento": "1020005617",
+        "telefono": "3111187247",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM387",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-3101"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3101"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3101",
+    "pinAcceso": "1123"
+  },
+  {
+    "id": "t3-102",
+    "torre": "Torre 3",
+    "numero": "102",
+    "piso": 1,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Esteban Duque",
+      "documento": "1020005754",
+      "telefono": "3121191814",
+      "email": "prop.3.102@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-3102"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 3,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 780000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3102",
+    "pinAcceso": "1126"
+  },
+  {
+    "id": "t3-103",
+    "torre": "Torre 3",
+    "numero": "103",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Sofía Ospina",
+      "documento": "1020005891",
+      "telefono": "3131196381",
+      "email": "prop.3.103@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Sofía Ospina",
+        "documento": "1020005891",
+        "telefono": "3131196381",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM401",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-3103"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3103"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3103",
+    "pinAcceso": "1129"
+  },
+  {
+    "id": "t3-104",
+    "torre": "Torre 3",
+    "numero": "104",
+    "piso": 1,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_venta",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "David Alejandro Ríos",
+      "documento": "1020006028",
+      "telefono": "3141200948",
+      "email": "prop.3.104@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 220000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Inmueble sin bahía privada comprada.",
+    "pinAcceso": "1132"
+  },
+  {
+    "id": "t3-201",
+    "torre": "Torre 3",
+    "numero": "201",
+    "piso": 2,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Camila Ortiz",
+      "documento": "1020006165",
+      "telefono": "3101205515",
+      "email": "prop.3.201@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Carlos Alberto Gómez",
+      "inquilinoDoc": "1050010395",
+      "inquilinoTel": "3205140535",
+      "fechaInicio": "2026-04-03",
+      "fechaFin": "2027-04-03",
+      "canonMensual": 1800000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Carlos Alberto Gómez",
+        "documento": "1050010395",
+        "telefono": "3205140535",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR415",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-3201"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3201"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3201",
+    "pinAcceso": "1135"
+  },
+  {
+    "id": "t3-202",
+    "torre": "Torre 3",
+    "numero": "202",
+    "piso": 2,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Alejandro Quintero",
+      "documento": "1020006302",
+      "telefono": "3111210082",
+      "email": "prop.3.202@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Alejandro Quintero",
+        "documento": "1020006302",
+        "telefono": "3111210082",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "GHJ422",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-3202"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3202"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3202",
+    "pinAcceso": "1138"
+  },
+  {
+    "id": "t3-203",
+    "torre": "Torre 3",
+    "numero": "203",
+    "piso": 2,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Isabella Montoya",
+      "documento": "1020006439",
+      "telefono": "3121214649",
+      "email": "prop.3.203@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Isabella Montoya",
+        "documento": "1020006439",
+        "telefono": "3121214649",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM429",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-3203"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3203"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3203",
+    "pinAcceso": "1141"
+  },
+  {
+    "id": "t3-204",
+    "torre": "Torre 3",
+    "numero": "204",
+    "piso": 2,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Carlos Alberto Gómez",
+      "documento": "1020006576",
+      "telefono": "3131219216",
+      "email": "prop.3.204@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Andrés Felipe Morales",
+      "inquilinoDoc": "1050011088",
+      "inquilinoTel": "3205149904",
+      "fechaInicio": "2026-07-03",
+      "fechaFin": "2027-07-03",
+      "canonMensual": 1800000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Andrés Felipe Morales",
+        "documento": "1050011088",
+        "telefono": "3205149904",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [],
+    "parqueaderosPrivados": [],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 1,
+        "cuotaMensual": 220000,
+        "saldoPendiente": 220000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": false,
+        "alertas": "Aviso de corte energía por mora",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Inmueble sin bahía privada comprada.",
+    "pinAcceso": "1144"
+  },
+  {
+    "id": "t3-301",
+    "torre": "Torre 3",
+    "numero": "301",
+    "piso": 3,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Mariana Rodríguez",
+      "documento": "1020006713",
+      "telefono": "3141223783",
+      "email": "prop.3.301@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-3301"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3301",
+    "pinAcceso": "1147"
+  },
+  {
+    "id": "t3-302",
+    "torre": "Torre 3",
+    "numero": "302",
+    "piso": 3,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Laura Marcela Pérez",
+      "documento": "1020006850",
+      "telefono": "3101228350",
+      "email": "prop.3.302@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Laura Marcela Pérez",
+        "documento": "1020006850",
+        "telefono": "3101228350",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "XYZ450",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-3302"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3302"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3302",
+    "pinAcceso": "1150"
+  },
+  {
+    "id": "t3-303",
+    "torre": "Torre 3",
+    "numero": "303",
+    "piso": 3,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Andrés Felipe Morales",
+      "documento": "1020006987",
+      "telefono": "3111232917",
+      "email": "prop.3.303@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Diana Carolina Jaramillo",
+      "inquilinoDoc": "1050011781",
+      "inquilinoTel": "3205159273",
+      "fechaInicio": "2025-12-03",
+      "fechaFin": "2026-12-03",
+      "canonMensual": 1900000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Diana Carolina Jaramillo",
+        "documento": "1050011781",
+        "telefono": "3205159273",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR457",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-3303"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3303"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3303",
+    "pinAcceso": "1153"
+  },
+  {
+    "id": "t3-304",
+    "torre": "Torre 3",
+    "numero": "304",
+    "piso": 3,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "vacio",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Claudia Patricia Vargas",
+      "documento": "1020007124",
+      "telefono": "3121237484",
+      "email": "prop.3.304@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-3304"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3304",
+    "pinAcceso": "1156"
+  },
+  {
+    "id": "t3-401",
+    "torre": "Torre 3",
+    "numero": "401",
+    "piso": 4,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Mauricio Restrepo",
+      "documento": "1020007261",
+      "telefono": "3131242051",
+      "email": "prop.3.401@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Mauricio Restrepo",
+        "documento": "1020007261",
+        "telefono": "3131242051",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM471",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-3401A"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3401A",
+      "P-3401B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3401A, P-3401B",
+    "pinAcceso": "1159"
+  },
+  {
+    "id": "t3-402",
+    "torre": "Torre 3",
+    "numero": "402",
+    "piso": 4,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Diana Carolina Jaramillo",
+      "documento": "1020007398",
+      "telefono": "3141246618",
+      "email": "prop.3.402@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Santiago Henao",
+      "inquilinoDoc": "1050012474",
+      "inquilinoTel": "3205168642",
+      "fechaInicio": "2026-03-03",
+      "fechaFin": "2027-03-03",
+      "canonMensual": 2000000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Santiago Henao",
+        "documento": "1050012474",
+        "telefono": "3205168642",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "ABC478",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-3402"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3402"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 3,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 780000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3402",
+    "pinAcceso": "1162"
+  },
+  {
+    "id": "t3-403",
+    "torre": "Torre 3",
+    "numero": "403",
+    "piso": 4,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_venta",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Jorge Iván Ramírez",
+      "documento": "1020007535",
+      "telefono": "3101251185",
+      "email": "prop.3.403@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-3403"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3403",
+    "pinAcceso": "1165"
+  },
+  {
+    "id": "t3-404",
+    "torre": "Torre 3",
+    "numero": "404",
+    "piso": 4,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Valentina Castro",
+      "documento": "1020007672",
+      "telefono": "3111255752",
+      "email": "prop.3.404@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-3404"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3404",
+    "pinAcceso": "1168"
+  },
+  {
+    "id": "t3-501",
+    "torre": "Torre 3",
+    "numero": "501",
+    "piso": 5,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Santiago Henao",
+      "documento": "1020007809",
+      "telefono": "3121260319",
+      "email": "prop.3.501@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino David Alejandro Ríos",
+      "inquilinoDoc": "1050013167",
+      "inquilinoTel": "3205178011",
+      "fechaInicio": "2026-06-03",
+      "fechaFin": "2027-06-03",
+      "canonMensual": 2100000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino David Alejandro Ríos",
+        "documento": "1050013167",
+        "telefono": "3205178011",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR499",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-3501A"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3501A",
+      "P-3501B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3501A, P-3501B",
+    "pinAcceso": "1171"
+  },
+  {
+    "id": "t3-502",
+    "torre": "Torre 3",
+    "numero": "502",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Esteban Duque",
+      "documento": "1020007946",
+      "telefono": "3131264886",
+      "email": "prop.3.502@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Esteban Duque",
+        "documento": "1020007946",
+        "telefono": "3131264886",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "GHJ506",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-3502A"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3502A",
+      "P-3502B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3502A, P-3502B",
+    "pinAcceso": "1174"
+  },
+  {
+    "id": "t3-503",
+    "torre": "Torre 3",
+    "numero": "503",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Sofía Ospina",
+      "documento": "1020008083",
+      "telefono": "3141269453",
+      "email": "prop.3.503@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Sofía Ospina",
+        "documento": "1020008083",
+        "telefono": "3141269453",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM513",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-3503"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3503"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3503",
+    "pinAcceso": "1177"
+  },
+  {
+    "id": "t3-504",
+    "torre": "Torre 3",
+    "numero": "504",
+    "piso": 5,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "David Alejandro Ríos",
+      "documento": "1020008220",
+      "telefono": "3101274020",
+      "email": "prop.3.504@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Isabella Montoya",
+      "inquilinoDoc": "1050013860",
+      "inquilinoTel": "3205187380",
+      "fechaInicio": "2025-11-03",
+      "fechaFin": "2026-11-03",
+      "canonMensual": 2100000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Isabella Montoya",
+        "documento": "1050013860",
+        "telefono": "3205187380",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "ABC520",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-3504"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-3504"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 1,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 260000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": false,
+        "alertas": "Aviso de corte energía por mora",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-3504",
+    "pinAcceso": "1180"
+  },
+  {
+    "id": "t4-101",
+    "torre": "Torre 4",
+    "numero": "101",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Camila Ortiz",
+      "documento": "1020008357",
+      "telefono": "3111278587",
+      "email": "prop.4.101@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Camila Ortiz",
+        "documento": "1020008357",
+        "telefono": "3111278587",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM527",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-4101"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4101"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4101",
+    "pinAcceso": "1183"
+  },
+  {
+    "id": "t4-102",
+    "torre": "Torre 4",
+    "numero": "102",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Alejandro Quintero",
+      "documento": "1020008494",
+      "telefono": "3121283154",
+      "email": "prop.4.102@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Alejandro Quintero",
+        "documento": "1020008494",
+        "telefono": "3121283154",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "XYZ534",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-4102"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4102"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4102",
+    "pinAcceso": "1186"
+  },
+  {
+    "id": "t4-103",
+    "torre": "Torre 4",
+    "numero": "103",
+    "piso": 1,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Isabella Montoya",
+      "documento": "1020008631",
+      "telefono": "3131287721",
+      "email": "prop.4.103@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-4103"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4103",
+    "pinAcceso": "1189"
+  },
+  {
+    "id": "t4-104",
+    "torre": "Torre 4",
+    "numero": "104",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Carlos Alberto Gómez",
+      "documento": "1020008768",
+      "telefono": "3141292288",
+      "email": "prop.4.104@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Carlos Alberto Gómez",
+        "documento": "1020008768",
+        "telefono": "3141292288",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [],
+    "parqueaderosPrivados": [],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 220000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Inmueble sin bahía privada comprada.",
+    "pinAcceso": "1192"
+  },
+  {
+    "id": "t4-201",
+    "torre": "Torre 4",
+    "numero": "201",
+    "piso": 2,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "vacio",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Mariana Rodríguez",
+      "documento": "1020008905",
+      "telefono": "3101296855",
+      "email": "prop.4.201@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-4201"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4201",
+    "pinAcceso": "1195"
+  },
+  {
+    "id": "t4-202",
+    "torre": "Torre 4",
+    "numero": "202",
+    "piso": 2,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_venta",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Laura Marcela Pérez",
+      "documento": "1020009042",
+      "telefono": "3111301422",
+      "email": "prop.4.202@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-4202"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 3,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 780000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4202",
+    "pinAcceso": "1198"
+  },
+  {
+    "id": "t4-203",
+    "torre": "Torre 4",
+    "numero": "203",
+    "piso": 2,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Andrés Felipe Morales",
+      "documento": "1020009179",
+      "telefono": "3121305989",
+      "email": "prop.4.203@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Andrés Felipe Morales",
+        "documento": "1020009179",
+        "telefono": "3121305989",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM569",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-4203"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4203"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4203",
+    "pinAcceso": "1201"
+  },
+  {
+    "id": "t4-204",
+    "torre": "Torre 4",
+    "numero": "204",
+    "piso": 2,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Claudia Patricia Vargas",
+      "documento": "1020009316",
+      "telefono": "3131310556",
+      "email": "prop.4.204@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Claudia Patricia Vargas",
+        "documento": "1020009316",
+        "telefono": "3131310556",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [],
+    "parqueaderosPrivados": [],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 220000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Inmueble sin bahía privada comprada.",
+    "pinAcceso": "1204"
+  },
+  {
+    "id": "t4-301",
+    "torre": "Torre 4",
+    "numero": "301",
+    "piso": 3,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Mauricio Restrepo",
+      "documento": "1020009453",
+      "telefono": "3141315123",
+      "email": "prop.4.301@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Valentina Castro",
+      "inquilinoDoc": "1050015939",
+      "inquilinoTel": "3205215487",
+      "fechaInicio": "2026-08-03",
+      "fechaFin": "2027-08-03",
+      "canonMensual": 1900000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Valentina Castro",
+        "documento": "1050015939",
+        "telefono": "3205215487",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR583",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-4301"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4301"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4301",
+    "pinAcceso": "1207"
+  },
+  {
+    "id": "t4-302",
+    "torre": "Torre 4",
+    "numero": "302",
+    "piso": 3,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Diana Carolina Jaramillo",
+      "documento": "1020009590",
+      "telefono": "3101319690",
+      "email": "prop.4.302@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-4302"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4302",
+    "pinAcceso": "1210"
+  },
+  {
+    "id": "t4-303",
+    "torre": "Torre 4",
+    "numero": "303",
+    "piso": 3,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Jorge Iván Ramírez",
+      "documento": "1020009727",
+      "telefono": "3111324257",
+      "email": "prop.4.303@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Jorge Iván Ramírez",
+        "documento": "1020009727",
+        "telefono": "3111324257",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM597",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-4303"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4303"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4303",
+    "pinAcceso": "1213"
+  },
+  {
+    "id": "t4-304",
+    "torre": "Torre 4",
+    "numero": "304",
+    "piso": 3,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Valentina Castro",
+      "documento": "1020009864",
+      "telefono": "3121328824",
+      "email": "prop.4.304@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Sofía Ospina",
+      "inquilinoDoc": "1050016632",
+      "inquilinoTel": "3205224856",
+      "fechaInicio": "2026-01-03",
+      "fechaFin": "2027-01-03",
+      "canonMensual": 1900000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Sofía Ospina",
+        "documento": "1050016632",
+        "telefono": "3205224856",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "ABC604",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-4304"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4304"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 1,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 260000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": false,
+        "alertas": "Aviso de corte energía por mora",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4304",
+    "pinAcceso": "1216"
+  },
+  {
+    "id": "t4-401",
+    "torre": "Torre 4",
+    "numero": "401",
+    "piso": 4,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Santiago Henao",
+      "documento": "1020010001",
+      "telefono": "3131333391",
+      "email": "prop.4.401@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Santiago Henao",
+        "documento": "1020010001",
+        "telefono": "3131333391",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM611",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-4401A"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4401A",
+      "P-4401B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4401A, P-4401B",
+    "pinAcceso": "1219"
+  },
+  {
+    "id": "t4-402",
+    "torre": "Torre 4",
+    "numero": "402",
+    "piso": 4,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Esteban Duque",
+      "documento": "1020010138",
+      "telefono": "3141337958",
+      "email": "prop.4.402@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Esteban Duque",
+        "documento": "1020010138",
+        "telefono": "3141337958",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "XYZ618",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-4402"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4402"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4402",
+    "pinAcceso": "1222"
+  },
+  {
+    "id": "t4-403",
+    "torre": "Torre 4",
+    "numero": "403",
+    "piso": 4,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Sofía Ospina",
+      "documento": "1020010275",
+      "telefono": "3101342525",
+      "email": "prop.4.403@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Alejandro Quintero",
+      "inquilinoDoc": "1050017325",
+      "inquilinoTel": "3205234225",
+      "fechaInicio": "2026-04-03",
+      "fechaFin": "2027-04-03",
+      "canonMensual": 2000000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Alejandro Quintero",
+        "documento": "1050017325",
+        "telefono": "3205234225",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR625",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-4403"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4403"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4403",
+    "pinAcceso": "1225"
+  },
+  {
+    "id": "t4-404",
+    "torre": "Torre 4",
+    "numero": "404",
+    "piso": 4,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "David Alejandro Ríos",
+      "documento": "1020010412",
+      "telefono": "3111347092",
+      "email": "prop.4.404@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "David Alejandro Ríos",
+        "documento": "1020010412",
+        "telefono": "3111347092",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "GHJ632",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-4404"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4404"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4404",
+    "pinAcceso": "1228"
+  },
+  {
+    "id": "t4-501",
+    "torre": "Torre 4",
+    "numero": "501",
+    "piso": 5,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Camila Ortiz",
+      "documento": "1020010549",
+      "telefono": "3121351659",
+      "email": "prop.4.501@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-4501A",
+      "P-4501B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4501A, P-4501B",
+    "pinAcceso": "1231"
+  },
+  {
+    "id": "t4-502",
+    "torre": "Torre 4",
+    "numero": "502",
+    "piso": 5,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "vacio",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Alejandro Quintero",
+      "documento": "1020010686",
+      "telefono": "3131356226",
+      "email": "prop.4.502@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-4502A",
+      "P-4502B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 3,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 900000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4502A, P-4502B",
+    "pinAcceso": "1234"
+  },
+  {
+    "id": "t4-503",
+    "torre": "Torre 4",
+    "numero": "503",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Isabella Montoya",
+      "documento": "1020010823",
+      "telefono": "3141360793",
+      "email": "prop.4.503@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Isabella Montoya",
+        "documento": "1020010823",
+        "telefono": "3141360793",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM653",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-4503"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4503"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4503",
+    "pinAcceso": "1237"
+  },
+  {
+    "id": "t4-504",
+    "torre": "Torre 4",
+    "numero": "504",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Carlos Alberto Gómez",
+      "documento": "1020010960",
+      "telefono": "3101365360",
+      "email": "prop.4.504@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Carlos Alberto Gómez",
+        "documento": "1020010960",
+        "telefono": "3101365360",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "XYZ660",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-4504"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-4504"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-4504",
+    "pinAcceso": "1240"
+  },
+  {
+    "id": "t5-101",
+    "torre": "Torre 5",
+    "numero": "101",
+    "piso": 1,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Mariana Rodríguez",
+      "documento": "1020011097",
+      "telefono": "3111369927",
+      "email": "prop.5.101@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Claudia Patricia Vargas",
+      "inquilinoDoc": "1050018711",
+      "inquilinoTel": "3205252963",
+      "fechaInicio": "2025-12-03",
+      "fechaFin": "2026-12-03",
+      "canonMensual": 1700000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Claudia Patricia Vargas",
+        "documento": "1050018711",
+        "telefono": "3205252963",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR667",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-5101"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5101"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5101",
+    "pinAcceso": "1243"
+  },
+  {
+    "id": "t5-102",
+    "torre": "Torre 5",
+    "numero": "102",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Laura Marcela Pérez",
+      "documento": "1020011234",
+      "telefono": "3121374494",
+      "email": "prop.5.102@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Laura Marcela Pérez",
+        "documento": "1020011234",
+        "telefono": "3121374494",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "GHJ674",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-5102"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5102"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5102",
+    "pinAcceso": "1246"
+  },
+  {
+    "id": "t5-103",
+    "torre": "Torre 5",
+    "numero": "103",
+    "piso": 1,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Andrés Felipe Morales",
+      "documento": "1020011371",
+      "telefono": "3131379061",
+      "email": "prop.5.103@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Andrés Felipe Morales",
+        "documento": "1020011371",
+        "telefono": "3131379061",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM681",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-5103"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5103"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5103",
+    "pinAcceso": "1249"
+  },
+  {
+    "id": "t5-104",
+    "torre": "Torre 5",
+    "numero": "104",
+    "piso": 1,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Claudia Patricia Vargas",
+      "documento": "1020011508",
+      "telefono": "3141383628",
+      "email": "prop.5.104@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 1,
+        "cuotaMensual": 220000,
+        "saldoPendiente": 220000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": false,
+        "alertas": "Aviso de corte energía por mora",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Inmueble sin bahía privada comprada.",
+    "pinAcceso": "1252"
+  },
+  {
+    "id": "t5-201",
+    "torre": "Torre 5",
+    "numero": "201",
+    "piso": 2,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Mauricio Restrepo",
+      "documento": "1020011645",
+      "telefono": "3101388195",
+      "email": "prop.5.201@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Mauricio Restrepo",
+        "documento": "1020011645",
+        "telefono": "3101388195",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM695",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-5201"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5201"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5201",
+    "pinAcceso": "1255"
+  },
+  {
+    "id": "t5-202",
+    "torre": "Torre 5",
+    "numero": "202",
+    "piso": 2,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Diana Carolina Jaramillo",
+      "documento": "1020011782",
+      "telefono": "3111392762",
+      "email": "prop.5.202@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Diana Carolina Jaramillo",
+        "documento": "1020011782",
+        "telefono": "3111392762",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "XYZ702",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-5202"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5202"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5202",
+    "pinAcceso": "1258"
+  },
+  {
+    "id": "t5-203",
+    "torre": "Torre 5",
+    "numero": "203",
+    "piso": 2,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Jorge Iván Ramírez",
+      "documento": "1020011919",
+      "telefono": "3121397329",
+      "email": "prop.5.203@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Esteban Duque",
+      "inquilinoDoc": "1050020097",
+      "inquilinoTel": "3205271701",
+      "fechaInicio": "2026-06-03",
+      "fechaFin": "2027-06-03",
+      "canonMensual": 1800000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Esteban Duque",
+        "documento": "1050020097",
+        "telefono": "3205271701",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR709",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-5203"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5203"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5203",
+    "pinAcceso": "1261"
+  },
+  {
+    "id": "t5-204",
+    "torre": "Torre 5",
+    "numero": "204",
+    "piso": 2,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_venta",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Valentina Castro",
+      "documento": "1020012056",
+      "telefono": "3131401896",
+      "email": "prop.5.204@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 220000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Inmueble sin bahía privada comprada.",
+    "pinAcceso": "1264"
+  },
+  {
+    "id": "t5-301",
+    "torre": "Torre 5",
+    "numero": "301",
+    "piso": 3,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Santiago Henao",
+      "documento": "1020012193",
+      "telefono": "3141406463",
+      "email": "prop.5.301@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Santiago Henao",
+        "documento": "1020012193",
+        "telefono": "3141406463",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM723",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-5301"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5301"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5301",
+    "pinAcceso": "1267"
+  },
+  {
+    "id": "t5-302",
+    "torre": "Torre 5",
+    "numero": "302",
+    "piso": 3,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Esteban Duque",
+      "documento": "1020012330",
+      "telefono": "3101411030",
+      "email": "prop.5.302@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Camila Ortiz",
+      "inquilinoDoc": "1050020790",
+      "inquilinoTel": "3205281070",
+      "fechaInicio": "2025-11-03",
+      "fechaFin": "2026-11-03",
+      "canonMensual": 1900000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Camila Ortiz",
+        "documento": "1050020790",
+        "telefono": "3205281070",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "ABC730",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-5302"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5302"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 3,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 780000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5302",
+    "pinAcceso": "1270"
+  },
+  {
+    "id": "t5-303",
+    "torre": "Torre 5",
+    "numero": "303",
+    "piso": 3,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Sofía Ospina",
+      "documento": "1020012467",
+      "telefono": "3111415597",
+      "email": "prop.5.303@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-5303"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5303",
+    "pinAcceso": "1273"
+  },
+  {
+    "id": "t5-304",
+    "torre": "Torre 5",
+    "numero": "304",
+    "piso": 3,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "David Alejandro Ríos",
+      "documento": "1020012604",
+      "telefono": "3121420164",
+      "email": "prop.5.304@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "David Alejandro Ríos",
+        "documento": "1020012604",
+        "telefono": "3121420164",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "XYZ744",
+        "tipo": "carro",
+        "marca": "Renault Duster",
+        "parqueaderoAsignado": "P-5304"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5304"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5304",
+    "pinAcceso": "1276"
+  },
+  {
+    "id": "t5-401",
+    "torre": "Torre 5",
+    "numero": "401",
+    "piso": 4,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Camila Ortiz",
+      "documento": "1020012741",
+      "telefono": "3131424731",
+      "email": "prop.5.401@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Carlos Alberto Gómez",
+      "inquilinoDoc": "1050021483",
+      "inquilinoTel": "3205290439",
+      "fechaInicio": "2026-02-03",
+      "fechaFin": "2027-02-03",
+      "canonMensual": 2000000,
+      "inmobiliaria": "Directo con Propietario",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Carlos Alberto Gómez",
+        "documento": "1050021483",
+        "telefono": "3205290439",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "WTR751",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-5401A"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5401A",
+      "P-5401B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5401A, P-5401B",
+    "pinAcceso": "1279"
+  },
+  {
+    "id": "t5-402",
+    "torre": "Torre 5",
+    "numero": "402",
+    "piso": 4,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Alejandro Quintero",
+      "documento": "1020012878",
+      "telefono": "3141429298",
+      "email": "prop.5.402@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Alejandro Quintero",
+        "documento": "1020012878",
+        "telefono": "3141429298",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "GHJ758",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-5402"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5402"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5402",
+    "pinAcceso": "1282"
+  },
+  {
+    "id": "t5-403",
+    "torre": "Torre 5",
+    "numero": "403",
+    "piso": 4,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Isabella Montoya",
+      "documento": "1020013015",
+      "telefono": "3101433865",
+      "email": "prop.5.403@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Isabella Montoya",
+        "documento": "1020013015",
+        "telefono": "3101433865",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "BNM765",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-5403"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5403"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5403",
+    "pinAcceso": "1285"
+  },
+  {
+    "id": "t5-404",
+    "torre": "Torre 5",
+    "numero": "404",
+    "piso": 4,
+    "tipoOcupacion": "arrendatario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Carlos Alberto Gómez",
+      "documento": "1020013152",
+      "telefono": "3111438432",
+      "email": "prop.5.404@condominio.com"
+    },
+    "contratoArriendo": {
+      "inquilinoNombre": "Inquilino Andrés Felipe Morales",
+      "inquilinoDoc": "1050022176",
+      "inquilinoTel": "3205299808",
+      "fechaInicio": "2026-05-03",
+      "fechaFin": "2027-05-03",
+      "canonMensual": 2000000,
+      "inmobiliaria": "Inmobiliaria El Bosque",
+      "telefonoInmobiliaria": "3009988776"
+    },
+    "residentes": [
+      {
+        "nombre": "Inquilino Andrés Felipe Morales",
+        "documento": "1050022176",
+        "telefono": "3205299808",
+        "parentesco": "Arrendatario Titular",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "ABC772",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-5404"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5404"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": false,
+        "mesesMora": 1,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 260000,
+        "fechaUltimoPago": "2026-05-15"
+      },
+      "recibosPublicos": {
+        "alDia": false,
+        "alertas": "Aviso de corte energía por mora",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5404",
+    "pinAcceso": "1288"
+  },
+  {
+    "id": "t5-501",
+    "torre": "Torre 5",
+    "numero": "501",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Mariana Rodríguez",
+      "documento": "1020013289",
+      "telefono": "3121442999",
+      "email": "prop.5.501@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Mariana Rodríguez",
+        "documento": "1020013289",
+        "telefono": "3121442999",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "KLM779",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-5501A"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5501A",
+      "P-5501B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5501A, P-5501B",
+    "pinAcceso": "1291"
+  },
+  {
+    "id": "t5-502",
+    "torre": "Torre 5",
+    "numero": "502",
+    "piso": 5,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_arriendo",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Laura Marcela Pérez",
+      "documento": "1020013426",
+      "telefono": "3131447566",
+      "email": "prop.5.502@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-5502A",
+      "P-5502B"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 300000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5502A, P-5502B",
+    "pinAcceso": "1294"
+  },
+  {
+    "id": "t5-503",
+    "torre": "Torre 5",
+    "numero": "503",
+    "piso": 5,
+    "tipoOcupacion": "desocupado",
+    "estadoComercial": "disponible_venta",
+    "estado": "desocupado",
+    "propietario": {
+      "nombre": "Andrés Felipe Morales",
+      "documento": "1020013563",
+      "telefono": "3141452133",
+      "email": "prop.5.503@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [],
+    "vehiculos": [],
+    "parqueaderosPrivados": [
+      "P-5503"
+    ],
+    "mascotas": [],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5503",
+    "pinAcceso": "1297"
+  },
+  {
+    "id": "t5-504",
+    "torre": "Torre 5",
+    "numero": "504",
+    "piso": 5,
+    "tipoOcupacion": "propietario",
+    "estadoComercial": "habitado",
+    "estado": "habitado",
+    "propietario": {
+      "nombre": "Claudia Patricia Vargas",
+      "documento": "1020013700",
+      "telefono": "3101456700",
+      "email": "prop.5.504@condominio.com"
+    },
+    "contratoArriendo": null,
+    "residentes": [
+      {
+        "nombre": "Claudia Patricia Vargas",
+        "documento": "1020013700",
+        "telefono": "3101456700",
+        "parentesco": "Propietario Residente",
+        "principal": true
+      }
+    ],
+    "vehiculos": [
+      {
+        "placa": "GHJ800",
+        "tipo": "carro",
+        "marca": "Toyota Corolla Cross",
+        "parqueaderoAsignado": "P-5504"
+      }
+    ],
+    "parqueaderosPrivados": [
+      "P-5504"
+    ],
+    "mascotas": [
+      {
+        "nombre": "Max",
+        "tipo": "perro",
+        "raza": "Criollo"
+      }
+    ],
+    "estadoFinanciero": {
+      "administracion": {
+        "alDia": true,
+        "mesesMora": 0,
+        "cuotaMensual": 260000,
+        "saldoPendiente": 0,
+        "fechaUltimoPago": "2026-08-28"
+      },
+      "recibosPublicos": {
+        "alDia": true,
+        "alertas": "Servicios públicos al día",
+        "suspendido": false
+      }
+    },
+    "observaciones": "Asignada bahía P-5504",
+    "pinAcceso": "1300"
+  }
+]

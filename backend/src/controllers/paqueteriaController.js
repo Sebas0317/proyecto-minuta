@@ -1,0 +1,145 @@
+'use strict';
+
+const { getPaquetes, savePaquetes, getUnidades } = require('../data/jsonStore');
+const { logger } = require('../utils/logger');
+const { generateId } = require('../utils/idGenerator');
+
+async function getAllPaquetes(req, res) {
+  try {
+    const paquetes = await getPaquetes();
+    const { estado, torre, apto, search } = req.query;
+
+    let filtered = [...paquetes];
+
+    if (estado) {
+      filtered = filtered.filter(p => p.estado === estado);
+    }
+
+    if (torre) {
+      filtered = filtered.filter(p => p.torre.toLowerCase() === torre.toLowerCase());
+    }
+
+    if (apto) {
+      filtered = filtered.filter(p => p.apto === apto);
+    }
+
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.destinatario.toLowerCase().includes(q) ||
+        p.guia?.toLowerCase().includes(q) ||
+        p.empresa?.toLowerCase().includes(q) ||
+        p.apto?.includes(q) ||
+        p.codigoRetiro?.includes(q)
+      );
+    }
+
+    // Sort newest first
+    filtered.sort((a, b) => new Date(b.fechaIngreso) - new Date(a.fechaIngreso));
+
+    res.json(filtered);
+  } catch (err) {
+    logger.error({ error: err.message }, 'Error al obtener paquetes');
+    res.status(500).json({ error: 'Error interno al obtener paquetes' });
+  }
+}
+
+async function createPaquete(req, res) {
+  try {
+    const paquetes = await getPaquetes();
+    const { unidadId, torre, apto, destinatario, empresa, guia, descripcion, guardaIngreso } = req.body;
+
+    if (!torre || !apto || !destinatario) {
+      return res.status(400).json({ error: 'Torre, Apartamento y Destinatario son obligatorios' });
+    }
+
+    // Generar código de retiro de 4 dígitos
+    const codigoRetiro = Math.floor(1000 + Math.random() * 9000).toString();
+
+    const nuevoPaquete = {
+      id: `pkg-${Date.now()}-${generateId(4)}`,
+      unidadId: unidadId || `${torre.toLowerCase().replace(/\s+/g, '')}-${apto}`,
+      torre,
+      apto: String(apto),
+      destinatario,
+      empresa: empresa || 'Mensajería / Domicilio',
+      guia: guia || 'S/N',
+      descripcion: descripcion || 'Paquete recibido en portería',
+      estado: 'recibido', // recibido, notificado, entregado
+      fechaIngreso: new Date().toISOString(),
+      fechaEntrega: null,
+      guardaIngreso: guardaIngreso || req.user?.username || req.user?.firstName || 'Guarda de Turno',
+      guardaEntrega: null,
+      codigoRetiro,
+      retiradoPor: null
+    };
+
+    paquetes.unshift(nuevoPaquete);
+    await savePaquetes(paquetes);
+
+    logger.info({ id: nuevoPaquete.id, torre, apto }, 'Paquete registrado exitosamente');
+    res.status(201).json(nuevoPaquete);
+  } catch (err) {
+    logger.error({ error: err.message }, 'Error al crear paquete');
+    res.status(500).json({ error: 'Error interno al registrar paquete' });
+  }
+}
+
+async function notificarPaquete(req, res) {
+  try {
+    const paquetes = await getPaquetes();
+    const { id } = req.params;
+    const paquete = paquetes.find(p => p.id === id);
+
+    if (!paquete) {
+      return res.status(404).json({ error: 'Paquete no encontrado' });
+    }
+
+    paquete.estado = 'notificado';
+    await savePaquetes(paquetes);
+
+    logger.info({ id }, 'Paquete marcado como notificado');
+    res.json(paquete);
+  } catch (err) {
+    logger.error({ error: err.message }, 'Error al notificar paquete');
+    res.status(500).json({ error: 'Error interno al notificar paquete' });
+  }
+}
+
+async function entregarPaquete(req, res) {
+  try {
+    const paquetes = await getPaquetes();
+    const { id } = req.params;
+    const { retiradoPor, guardaEntrega, codigoRetiro } = req.body;
+
+    const paquete = paquetes.find(p => p.id === id);
+    if (!paquete) {
+      return res.status(404).json({ error: 'Paquete no encontrado' });
+    }
+
+    // Validación opcional de código si fue provisto
+    if (codigoRetiro && paquete.codigoRetiro && codigoRetiro !== paquete.codigoRetiro) {
+      return res.status(400).json({ error: 'Código de retiro incorrecto' });
+    }
+
+    paquete.estado = 'entregado';
+    paquete.fechaEntrega = new Date().toISOString();
+    paquete.guardaEntrega = guardaEntrega || req.user?.username || req.user?.firstName || 'Guarda de Turno';
+    paquete.retiradoPor = retiradoPor || 'Residente titular';
+
+    await savePaquetes(paquetes);
+
+    logger.info({ id, retiradoPor: paquete.retiradoPor }, 'Paquete entregado exitosamente');
+    res.json(paquete);
+  } catch (err) {
+    logger.error({ error: err.message }, 'Error al entregar paquete');
+    res.status(500).json({ error: 'Error interno al entregar paquete' });
+  }
+}
+
+module.exports = {
+  getAllPaquetes,
+  createPaquete,
+  notificarPaquete,
+  entregarPaquete
+};

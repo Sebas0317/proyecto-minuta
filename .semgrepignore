@@ -1,0 +1,10 @@
+# Exclusión de archivos y carpetas para Semgrep SAST
+oi_env/
+node_modules/
+.opencode/
+dist/
+ai/
+scripts/
+backend/users.json
+backend/*.json.tmp
+docs/reports/

@@ -1,0 +1,205 @@
+{
+  "cambios": [
+    {
+      "id": "1781277571174-vgfn3",
+      "roomId": "ss-202",
+      "numero": "202",
+      "reservationId": "RES-202606-34WT",
+      "estadoAnterior": "disponible",
+      "estadoNuevo": "ocupada",
+      "huesped": "Test Guest",
+      "timestamp": "2026-06-12T15:19:31.174Z",
+      "reserva": {
+        "checkIn": "2026-06-12T15:19:31.116Z",
+        "checkOut": null,
+        "noches": 1,
+        "tarifa": 420000,
+        "documento": "2469023570",
+        "email": "",
+        "telefono": "",
+        "adultos": 1,
+        "ninos": 1,
+        "tieneMascota": false,
+        "nombreMascota": "",
+        "pago": {
+          "metodoPago": "efectivo",
+          "valorRecibido": 5093200,
+          "total": 5093200,
+          "subtotal": 4280000,
+          "iva": 813200,
+          "cargoHabitacion": 4200000,
+          "totalConsumos": 80000,
+          "noches": 10,
+          "tarifaNoche": 420000,
+          "cambio": 0
+        }
+      }
+    },
+    {
+      "id": "1781277570995-x9u22",
+      "roomId": "ss-202",
+      "numero": "202",
+      "reservationId": "RES-202606-34WT",
+      "estadoAnterior": "disponible",
+      "estadoNuevo": "reservada",
+      "huesped": "Test Guest",
+      "timestamp": "2026-06-12T15:19:30.995Z",
+      "reserva": null
+    },
+    {
+      "id": "1776995349280-4hahh",
+      "roomId": "sb-102",
+      "numero": "102",
+      "reservationId": "RES-202604-B8S1",
+      "estadoAnterior": "disponible",
+      "estadoNuevo": "ocupada",
+      "huesped": "Juan Pérez García",
+      "timestamp": "2026-04-24T01:49:09.280Z",
+      "reserva": {
+        "checkIn": "2026-04-24T01:49:09.146Z",
+        "checkOut": null,
+        "noches": 1,
+        "tarifa": 350000,
+        "documento": "1216107879",
+        "email": "",
+        "telefono": "",
+        "adultos": 1,
+        "ninos": 0,
+        "tieneMascota": false,
+        "nombreMascota": "",
+        "pago": {
+          "metodoPago": "efectivo",
+          "valorRecibido": 446250,
+          "total": 416500,
+          "subtotal": 350000,
+          "iva": 66500,
+          "cargoHabitacion": 350000,
+          "totalConsumos": 0,
+          "noches": 1,
+          "tarifaNoche": 350000,
+          "cambio": 29750
+        }
+      }
+    },
+    {
+      "id": "1776123415609-wd2fd",
+      "roomId": "sb-102",
+      "numero": "102",
+      "reservationId": null,
+      "estadoAnterior": "limpieza",
+      "estadoNuevo": "disponible",
+      "huesped": "",
+      "timestamp": "2026-04-13T23:36:55.609Z"
+    },
+    {
+      "id": "1775964723635-inyn6",
+      "roomId": "sb-101",
+      "numero": "101",
+      "reservationId": null,
+      "estadoAnterior": "limpieza",
+      "estadoNuevo": "disponible",
+      "huesped": "",
+      "timestamp": "2026-04-12T03:32:03.635Z"
+    },
+    {
+      "id": "1775964468995-19igs",
+      "roomId": "sb-102",
+      "numero": "102",
+      "reservationId": null,
+      "estadoAnterior": "disponible",
+      "estadoNuevo": "limpieza",
+      "huesped": "",
+      "timestamp": "2026-04-12T03:27:48.995Z"
+    },
+    {
+      "id": "1775964357351-12q57",
+      "roomId": "sb-102",
+      "numero": "102",
+      "reservationId": null,
+      "estadoAnterior": "mantenimiento",
+      "estadoNuevo": "disponible",
+      "huesped": "",
+      "timestamp": "2026-04-12T03:25:57.351Z"
+    },
+    {
+      "id": "1775964152835-vaxm8",
+      "roomId": "sb-102",
+      "numero": "102",
+      "reservationId": null,
+      "estadoAnterior": "disponible",
+      "estadoNuevo": "mantenimiento",
+      "huesped": "",
+      "timestamp": "2026-04-12T03:22:32.835Z"
+    },
+    {
+      "id": "1775964120509-hjsf6",
+      "roomId": "sb-102",
+      "numero": "102",
+      "reservationId": null,
+      "estadoAnterior": "limpieza",
+      "estadoNuevo": "disponible",
+      "huesped": "",
+      "timestamp": "2026-04-12T03:22:00.509Z"
+    },
+    {
+      "id": "1775963927830-dloim",
+      "roomId": "sb-102",
+      "numero": "102",
+      "reservationId": null,
+      "estadoAnterior": "disponible",
+      "estadoNuevo": "limpieza",
+      "huesped": "",
+      "timestamp": "2026-04-12T03:18:47.830Z"
+    },
+    {
+      "id": "1775963507832-af4wv",
+      "roomId": "sb-102",
+      "numero": "102",
+      "reservationId": null,
+      "estadoAnterior": "fuera_servicio",
+      "estadoNuevo": "disponible",
+      "huesped": "",
+      "timestamp": "2026-04-12T03:11:47.832Z"
+    },
+    {
+      "id": "1775961128685-2s13e",
+      "roomId": "sb-102",
+      "numero": "102",
+      "reservationId": null,
+      "estadoAnterior": "mantenimiento",
+      "estadoNuevo": "fuera_servicio",
+      "huesped": "Orval Johnson-Reilly",
+      "timestamp": "2026-04-12T02:32:08.685Z"
+    },
+    {
+      "id": "1775960143004-rhnau",
+      "roomId": "sb-102",
+      "numero": "102",
+      "reservationId": null,
+      "estadoAnterior": "disponible",
+      "estadoNuevo": "mantenimiento",
+      "huesped": "Orval Johnson-Reilly",
+      "timestamp": "2026-04-12T02:15:43.004Z"
+    },
+    {
+      "id": "1775959961724-hhb1n",
+      "roomId": "ss-202",
+      "numero": "202",
+      "reservationId": null,
+      "estadoAnterior": "limpieza",
+      "estadoNuevo": "disponible",
+      "huesped": "",
+      "timestamp": "2026-04-12T02:12:41.724Z"
+    },
+    {
+      "id": "1775959952837-zt6py",
+      "roomId": "ss-202",
+      "numero": "202",
+      "reservationId": null,
+      "estadoAnterior": "ocupada",
+      "estadoNuevo": "limpieza",
+      "huesped": "",
+      "timestamp": "2026-04-12T02:12:32.837Z"
+    }
+  ]
+}

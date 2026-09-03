@@ -1,0 +1,1 @@
+const fs = require('fs'); const [,, file, b64, mode] = process.argv; if (mode === 'append') { fs.appendFileSync(file, Buffer.from(b64, 'base64').toString('utf8')); } else { fs.writeFileSync(file, Buffer.from(b64, 'base64').toString('utf8')); } console.log('Wrote: ' + file);

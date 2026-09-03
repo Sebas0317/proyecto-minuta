@@ -1,0 +1,38 @@
+[
+  {
+    "id": "tra-1",
+    "tipo": "ingreso",
+    "unidadId": "t1-202",
+    "torre": "Torre 1",
+    "apto": "202",
+    "solicitante": "Darwin Andrés Castillo",
+    "telefono": "3182233445",
+    "fechaProgramada": "2026-09-05",
+    "horario": "08:00 a 12:00",
+    "empresaMudanza": "Mudanzas Rápidas Bogotá",
+    "placaVehiculo": "WTR556",
+    "estado": "aprobado",
+    "pazYSalvo": true,
+    "depositoGarantia": 200000,
+    "observaciones": "Ascensor de carga protegido con colchonetas.",
+    "aprobadoPor": "Administración Conjunto"
+  },
+  {
+    "id": "tra-2",
+    "tipo": "salida",
+    "unidadId": "t2-102",
+    "torre": "Torre 2",
+    "apto": "102",
+    "solicitante": "Andrés Felipe Cipamocha",
+    "telefono": "3176655443",
+    "fechaProgramada": "2026-09-12",
+    "horario": "14:00 a 17:00",
+    "empresaMudanza": "Trasteos El Bosque",
+    "placaVehiculo": "KJM102",
+    "estado": "pendiente_aprobacion",
+    "pazYSalvo": false,
+    "depositoGarantia": 0,
+    "observaciones": "Pendiente paz y salvo de cuota de administración de agosto.",
+    "aprobadoPor": null
+  }
+]

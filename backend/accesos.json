@@ -1,0 +1,56 @@
+[
+  {
+    "id": "acc-1",
+    "tipo": "visitante",
+    "nombre": "Felipe Mendoza",
+    "documento": "1029384756",
+    "unidadId": "t1-101",
+    "torre": "Torre 1",
+    "apto": "101",
+    "motivo": "Visita familiar",
+    "vehiculo": {
+      "placa": "QWE456",
+      "tipo": "carro"
+    },
+    "fechaIngreso": "2026-09-01T14:00:00.000Z",
+    "fechaSalida": null,
+    "estado": "en_conjunto",
+    "autorizadoPor": "Carlos Alberto Gómez",
+    "guarda": "Daniel Bautista"
+  },
+  {
+    "id": "acc-2",
+    "tipo": "domicilio",
+    "nombre": "Alexander Rojas (Rappi)",
+    "documento": "80998877",
+    "unidadId": "t1-201",
+    "torre": "Torre 1",
+    "apto": "201",
+    "motivo": "Entrega de comida",
+    "vehiculo": {
+      "placa": "ABC45D",
+      "tipo": "moto"
+    },
+    "fechaIngreso": "2026-09-01T15:30:00.000Z",
+    "fechaSalida": "2026-09-01T15:45:00.000Z",
+    "estado": "finalizado",
+    "autorizadoPor": "Juan Sebastián Sandoval",
+    "guarda": "Daniel Bautista"
+  },
+  {
+    "id": "acc-3",
+    "tipo": "contratista",
+    "nombre": "Mario Plomería y Gas",
+    "documento": "79882341",
+    "unidadId": "t2-101",
+    "torre": "Torre 2",
+    "apto": "101",
+    "motivo": "Reparación de tubería en cocina",
+    "vehiculo": null,
+    "fechaIngreso": "2026-09-01T10:00:00.000Z",
+    "fechaSalida": null,
+    "estado": "en_conjunto",
+    "autorizadoPor": "Gloria Stella Restrepo",
+    "guarda": "Daniel Bautista"
+  }
+]

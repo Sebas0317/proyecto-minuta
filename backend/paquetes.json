@@ -1,0 +1,53 @@
+[
+  {
+    "id": "pkg-101",
+    "unidadId": "t1-101",
+    "torre": "Torre 1",
+    "apto": "101",
+    "destinatario": "Carlos Alberto Gómez",
+    "empresa": "Servientrega",
+    "guia": "SER-9823412",
+    "descripcion": "Caja mediana de Amazon",
+    "estado": "recibido",
+    "fechaIngreso": "2026-09-01T09:15:00.000Z",
+    "fechaEntrega": null,
+    "guardaIngreso": "Daniel Bautista",
+    "guardaEntrega": null,
+    "codigoRetiro": "4821",
+    "retiradoPor": null
+  },
+  {
+    "id": "pkg-102",
+    "unidadId": "t2-102",
+    "torre": "Torre 2",
+    "apto": "102",
+    "destinatario": "Andrés Felipe Cipamocha",
+    "empresa": "Coordinadora",
+    "guia": "COO-4451290",
+    "descripcion": "Sobre de documentos bancarios",
+    "estado": "notificado",
+    "fechaIngreso": "2026-09-01T10:30:00.000Z",
+    "fechaEntrega": null,
+    "guardaIngreso": "Daniel Bautista",
+    "guardaEntrega": null,
+    "codigoRetiro": "1903",
+    "retiradoPor": null
+  },
+  {
+    "id": "pkg-103",
+    "unidadId": "t1-102",
+    "torre": "Torre 1",
+    "apto": "102",
+    "destinatario": "Laura Marcela Pérez",
+    "empresa": "Mercado Libre",
+    "guia": "MELI-993821",
+    "descripcion": "Paquete pequeño",
+    "estado": "entregado",
+    "fechaIngreso": "2026-08-31T15:20:00.000Z",
+    "fechaEntrega": "2026-08-31T19:45:00.000Z",
+    "guardaIngreso": "Pedro Martínez",
+    "guardaEntrega": "Pedro Martínez",
+    "codigoRetiro": "7721",
+    "retiradoPor": "Laura Marcela Pérez (C.C. 52894123)"
+  }
+]

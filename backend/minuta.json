@@ -1,0 +1,35 @@
+[
+  {
+    "id": "min-1",
+    "fecha": "2026-09-01T06:00:00.000Z",
+    "tipo": "cambio_turno",
+    "titulo": "Recepción de Puesto y Turno Mañana",
+    "descripcion": "Se recibe puesto de vigilancia por parte del guarda saliente Pedro Martínez. Se verifican 3 radios de comunicación operativos, libro de llaves completo y cámaras de seguridad funcionando al 100%.",
+    "guarda": "Daniel Bautista",
+    "severidad": "info",
+    "unidadId": null,
+    "evidencia": null
+  },
+  {
+    "id": "min-2",
+    "fecha": "2026-09-01T08:30:00.000Z",
+    "tipo": "ronda",
+    "titulo": "Ronda Perimetral Torre 1 y Torre 2",
+    "descripcion": "Se realiza recorrido de rutina por sótanos, escaleras de emergencia y shut de basuras. Sin anomalías encontradas.",
+    "guarda": "Daniel Bautista",
+    "severidad": "info",
+    "unidadId": null,
+    "evidencia": null
+  },
+  {
+    "id": "min-3",
+    "fecha": "2026-09-01T11:15:00.000Z",
+    "tipo": "incidente",
+    "titulo": "Vehículo mal estacionado en zona de visitantes",
+    "descripcion": "Vehículo Chevrolet Spark placa XYZ-123 estacionado ocupando dos bahías de visitantes. Se contacta a residente de Torre 1 Apto 201 para su respectiva corrección.",
+    "guarda": "Daniel Bautista",
+    "severidad": "advertencia",
+    "unidadId": "t1-201",
+    "evidencia": null
+  }
+]

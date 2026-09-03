@@ -1,0 +1,1019 @@
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { 
+  Shield, Search, UserCheck, Package, Car, AlertTriangle, 
+  Plus, CheckCircle, Clock, Send, Phone, User, Users,
+  Home, Building2, ArrowRight, ArrowLeft, LogOut, Check, X, RefreshCw
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { 
+  fetchUnidades, fetchAccesos, fetchPaquetes, fetchMinuta, fetchParqueaderos,
+  registrarIngreso, registrarSalida, createPaquete, notificarPaquete, entregarPaquete,
+  createMinutaEntry, ocuparParqueadero, liberarParqueadero
+} from '../services/api';
+
+export default function PorteriaDashboard() {
+  const [unidades, setUnidades] = useState([]);
+  const [accesos, setAccesos] = useState([]);
+  const [paquetes, setPaquetes] = useState([]);
+  const [minuta, setMinuta] = useState([]);
+  const [parqueaderos, setParqueaderos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedUnidad, setSelectedUnidad] = useState(null);
+
+  const [showIngresoModal, setShowIngresoModal] = useState(false);
+  const [showPaqueteModal, setShowPaqueteModal] = useState(false);
+  const [showMinutaModal, setShowMinutaModal] = useState(false);
+  const [showEntregaModal, setShowEntregaModal] = useState(null);
+
+  const [ingresoForm, setIngresoForm] = useState({
+    tipo: 'visitante',
+    nombre: '',
+    documento: '',
+    torre: 'Torre 1',
+    apto: '',
+    motivo: '',
+    vehiculoPlaca: '',
+    vehiculoTipo: 'carro',
+    parqueaderoAsignado: '',
+    autorizadoPor: ''
+  });
+
+  const [paqueteForm, setPaqueteForm] = useState({
+    torre: 'Torre 1',
+    apto: '',
+    destinatario: '',
+    empresa: 'Servientrega',
+    guia: '',
+    descripcion: 'Paquete mediano'
+  });
+
+  const [minutaForm, setMinutaForm] = useState({
+    tipo: 'general',
+    titulo: '',
+    descripcion: '',
+    severidad: 'info'
+  });
+
+  const [entregaForm, setEntregaForm] = useState({
+    retiradoPor: '',
+    codigoRetiro: ''
+  });
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [uData, aData, pData, mData, prqData] = await Promise.all([
+        fetchUnidades().catch(() => []),
+        fetchAccesos().catch(() => []),
+        fetchPaquetes().catch(() => []),
+        fetchMinuta().catch(() => []),
+        fetchParqueaderos().catch(() => [])
+      ]);
+      setUnidades(uData || []);
+      setAccesos(aData || []);
+      setPaquetes(pData || []);
+      setMinuta(mData || []);
+      setParqueaderos(prqData || []);
+    } catch (err) {
+      toast.error('Error al cargar datos de portería');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+    const interval = setInterval(loadData, 30000);
+    return () => clearInterval(interval);
+  }, [loadData]);
+
+  const stats = useMemo(() => {
+    const enConjunto = (accesos || []).filter(a => a.estado === 'en_conjunto');
+    const paquetesPendientes = (paquetes || []).filter(p => p.estado !== 'entregado');
+    const cuposLibres = (parqueaderos || []).filter(p => p.estado === 'disponible').length;
+    const novedadesHoy = (minuta || []).filter(m => m.fecha && m.fecha.startsWith(new Date().toISOString().slice(0, 10))).length;
+
+    return {
+      visitantesActivos: enConjunto.length,
+      paquetesPendientes: paquetesPendientes.length,
+      cuposLibres,
+      novedadesHoy
+    };
+  }, [accesos, paquetes, parqueaderos, minuta]);
+
+  const filteredUnidades = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase().trim();
+    return (unidades || []).filter(u => 
+      u.numero?.toLowerCase().includes(q) ||
+      u.torre?.toLowerCase().includes(q) ||
+      u.propietario?.nombre?.toLowerCase().includes(q) ||
+      u.residentes?.some(r => r.nombre.toLowerCase().includes(q) || r.documento?.includes(q)) ||
+      u.vehiculos?.some(v => v.placa?.toLowerCase().includes(q))
+    ).slice(0, 8);
+  }, [unidades, searchQuery]);
+
+  const handleRegistrarIngreso = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        tipo: ingresoForm.tipo,
+        nombre: ingresoForm.nombre,
+        documento: ingresoForm.documento,
+        torre: ingresoForm.torre,
+        apto: ingresoForm.apto,
+        motivo: ingresoForm.motivo,
+        autorizadoPor: ingresoForm.autorizadoPor,
+        vehiculo: ingresoForm.vehiculoPlaca ? {
+          placa: ingresoForm.vehiculoPlaca.toUpperCase(),
+          tipo: ingresoForm.vehiculoTipo
+        } : null,
+        parqueaderoAsignado: ingresoForm.parqueaderoAsignado || null
+      };
+
+      await registrarIngreso(payload);
+      toast.success(`Ingreso de ${ingresoForm.nombre} registrado correctamente`);
+      setShowIngresoModal(false);
+      setIngresoForm({
+        tipo: 'visitante',
+        nombre: '',
+        documento: '',
+        torre: 'Torre 1',
+        apto: '',
+        motivo: '',
+        vehiculoPlaca: '',
+        vehiculoTipo: 'carro',
+        parqueaderoAsignado: '',
+        autorizadoPor: ''
+      });
+      loadData();
+    } catch (err) {
+      toast.error(err.message || 'Error al registrar ingreso');
+    }
+  };
+
+  const handleSalida = async (accesoId, nombre) => {
+    try {
+      await registrarSalida(accesoId);
+      toast.success(`Salida de ${nombre} registrada`);
+      loadData();
+    } catch (err) {
+      toast.error('Error al registrar salida');
+    }
+  };
+
+  const handleRegistrarPaquete = async (e) => {
+    e.preventDefault();
+    try {
+      await createPaquete(paqueteForm);
+      toast.success(`Paquete para ${paqueteForm.torre} - Apto ${paqueteForm.apto} registrado`);
+      setShowPaqueteModal(false);
+      setPaqueteForm({
+        torre: 'Torre 1',
+        apto: '',
+        destinatario: '',
+        empresa: 'Servientrega',
+        guia: '',
+        descripcion: 'Paquete mediano'
+      });
+      loadData();
+    } catch (err) {
+      toast.error(err.message || 'Error al registrar paquete');
+    }
+  };
+
+  const handleNotificarWhatsApp = (paquete) => {
+    const unidad = unidades.find(u => u.torre === paquete.torre && u.numero === paquete.apto);
+    const tel = unidad?.residentes?.[0]?.telefono || unidad?.propietario?.telefono;
+    const msg = encodeURIComponent(`Hola, le informamos desde la Portería que ha llegado un paquete a su nombre (${paquete.empresa}, Guía: ${paquete.guia}). Código de retiro: ${paquete.codigoRetiro}. Por favor pasar a reclamarlo.`);
+    
+    if (tel) {
+      window.open(`https://wa.me/57${tel.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
+      notificarPaquete(paquete.id).then(() => loadData());
+    } else {
+      toast.info(`Código de retiro: ${paquete.codigoRetiro}`);
+    }
+  };
+
+  const handleEntregarPaquete = async (e) => {
+    e.preventDefault();
+    if (!showEntregaModal) return;
+    try {
+      await entregarPaquete(showEntregaModal.id, entregaForm);
+      toast.success('Paquete entregado satisfactoriamente');
+      setShowEntregaModal(null);
+      setEntregaForm({ retiradoPor: '', codigoRetiro: '' });
+      loadData();
+    } catch (err) {
+      toast.error(err.message || 'Error al entregar paquete');
+    }
+  };
+
+  const handleRegistrarMinuta = async (e) => {
+    e.preventDefault();
+    try {
+      await createMinutaEntry(minutaForm);
+      toast.success('Novedad asentada en la minuta digital');
+      setShowMinutaModal(false);
+      setMinutaForm({
+        tipo: 'general',
+        titulo: '',
+        descripcion: '',
+        severidad: 'info'
+      });
+      loadData();
+    } catch (err) {
+      toast.error(err.message || 'Error al registrar en minuta');
+    }
+  };
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-6 space-y-6">
+      {/* HEADER DE CONTROL */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-800/80 backdrop-blur border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl">
+            <Shield className="w-8 h-8" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+              Portería Principal <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">Turno Activo</span>
+            </h1>
+            <p className="text-slate-400 text-sm">Control Operativo de Accesos, Paquetería y Minuta</p>
+          </div>
+        </div>
+
+        {/* BOTONES DE ACCIÓN RÁPIDA */}
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <button
+            onClick={() => setShowIngresoModal(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-emerald-900/30 transition-all hover:scale-[1.02]"
+          >
+            <UserCheck className="w-5 h-5" />
+            <span>Nuevo Ingreso</span>
+          </button>
+          <button
+            onClick={() => setShowPaqueteModal(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-900/30 transition-all hover:scale-[1.02]"
+          >
+            <Package className="w-5 h-5" />
+            <span>Llegó Paquete</span>
+          </button>
+          <button
+            onClick={() => setShowMinutaModal(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-amber-900/30 transition-all hover:scale-[1.02]"
+          >
+            <AlertTriangle className="w-5 h-5" />
+            <span>Minuta</span>
+          </button>
+          <button
+            onClick={loadData}
+            title="Refrescar datos"
+            className="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl transition-all"
+          >
+            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* METRIC CARDS */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-slate-800/60 border border-slate-700/80 p-4 rounded-2xl flex items-center gap-4">
+          <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
+            <UserCheck className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Visitas Activas</p>
+            <h3 className="text-2xl font-bold text-white">{stats.visitantesActivos}</h3>
+          </div>
+        </div>
+
+        <div className="bg-slate-800/60 border border-slate-700/80 p-4 rounded-2xl flex items-center gap-4">
+          <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl">
+            <Package className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Paquetes por Retirar</p>
+            <h3 className="text-2xl font-bold text-white">{stats.paquetesPendientes}</h3>
+          </div>
+        </div>
+
+        <div className="bg-slate-800/60 border border-slate-700/80 p-4 rounded-2xl flex items-center gap-4">
+          <div className="p-3 bg-purple-500/10 text-purple-400 rounded-xl">
+            <Car className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Cupos Parqueadero</p>
+            <h3 className="text-2xl font-bold text-white">{stats.cuposLibres} <span className="text-xs text-slate-400 font-normal">libres</span></h3>
+          </div>
+        </div>
+
+        <div className="bg-slate-800/60 border border-slate-700/80 p-4 rounded-2xl flex items-center gap-4">
+          <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl">
+            <Clock className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Novedades Hoy</p>
+            <h3 className="text-2xl font-bold text-white">{stats.novedadesHoy}</h3>
+          </div>
+        </div>
+      </div>
+      {/* BUSCADOR UNIVERSAL PREDICTIVO */}
+      <div className="relative">
+        <div className="relative">
+          <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar por Apartamento (ej: 101, 201), Nombre de Residente, Documento o Placa de Vehículo..."
+            className="w-full bg-slate-800 border-2 border-slate-700 focus:border-emerald-500 text-white pl-12 pr-4 py-3.5 rounded-2xl text-base outline-none transition-all placeholder:text-slate-500 shadow-inner"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-4 top-3.5 text-slate-400 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        {/* RESULTADOS DE BÚSQUEDA FLOTANTES */}
+        {filteredUnidades.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800/95 backdrop-blur-md border border-slate-700 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-700/60">
+            {filteredUnidades.map((u) => (
+              <div 
+                key={u.id}
+                onClick={() => { setSelectedUnidad(u); setSearchQuery(''); }}
+                className="p-4 hover:bg-slate-700/50 cursor-pointer transition-colors flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl font-bold">
+                    {u.numero}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white flex items-center gap-2">
+                      {u.torre} - Apto {u.numero}
+                      <span className="text-xs px-2 py-0.5 bg-slate-700 text-slate-300 rounded-md capitalize">{u.estado}</span>
+                    </h4>
+                    <p className="text-sm text-slate-400">
+                      {u.residentes?.map(r => r.nombre).join(', ') || u.propietario?.nombre || 'Sin residentes asignados'}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right text-xs text-slate-400">
+                  {u.vehiculos?.length > 0 && (
+                    <span className="bg-slate-700 text-emerald-400 px-2 py-1 rounded-md mr-2">
+                      🚗 {u.vehiculos.map(v => v.placa).join(', ')}
+                    </span>
+                  )}
+                  <span className="text-emerald-400 font-medium">Ver Ficha →</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* DETALLE DE UNIDAD SELECCIONADA */}
+      {selectedUnidad && (
+        <div className="bg-slate-800/90 border-2 border-emerald-500/40 rounded-2xl p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+          <button
+            onClick={() => setSelectedUnidad(null)}
+            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-700"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-emerald-500/20 text-emerald-400 rounded-2xl font-black text-xl">
+                  {selectedUnidad.numero}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">{selectedUnidad.torre} - Apto {selectedUnidad.numero}</h2>
+                  <p className="text-sm text-slate-400">Piso {selectedUnidad.piso} • Estado: <span className="capitalize text-emerald-400">{selectedUnidad.estado}</span></p>
+                </div>
+              </div>
+
+              {/* RESIDENTES Y ARRIENDO */}
+              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-700 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <Users className="w-4 h-4 text-emerald-400" /> Ocupantes ({selectedUnidad.tipoOcupacion === 'arrendatario' ? 'Arrendado' : 'Propietario'})
+                  </h4>
+                  {selectedUnidad.tipoOcupacion === 'arrendatario' && selectedUnidad.contratoArriendo?.fechaFin && (
+                    <span className="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded font-bold">
+                      Vence contrato: {selectedUnidad.contratoArriendo.fechaFin}
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  {selectedUnidad.residentes?.length > 0 ? (
+                    selectedUnidad.residentes.map((r, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-sm py-1 border-b border-slate-800/60 last:border-0">
+                        <span className="text-white font-medium">{r.nombre} ({r.parentesco || 'Residente'})</span>
+                        <div className="flex items-center gap-3 text-slate-400 text-xs">
+                          <span>CC: {r.documento}</span>
+                          {r.telefono && (
+                            <a href={`tel:${r.telefono}`} className="text-emerald-400 hover:underline flex items-center gap-1 font-mono">
+                              <Phone className="w-3.5 h-3.5" /> {r.telefono}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-slate-500">No hay residentes registrados (Inmueble desocupado).</p>
+                  )}
+                </div>
+              </div>
+
+              {/* ESTADO FINANCIERO Y MORA */}
+              <div className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700 flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-slate-400 block text-[11px]">Administración:</span>
+                  {selectedUnidad.estadoFinanciero?.administracion?.alDia ? (
+                    <span className="text-emerald-400 font-bold">✓ Paz y Salvo</span>
+                  ) : (
+                    <span className="text-red-400 font-bold">
+                      ⚠️ En Mora ({selectedUnidad.estadoFinanciero?.administracion?.mesesMora} meses: ${Number(selectedUnidad.estadoFinanciero?.administracion?.saldoPendiente).toLocaleString('es-CO')})
+                    </span>
+                  )}
+                </div>
+                <div className="text-right">
+                  <span className="text-slate-400 block text-[11px]">Servicios Públicos:</span>
+                  <span className="text-slate-300">{selectedUnidad.estadoFinanciero?.recibosPublicos?.alertas || 'Al día'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* VEHICULOS Y NOTAS */}
+            <div className="w-full md:w-80 space-y-4">
+              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-2">
+                  <Car className="w-4 h-4 text-purple-400" /> Parqueaderos y Vehículos
+                </h4>
+                <div className="text-xs mb-2">
+                  <span className="text-slate-400">Bahías Privadas: </span>
+                  <span className="font-mono text-purple-300 font-bold">
+                    {selectedUnidad.parqueaderosPrivados?.length > 0 ? selectedUnidad.parqueaderosPrivados.join(', ') : 'Sin Bahía Comprada'}
+                  </span>
+                </div>
+                {selectedUnidad.vehiculos?.length > 0 ? (
+                  selectedUnidad.vehiculos.map((v, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-sm py-1 border-t border-slate-800">
+                      <span className="font-bold text-purple-400">{v.placa}</span>
+                      <span className="text-xs text-slate-400">{v.marca}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-slate-500">Sin vehículos propios asignados.</p>
+                )}
+              </div>
+
+              {selectedUnidad.observaciones && (
+                <div className="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-xl">
+                  <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                    <AlertTriangle className="w-3.5 h-3.5" /> Nota de Seguridad
+                  </h4>
+                  <p className="text-xs text-amber-200">{selectedUnidad.observaciones}</p>
+                </div>
+              )}
+
+              <button
+                onClick={() => {
+                  setIngresoForm(prev => ({ ...prev, torre: selectedUnidad.torre, apto: selectedUnidad.numero }));
+                  setShowIngresoModal(true);
+                }}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl text-sm transition-all"
+              >
+                + Registrar Visita a este Apto
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* GRID DE MONITOREO PRINCIPAL: ACCESOS ACTIVOS & PAQUETES PENDIENTES */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* PANEL DE VISITAS ACTIVAS EN CONJUNTO */}
+        <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-xl flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-emerald-400" /> Visitantes y Domicilios Activos
+            </h3>
+            <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold">
+              {accesos.filter(a => a.estado === 'en_conjunto').length} dentro
+            </span>
+          </div>
+
+          <div className="space-y-3 flex-1 overflow-y-auto max-h-[380px] pr-1">
+            {accesos.filter(a => a.estado === 'en_conjunto').length === 0 ? (
+              <div className="text-center py-12 text-slate-500">
+                <UserCheck className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                <p>No hay visitantes activos en este momento.</p>
+              </div>
+            ) : (
+              accesos.filter(a => a.estado === 'en_conjunto').map((a) => (
+                <div key={a.id} className="bg-slate-900/70 border border-slate-700/80 p-3.5 rounded-xl flex items-center justify-between gap-3 hover:border-slate-600 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-slate-800 text-emerald-400 rounded-xl font-bold text-xs">
+                      {a.apto}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white text-sm flex items-center gap-2">
+                        {a.nombre}
+                        <span className="text-xs font-normal px-2 py-0.5 bg-slate-800 text-slate-400 rounded capitalize">{a.tipo}</span>
+                      </h4>
+                      <p className="text-xs text-slate-400">
+                        Destino: <strong className="text-slate-300">{a.torre} - {a.apto}</strong> • Motivo: {a.motivo}
+                      </p>
+                      {a.vehiculo?.placa && (
+                        <span className="text-[11px] text-purple-400 font-semibold mt-0.5 inline-block">
+                          🚗 Placa: {a.vehiculo.placa} ({a.parqueaderoAsignado || 'Sin bahía'})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleSalida(a.id, a.nombre)}
+                      className="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/40 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1"
+                    >
+                      <LogOut className="w-3.5 h-3.5" /> Salida
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* PANEL DE PAQUETES POR ENTREGAR */}
+        <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-xl flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <Package className="w-5 h-5 text-blue-400" /> Paquetería Pendiente por Retiro
+            </h3>
+            <span className="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-full font-bold">
+              {paquetes.filter(p => p.estado !== 'entregado').length} paquetes
+            </span>
+          </div>
+
+          <div className="space-y-3 flex-1 overflow-y-auto max-h-[380px] pr-1">
+            {paquetes.filter(p => p.estado !== 'entregado').length === 0 ? (
+              <div className="text-center py-12 text-slate-500">
+                <Package className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                <p>No hay paquetes pendientes por entregar.</p>
+              </div>
+            ) : (
+              paquetes.filter(p => p.estado !== 'entregado').map((p) => (
+                <div key={p.id} className="bg-slate-900/70 border border-slate-700/80 p-3.5 rounded-xl flex items-center justify-between gap-3 hover:border-slate-600 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-blue-500/20 text-blue-400 rounded-xl font-bold text-xs">
+                      {p.apto}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white text-sm flex items-center gap-2">
+                        {p.destinatario}
+                        <span className="text-xs font-normal text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/50">{p.empresa}</span>
+                      </h4>
+                      <p className="text-xs text-slate-400">
+                        {p.torre} - Apto {p.apto} • Guía: <strong className="text-slate-300">{p.guia}</strong>
+                      </p>
+                      <p className="text-[11px] text-amber-400 mt-0.5">
+                        PIN Retiro: <strong className="font-mono bg-slate-800 px-1 rounded">{p.codigoRetiro}</strong>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleNotificarWhatsApp(p)}
+                      title="Enviar WhatsApp de aviso"
+                      className="p-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 rounded-lg text-xs transition-all"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setShowEntregaModal(p)}
+                      className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1"
+                    >
+                      <Check className="w-3.5 h-3.5" /> Entregar
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+      {/* MODAL: REGISTRO DE INGRESO */}
+      {showIngresoModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <UserCheck className="w-5 h-5 text-emerald-400" /> Registro de Ingreso en Portería
+              </h3>
+              <button onClick={() => setShowIngresoModal(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRegistrarIngreso} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Tipo de Acceso</label>
+                  <select
+                    value={ingresoForm.tipo}
+                    onChange={(e) => setIngresoForm({ ...ingresoForm, tipo: e.target.value })}
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-emerald-500"
+                  >
+                    <option value="visitante">Visitante</option>
+                    <option value="domicilio">Domiciliario (Rappi, etc.)</option>
+                    <option value="contratista">Contratista / Técnico</option>
+                    <option value="servicio">Servicio General</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Nombre Completo *</label>
+                  <input
+                    type="text"
+                    required
+                    value={ingresoForm.nombre}
+                    onChange={(e) => setIngresoForm({ ...ingresoForm, nombre: e.target.value })}
+                    placeholder="Ej: Juan David López"
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Cédula / Doc</label>
+                  <input
+                    type="text"
+                    value={ingresoForm.documento}
+                    onChange={(e) => setIngresoForm({ ...ingresoForm, documento: e.target.value })}
+                    placeholder="C.C."
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Torre *</label>
+                  <select
+                    value={ingresoForm.torre}
+                    onChange={(e) => setIngresoForm({ ...ingresoForm, torre: e.target.value })}
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-emerald-500"
+                  >
+                    <option value="Torre 1">Torre 1</option>
+                    <option value="Torre 2">Torre 2</option>
+                    <option value="Torre 3">Torre 3</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Apto Destino *</label>
+                  <input
+                    type="text"
+                    required
+                    value={ingresoForm.apto}
+                    onChange={(e) => setIngresoForm({ ...ingresoForm, apto: e.target.value })}
+                    placeholder="Ej: 201"
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Autorizado Por</label>
+                  <input
+                    type="text"
+                    value={ingresoForm.autorizadoPor}
+                    onChange={(e) => setIngresoForm({ ...ingresoForm, autorizadoPor: e.target.value })}
+                    placeholder="Nombre del residente o citófono"
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Motivo</label>
+                  <input
+                    type="text"
+                    value={ingresoForm.motivo}
+                    onChange={(e) => setIngresoForm({ ...ingresoForm, motivo: e.target.value })}
+                    placeholder="Visita familiar, entrega, etc."
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              {/* VEHICULO Y PARQUEADERO */}
+              <div className="p-3 bg-slate-900/60 border border-slate-700/80 rounded-xl space-y-3">
+                <div className="flex items-center gap-2">
+                  <Car className="w-4 h-4 text-purple-400" />
+                  <span className="text-xs font-semibold text-purple-300 uppercase">Vehículo Visitante (Opcional)</span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] text-slate-400">Placa</label>
+                    <input
+                      type="text"
+                      value={ingresoForm.vehiculoPlaca}
+                      onChange={(e) => setIngresoForm({ ...ingresoForm, vehiculoPlaca: e.target.value })}
+                      placeholder="ABC123"
+                      className="w-full mt-1 uppercase bg-slate-950 border border-slate-700 text-white px-2.5 py-1.5 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-400">Tipo</label>
+                    <select
+                      value={ingresoForm.vehiculoTipo}
+                      onChange={(e) => setIngresoForm({ ...ingresoForm, vehiculoTipo: e.target.value })}
+                      className="w-full mt-1 bg-slate-950 border border-slate-700 text-white px-2.5 py-1.5 rounded-lg text-sm"
+                    >
+                      <option value="carro">Carro</option>
+                      <option value="moto">Moto</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-400">Asignar Bahía</label>
+                    <select
+                      value={ingresoForm.parqueaderoAsignado}
+                      onChange={(e) => setIngresoForm({ ...ingresoForm, parqueaderoAsignado: e.target.value })}
+                      className="w-full mt-1 bg-slate-950 border border-slate-700 text-white px-2.5 py-1.5 rounded-lg text-sm"
+                    >
+                      <option value="">Sin parqueadero</option>
+                      {parqueaderos.filter(p => p.estado === 'disponible').map(p => (
+                        <option key={p.id} value={p.id}>{p.id} ({p.tipo})</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowIngresoModal(false)}
+                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-emerald-900/40"
+                >
+                  Confirmar Ingreso
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: LLEGADA DE PAQUETE */}
+      {showPaqueteModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Package className="w-5 h-5 text-blue-400" /> Registrar Llegada de Paquete
+              </h3>
+              <button onClick={() => setShowPaqueteModal(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRegistrarPaquete} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Torre</label>
+                  <select
+                    value={paqueteForm.torre}
+                    onChange={(e) => setPaqueteForm({ ...paqueteForm, torre: e.target.value })}
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none"
+                  >
+                    <option value="Torre 1">Torre 1</option>
+                    <option value="Torre 2">Torre 2</option>
+                    <option value="Torre 3">Torre 3</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Apartamento *</label>
+                  <input
+                    type="text"
+                    required
+                    value={paqueteForm.apto}
+                    onChange={(e) => setPaqueteForm({ ...paqueteForm, apto: e.target.value })}
+                    placeholder="Ej: 101"
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-slate-300">Destinatario / Residente *</label>
+                <input
+                  type="text"
+                  required
+                  value={paqueteForm.destinatario}
+                  onChange={(e) => setPaqueteForm({ ...paqueteForm, destinatario: e.target.value })}
+                  placeholder="Nombre de quien recibe"
+                  className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Empresa Transportadora</label>
+                  <select
+                    value={paqueteForm.empresa}
+                    onChange={(e) => setPaqueteForm({ ...paqueteForm, empresa: e.target.value })}
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none"
+                  >
+                    <option value="Servientrega">Servientrega</option>
+                    <option value="Coordinadora">Coordinadora</option>
+                    <option value="Interrapidísimo">Interrapidísimo</option>
+                    <option value="Envía">Envía</option>
+                    <option value="Mercado Libre">Mercado Libre</option>
+                    <option value="Amazon / DHL">Amazon / DHL</option>
+                    <option value="Domicilio Particular">Domicilio Particular</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Número de Guía</label>
+                  <input
+                    type="text"
+                    value={paqueteForm.guia}
+                    onChange={(e) => setPaqueteForm({ ...paqueteForm, guia: e.target.value })}
+                    placeholder="Guía o S/N"
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPaqueteModal(false)}
+                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-900/40"
+                >
+                  Guardar Paquete
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ENTREGA DE PAQUETE */}
+      {showEntregaModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Check className="w-5 h-5 text-emerald-400" /> Confirmar Entrega de Paquete
+              </h3>
+              <button onClick={() => setShowEntregaModal(null)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-slate-900/80 p-3 rounded-xl text-sm space-y-1">
+              <p><strong className="text-slate-400">Destinatario:</strong> {showEntregaModal.destinatario}</p>
+              <p><strong className="text-slate-400">Apartamento:</strong> {showEntregaModal.torre} - {showEntregaModal.apto}</p>
+              <p><strong className="text-slate-400">Empresa:</strong> {showEntregaModal.empresa} (Guía: {showEntregaModal.guia})</p>
+            </div>
+
+            <form onSubmit={handleEntregarPaquete} className="space-y-4">
+              <div>
+                <label className="text-xs font-medium text-slate-300">Nombre / Cédula de quien retira *</label>
+                <input
+                  type="text"
+                  required
+                  value={entregaForm.retiradoPor}
+                  onChange={(e) => setEntregaForm({ ...entregaForm, retiradoPor: e.target.value })}
+                  placeholder="Ej: Carlos Gómez (Titular)"
+                  className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEntregaModal(null)}
+                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-emerald-900/40"
+                >
+                  Marcar Entregado
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: REGISTRAR EN MINUTA */}
+      {showMinutaModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-400" /> Asentar Novedad en Minuta Digital
+              </h3>
+              <button onClick={() => setShowMinutaModal(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRegistrarMinuta} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Tipo de Entrada</label>
+                  <select
+                    value={minutaForm.tipo}
+                    onChange={(e) => setMinutaForm({ ...minutaForm, tipo: e.target.value })}
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none"
+                  >
+                    <option value="general">Novedad General</option>
+                    <option value="cambio_turno">Cambio de Turno / Puesto</option>
+                    <option value="ronda">Ronda de Seguridad</option>
+                    <option value="incidente">Incidente / Alarma</option>
+                    <option value="mantenimiento">Mantenimiento / Daño</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300">Severidad</label>
+                  <select
+                    value={minutaForm.severidad}
+                    onChange={(e) => setMinutaForm({ ...minutaForm, severidad: e.target.value })}
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none"
+                  >
+                    <option value="info">Informativa (Normal)</option>
+                    <option value="advertencia">Advertencia</option>
+                    <option value="peligro">Crítica / Emergencia</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-slate-300">Título Breve</label>
+                <input
+                  type="text"
+                  value={minutaForm.titulo}
+                  onChange={(e) => setMinutaForm({ ...minutaForm, titulo: e.target.value })}
+                  placeholder="Ej: Novedad de parqueadero o Ronda completada"
+                  className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-slate-300">Descripción Detallada de la Novedad *</label>
+                <textarea
+                  required
+                  rows={4}
+                  value={minutaForm.descripcion}
+                  onChange={(e) => setMinutaForm({ ...minutaForm, descripcion: e.target.value })}
+                  placeholder="Escriba los hechos, personas involucradas, medidas tomadas y estado final..."
+                  className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowMinutaModal(false)}
+                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-amber-900/40"
+                >
+                  Guardar en Minuta
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
