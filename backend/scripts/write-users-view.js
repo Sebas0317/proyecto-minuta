@@ -1,4 +1,6 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+const fs = require('fs');
+
+const code = `import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AlertTriangle,
   CheckCircle,
@@ -62,7 +64,7 @@ function RoleBadge({ role }) {
   const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.guarda;
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}`}
+      className={\`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border \${cfg.bg} \${cfg.color} \${cfg.border}\`}
     >
       {cfg.label}
     </span>
@@ -543,7 +545,7 @@ export default function PantallaUsuarios() {
             className="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl transition-all"
             title="Recargar roster"
           >
-            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin text-emerald-400' : ''}`} />
+            <RefreshCw className={\`w-5 h-5 \${isLoading ? 'animate-spin text-emerald-400' : ''}\`} />
           </button>
         </div>
       </div>
@@ -686,3 +688,7 @@ export default function PantallaUsuarios() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('c:/Users/kevin/Desktop/PROYECTOS/minuta/frontend/src/components/PantallaUsuarios.jsx', code);
+console.log('✓ PantallaUsuarios.jsx updated with security guards roster and shifts');
