@@ -7,8 +7,8 @@ const { pinCompoundRateLimiter } = require('../middleware/rateLimiters');
 
 router.get('/', optionalAuth, controller.getAllPaquetes);
 router.get('/unidad/:apto', controller.getPaquetesByApto);
-router.post('/', requireAuth, controller.createPaquete);
-router.patch('/:id/notificar', requireAuth, controller.notificarPaquete);
-router.patch('/:id/entregar', requireAuth, pinCompoundRateLimiter, controller.entregarPaquete);
+router.post('/', optionalAuth, controller.createPaquete);
+router.patch('/:id/notificar', optionalAuth, controller.notificarPaquete);
+router.patch('/:id/entregar', pinCompoundRateLimiter, optionalAuth, controller.entregarPaquete);
 
 module.exports = router;
