@@ -1,20 +1,19 @@
 'use strict';
 
+const bcrypt = require('bcryptjs');
 const { getPaquetes, savePaquetes, getUnidades } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
 /**
  * Serializer para paquetería:
- * Oculta el código PIN de retiro en listados generales / consultas públicas.
- * Solo se expone a administradores autenticados o al momento de creación.
+ * Oculta estrictamente cualquier PIN o Hash de retiro en listados generales / consultas públicas.
  */
 function serializePaquete(paquete, isStaffOrOwner = false) {
   if (!paquete || typeof paquete !== 'object') return paquete;
   const safe = { ...paquete };
-  if (!isStaffOrOwner) {
-    delete safe.codigoRetiro;
-  }
+  delete safe.codigoRetiro;
+  delete safe.codigoRetiroHash;
   return safe;
 }
 
@@ -67,8 +66,9 @@ async function createPaquete(req, res) {
       return res.status(400).json({ error: 'Torre, Apartamento y Destinatario son obligatorios' });
     }
 
-    // Generar código de retiro de 4 dígitos
-    const codigoRetiro = Math.floor(1000 + Math.random() * 9000).toString();
+    // Generar código de retiro numérico de 4 dígitos
+    const codigoRetiroPlano = Math.floor(1000 + Math.random() * 9000).toString();
+    const codigoRetiroHash = await bcrypt.hash(codigoRetiroPlano, 10);
 
     const nuevoPaquete = {
       id: `pkg-${Date.now()}-${generateId(4)}`,
@@ -84,7 +84,7 @@ async function createPaquete(req, res) {
       fechaEntrega: null,
       guardaIngreso: guardaIngreso || req.user?.username || req.user?.firstName || 'Guarda de Turno',
       guardaEntrega: null,
-      codigoRetiro,
+      codigoRetiroHash, // NUNCA texto plano en la BD
       retiradoPor: null
     };
 
@@ -92,8 +92,12 @@ async function createPaquete(req, res) {
     await savePaquetes(paquetes);
 
     logger.info({ id: nuevoPaquete.id, torre, apto }, 'Paquete registrado exitosamente');
-    // Al crearse se devuelve con el PIN para poder notificarlo inmediatamente al residente
-    res.status(201).json(nuevoPaquete);
+    // El PIN plano se retorna ÚNICAMENTE en este payload 201 para notificación inmediata por WhatsApp
+    const responsePayload = {
+      ...serializePaquete(nuevoPaquete, true),
+      codigoRetiro: codigoRetiroPlano
+    };
+    res.status(201).json(responsePayload);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al crear paquete');
     res.status(500).json({ error: 'Error interno al registrar paquete' });
@@ -114,7 +118,7 @@ async function notificarPaquete(req, res) {
     await savePaquetes(paquetes);
 
     logger.info({ id }, 'Paquete marcado como notificado');
-    res.json(paquete);
+    res.json(serializePaquete(paquete, true));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al notificar paquete');
     res.status(500).json({ error: 'Error interno al notificar paquete' });
@@ -141,8 +145,19 @@ async function entregarPaquete(req, res) {
       return res.status(400).json({ error: 'El código PIN de retiro es obligatorio para autorizar la entrega' });
     }
 
-    if (String(codigoRetiro).trim() !== String(paquete.codigoRetiro).trim()) {
+    let isValid = false;
+    if (paquete.codigoRetiroHash) {
+      isValid = await bcrypt.compare(String(codigoRetiro).trim(), paquete.codigoRetiroHash);
+    } else if (paquete.codigoRetiro) {
+      isValid = (String(codigoRetiro).trim() === String(paquete.codigoRetiro).trim());
+    }
+
+    if (!isValid) {
       return res.status(400).json({ error: 'Código PIN de retiro incorrecto' });
+    }
+
+    if (req.onPinSuccess) {
+      await req.onPinSuccess();
     }
 
     paquete.estado = 'entregado';
@@ -153,7 +168,7 @@ async function entregarPaquete(req, res) {
     await savePaquetes(paquetes);
 
     logger.info({ id, retiradoPor: paquete.retiradoPor }, 'Paquete entregado exitosamente');
-    res.json(paquete);
+    res.json(serializePaquete(paquete, true));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al entregar paquete');
     res.status(500).json({ error: 'Error interno al entregar paquete' });

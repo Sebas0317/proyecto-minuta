@@ -1,5 +1,6 @@
 'use strict';
 
+const bcrypt = require('bcryptjs');
 const { getUnidades, saveUnidades } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
@@ -12,9 +13,11 @@ const { generateId } = require('../utils/idGenerator');
 function serializeUnidad(unidad, isAdminOrStaff = false) {
   if (!unidad || typeof unidad !== 'object') return unidad;
 
+  const safe = { ...unidad };
+  delete safe.pinAcceso;
+  delete safe.pinAccesoHash; // Nunca exponer PINs ni Hashes en ninguna respuesta
+
   if (isAdminOrStaff) {
-    const safe = { ...unidad };
-    delete safe.pinAcceso; // Nunca exponer PINs en listados generales
     return safe;
   }
 
@@ -127,6 +130,11 @@ async function createUnidad(req, res) {
       return res.status(409).json({ error: 'Ya existe una unidad con esta Torre y Número' });
     }
 
+    let pinAccesoHash = null;
+    if (pinAcceso && String(pinAcceso).trim()) {
+      pinAccesoHash = await bcrypt.hash(String(pinAcceso).trim(), 10);
+    }
+
     const nuevaUnidad = {
       id,
       torre,
@@ -138,7 +146,7 @@ async function createUnidad(req, res) {
       vehiculos: Array.isArray(vehiculos) ? vehiculos : [],
       mascotas: Array.isArray(mascotas) ? mascotas : [],
       observaciones: observaciones || '',
-      pinAcceso: pinAcceso || null
+      pinAccesoHash
     };
 
     unidades.push(nuevaUnidad);
@@ -163,9 +171,16 @@ async function updateUnidad(req, res) {
     }
 
     const unidadExistente = unidades[index];
+    const updateData = { ...req.body };
+
+    if (updateData.pinAcceso && String(updateData.pinAcceso).trim()) {
+      updateData.pinAccesoHash = await bcrypt.hash(String(updateData.pinAcceso).trim(), 10);
+      delete updateData.pinAcceso;
+    }
+
     const unidadActualizada = {
       ...unidadExistente,
-      ...req.body,
+      ...updateData,
       id: unidadExistente.id // Preserve ID
     };
 

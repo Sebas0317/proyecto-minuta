@@ -1,14 +1,19 @@
 {
-  "project_name": "hotel-system",
-  "backend": "Node.js + Express",
-  "frontend": "web app",
+  "project_name": "proyecto-minuta-residencial",
+  "backend": "Node.js + Express + Upstash Redis",
+  "frontend": "React 19 + Vite 8 + Tailwind CSS",
   "features": [
-    "check-in con PIN",
-    "registro de consumos",
-    "check-out con pagos"
+    "minuta de guardia y relevo de turno",
+    "control de accesos vehiculares y peatonales",
+    "paqueteria con PIN secreto hasheado (bcrypt)",
+    "censo de 100+ unidades y parqueaderos",
+    "asambleas y votaciones con quorum por coeficientes",
+    "portal del residente"
   ],
   "decisions": [
-    "sistema offline-first",
-    "uso de PIN por habitación"
+    "persistencia hibrida (JSON local + Upstash Redis)",
+    "sanitizacion estricta DTO de PII (Habeas Data)",
+    "rate limiting compuesto por IP y Recurso",
+    "costo $0 infraestructura serverless"
   ]
 }

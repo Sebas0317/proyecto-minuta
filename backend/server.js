@@ -1,18 +1,8 @@
 'use strict';
 
 /**
- * EcoBosque Hotel System - Backend Server
- * Modular architecture with separated routes, controllers, and data layer
- *
- * Entry point: Express app that wires together middleware and route modules
- *
- * IMPROVEMENTS IMPLEMENTED:
- * - Pino structured logging (replaces console.log)
- * - Zod validation schemas
- * - NodeCache in-memory caching
- * - Automated daily backups with node-cron
- * - Swagger/OpenAPI documentation
- * - Advanced health checks and metrics
+ * Proyecto Minuta - Sistema de Portería y Vigilancia Residencial
+ * Backend Server con arquitectura modular, JWT, Upstash Redis y seguridad defensiva
  */
 
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });

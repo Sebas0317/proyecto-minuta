@@ -91,14 +91,58 @@ const emailCodeLimiter = createLimiter({
   message: { error: 'Demasiadas solicitudes de codigo. Espera 5 minutos.' },
 });
 
+// ── RATE LIMITER COMPUESTO PARA VALIDACIÓN DE PINs (IP + RECURSO) ──
+const pinIpStore = makeStore('rl:pin:ip:');
+const pinTargetStore = makeStore('rl:pin:target:');
+const PIN_WINDOW_MS = 15 * 60 * 1000; // 15 minutos
+const MAX_PIN_ATTEMPTS = 5;
+
+pinIpStore.windowMs = PIN_WINDOW_MS;
+pinTargetStore.windowMs = PIN_WINDOW_MS;
+
+async function pinCompoundRateLimiter(req, res, next) {
+  const ip = req.ip || req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1';
+  const target = req.params?.id || req.body?.unidadId || req.body?.apto || 'global_target';
+
+  try {
+    const ipKey = String(ip).trim();
+    const targetKey = String(target).trim();
+
+    const ipResult = await pinIpStore.increment(ipKey);
+    const targetResult = await pinTargetStore.increment(targetKey);
+
+    if (ipResult.totalHits > MAX_PIN_ATTEMPTS || targetResult.totalHits > MAX_PIN_ATTEMPTS) {
+      return res.status(429).json({
+        error: 'Demasiados intentos de PIN. Bloqueado temporalmente por seguridad.',
+        retryAfterMinutes: 15
+      });
+    }
+
+    // Helper en caso de que el intento sea exitoso para resetear contadores
+    req.onPinSuccess = async () => {
+      await Promise.all([
+        pinIpStore.resetKey(ipKey),
+        pinTargetStore.resetKey(targetKey)
+      ]).catch(() => {});
+    };
+
+    next();
+  } catch {
+    next();
+  }
+}
+
 module.exports = {
   globalRateLimiter,
   authRateLimiter,
   readRateLimiter,
   writeRateLimiter,
   pinRateLimiter,
+  pinCompoundRateLimiter,
   loginLimiter,
   codeVerifyLimiter,
   recoveryLimiter,
   emailCodeLimiter,
+  pinIpStore,
+  pinTargetStore
 };

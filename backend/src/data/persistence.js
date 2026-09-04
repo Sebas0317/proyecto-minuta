@@ -1,10 +1,10 @@
 'use strict';
 
 /**
- * EcoBosque Hotel System & Proyecto Minuta - Persistence layer
- * Abstracts storage between file system and Upstash Redis.
+ * Proyecto Minuta - Sistema de Portería y Vigilancia Residencial
+ * Persistence layer: abstracts storage between local JSON files and Upstash Redis.
  *
- * In production (Vercel): uses Upstash Redis via KV_REST_API_URL env var with disk fallback.
+ * In production (Vercel): uses Upstash Redis via KV_REST_API_URL or UPSTASH_REDIS_REST_URL with disk/memory fallback.
  * In development/local: uses file-based JSON storage.
  */
 
@@ -17,22 +17,27 @@ let redis = null;
 
 function getRedis() {
   if (redis) return redis;
-  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+  const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (redisUrl && redisToken) {
     const { Redis } = require('@upstash/redis');
     const timeoutFetch = (url, init) =>
       fetch(url, { ...init, signal: AbortSignal.timeout(5000) });
     redis = new Redis({
-      url: process.env.KV_REST_API_URL,
-      token: process.env.KV_REST_API_TOKEN,
+      url: redisUrl,
+      token: redisToken,
       fetch: timeoutFetch,
     });
-    logger.info('Using Upstash Redis for persistence');
+    logger.info('Using Upstash Redis for persistence in Minuta Residencial');
   }
   return redis;
 }
 
 function isRedisAvailable() {
-  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+  const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  return !!(redisUrl && redisToken);
 }
 
 // ── File paths (used as Redis keys) ──

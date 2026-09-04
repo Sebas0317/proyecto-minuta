@@ -45,3 +45,18 @@ Este documento registra las decisiones arquitectónicas clave, sus justificacion
   4. Migrar `asambleasController` a `persistence.js` (`getAsambleas`, `setAsambleas`) garantizando atomicidad y compatibilidad con Vercel Serverless `/tmp`.
 - **Consecuencias:**
   - *Positivas:* Cumplimiento estricto de Habeas Data, seguridad robusta contra retiro no autorizado de encomiendas y compatibilidad total con serverless.
+
+---
+
+## ADR 006: Hasheo Criptográfico de PINs (bcrypt), Rate Limiting Compuesto (IP + Recurso) y Activación de Upstash Redis
+- **Fecha:** 2026-09-04
+- **Estado:** Aceptado
+- **Contexto:** Se provisionó la base de datos Upstash Redis en Vercel (`upstash-kv-rose-crystal`, 500k comandos/mes gratis) resolviendo la pérdida de votos y asambleas entre cold starts. Se requería cerrar la vulnerabilidad de PINs en texto plano y ataques de fuerza bruta en Serverless.
+- **Decisión:**
+  1. Hashear todos los PINs (`pinAcceso` y `codigoRetiro`) con `bcrypt` (factor de costo 10). Se migraron 100 unidades y 18 paquetes existentes a `pinAccesoHash` y `codigoRetiroHash`.
+  2. Retornar el PIN en claro únicamente en la respuesta `201 Created` para el guarda y notificación por WhatsApp; a partir de ese momento solo existe el hash.
+  3. Implementar middleware de rate limiting compuesto (`pinCompoundRateLimiter`) con ventana de 15 min y umbral de 5 intentos fallidos tanto por IP como por ID de paquete/recurso, respaldado en Upstash Redis para evitar evasión por rotación de lambdas o proxies.
+  4. Purgar completamente referencias históricas del sistema hotelero y estandarizar la denominación técnica como *Minuta Residencial*.
+- **Consecuencias:**
+  - *Positivas:* Blindaje contra fuerza bruta distribuida y ataques de diccionario a paquetes. Los votos de asambleas persisten de forma permanente en Redis sin costo (\$0).
+

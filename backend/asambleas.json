@@ -1,5 +1,80 @@
 [
   {
+    "id": "asmb-1788546635435-1788546635435-155142",
+    "titulo": "Asamblea Extraordinaria de Prueba",
+    "fecha": "2026-09-04",
+    "horaInicio": "08:00 AM",
+    "estado": "en_curso",
+    "totalCoeficiente": 100,
+    "quorumRegistrado": 0,
+    "votaciones": [
+      {
+        "id": "vot-1788546635465-1788546635465-62e788",
+        "pregunta": "¿Aprueba el presupuesto de seguridad?",
+        "estado": "activa",
+        "votosSi": 2.5,
+        "votosNo": 1.25,
+        "votosBlanco": 0,
+        "totalVotado": 3.75,
+        "votantes": [
+          "t1-101",
+          "t1-102",
+          "unidad-residente"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "asmb-1788546352082-1788546352082-145f09",
+    "titulo": "Asamblea Extraordinaria de Prueba",
+    "fecha": "2026-09-04",
+    "horaInicio": "08:00 AM",
+    "estado": "en_curso",
+    "totalCoeficiente": 100,
+    "quorumRegistrado": 0,
+    "votaciones": [
+      {
+        "id": "vot-1788546352116-1788546352116-82d201",
+        "pregunta": "¿Aprueba el presupuesto de seguridad?",
+        "estado": "activa",
+        "votosSi": 2.5,
+        "votosNo": 1.25,
+        "votosBlanco": 0,
+        "totalVotado": 3.75,
+        "votantes": [
+          "t1-101",
+          "t1-102",
+          "unidad-residente"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "asmb-1788545947625-1788545947625-1006aa",
+    "titulo": "Asamblea Extraordinaria de Prueba",
+    "fecha": "2026-09-04",
+    "horaInicio": "08:00 AM",
+    "estado": "en_curso",
+    "totalCoeficiente": 100,
+    "quorumRegistrado": 0,
+    "votaciones": [
+      {
+        "id": "vot-1788545947652-1788545947652-7102fd",
+        "pregunta": "¿Aprueba el presupuesto de seguridad?",
+        "estado": "activa",
+        "votosSi": 2.5,
+        "votosNo": 1.25,
+        "votosBlanco": 0,
+        "totalVotado": 3.75,
+        "votantes": [
+          "t1-101",
+          "t1-102",
+          "unidad-residente"
+        ]
+      }
+    ]
+  },
+  {
     "id": "asmb-1788544921724-1788544921724-95d72d",
     "titulo": "Asamblea Extraordinaria de Prueba",
     "fecha": "2026-09-04",

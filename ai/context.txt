@@ -1,17 +1,19 @@
-Sistema hotelero offline-first.
+Sistema de Portería y Minuta Residencial.
 
 Tiene:
-- backend en Node.js
-- frontend web
-- gestión de habitaciones
-- consumos por habitación
-- validación con PIN
-- check-in y check-out
+- backend en Node.js + Express + Upstash Redis
+- frontend web React 19 + Vite 8 + Tailwind CSS
+- gestión de unidades y torres residenciales (100+ aptos)
+- libro de minuta de guardia y relevo de turno
+- paquetería con PIN de entrega hasheado (bcrypt)
+- control de parqueaderos privados y visitantes
+- asambleas virtuales con votación por coeficientes
+- portal móvil del residente
 
 Objetivo:
-Sistema simple, confiable, sin internet, con control total de consumos.
+Digitalizar la garita de seguridad, eliminar minutas en papel y proteger la seguridad y privacidad (Habeas Data) del condominio.
 
 Reglas:
-- priorizar simplicidad
-- evitar dependencias externas
-- código limpio y mantenible
+- priorizar costo $0 de infraestructura (Serverless + Upstash Redis Free Tier)
+- sanitización estricta de PII (documentos, teléfonos, PINs nunca públicos)
+- código limpio, testeado y mantenible con estándares senior (ADR 001-006)

@@ -1,5 +1,90 @@
 [
   {
+    "id": "pkg-1788546635898-1788546635898-8a1d50",
+    "unidadId": "torre2-202",
+    "torre": "Torre 2",
+    "apto": "202",
+    "destinatario": "Objetivo BruteForce",
+    "empresa": "Servientrega",
+    "guia": "S/N",
+    "descripcion": "Paquete recibido en portería",
+    "estado": "recibido",
+    "fechaIngreso": "2026-09-04T18:30:35.898Z",
+    "fechaEntrega": null,
+    "guardaIngreso": "admin",
+    "guardaEntrega": null,
+    "codigoRetiroHash": "$2b$10$J2UFXuDYyX7TC030o7Z3RunVYF7bMGopcWOIu7A2Q4bbEqhXvPBS6",
+    "retiradoPor": null
+  },
+  {
+    "id": "pkg-1788546635262-1788546635262-d4f065",
+    "unidadId": "torre1-101",
+    "torre": "Torre 1",
+    "apto": "101",
+    "destinatario": "Carlos Pérez",
+    "empresa": "Amazon",
+    "guia": "AMZ-888999",
+    "descripcion": "Paquete recibido en portería",
+    "estado": "entregado",
+    "fechaIngreso": "2026-09-04T18:30:35.262Z",
+    "fechaEntrega": "2026-09-04T18:30:35.643Z",
+    "guardaIngreso": "admin",
+    "guardaEntrega": "admin",
+    "codigoRetiroHash": "$2b$10$al9bRrXFH36yEin217hdfemCdYBD4Gwj1vanuWydSqqFfeGeD97Cy",
+    "retiradoPor": "Carlos Pérez"
+  },
+  {
+    "id": "pkg-1788546352524-1788546352524-c89a67",
+    "unidadId": "torre2-202",
+    "torre": "Torre 2",
+    "apto": "202",
+    "destinatario": "Objetivo BruteForce",
+    "empresa": "Servientrega",
+    "guia": "S/N",
+    "descripcion": "Paquete recibido en portería",
+    "estado": "recibido",
+    "fechaIngreso": "2026-09-04T18:25:52.524Z",
+    "fechaEntrega": null,
+    "guardaIngreso": "admin",
+    "guardaEntrega": null,
+    "codigoRetiroHash": "$2b$10$yesZUCVPU9jJU9S9AH..8uM1RlPXweyT.u8K6c.A1v9qfeJFtJ9hO",
+    "retiradoPor": null
+  },
+  {
+    "id": "pkg-1788546351894-1788546351894-0cb275",
+    "unidadId": "torre1-101",
+    "torre": "Torre 1",
+    "apto": "101",
+    "destinatario": "Carlos Pérez",
+    "empresa": "Amazon",
+    "guia": "AMZ-888999",
+    "descripcion": "Paquete recibido en portería",
+    "estado": "entregado",
+    "fechaIngreso": "2026-09-04T18:25:51.895Z",
+    "fechaEntrega": "2026-09-04T18:25:52.297Z",
+    "guardaIngreso": "admin",
+    "guardaEntrega": "admin",
+    "codigoRetiroHash": "$2b$10$p7hbO.XH5Jl5Mh3/b2IfCeF7EJgoX6A4wzyJ5Zlm6bXwZ5eHmd0J6",
+    "retiradoPor": "Carlos Pérez"
+  },
+  {
+    "id": "pkg-1788545947561-1788545947561-9dd0c6",
+    "unidadId": "1-101",
+    "torre": "1",
+    "apto": "101",
+    "destinatario": "Propietario Test",
+    "empresa": "Servientrega",
+    "guia": "TEST-GUIA-1788545947557",
+    "descripcion": "Paquete recibido en portería",
+    "estado": "entregado",
+    "fechaIngreso": "2026-09-04T18:19:07.561Z",
+    "fechaEntrega": "2026-09-04T18:19:07.597Z",
+    "guardaIngreso": "admin",
+    "guardaEntrega": "admin",
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$Y7XPlq9EMaK3JeSgk4s7LOyf.geDFEfSpEmqudth.S6I6vecq1QJW"
+  },
+  {
     "id": "pkg-1788544921682-1788544921682-a10465",
     "unidadId": "1-101",
     "torre": "1",
@@ -13,8 +98,8 @@
     "fechaEntrega": "2026-09-04T18:02:01.711Z",
     "guardaIngreso": "admin",
     "guardaEntrega": "admin",
-    "codigoRetiro": "7525",
-    "retiradoPor": "Propietario Test"
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$M3lO94BcLPkUGFB2bGgncuIIszp.31V/2CTpC5VeWIUZgNj1bpUR6"
   },
   {
     "id": "pkg-1788544893349-1788544893349-6f8af7",
@@ -30,8 +115,8 @@
     "fechaEntrega": "2026-09-04T18:01:33.400Z",
     "guardaIngreso": "admin",
     "guardaEntrega": "admin",
-    "codigoRetiro": "4879",
-    "retiradoPor": "Propietario Test"
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$DYXKiq2WckWyecaCHFslJuSXYm/EEfBcorXohfeNF0v1Bv2oJegU."
   },
   {
     "id": "pkg-1788544356464-1788544356464-3f523a",
@@ -47,8 +132,8 @@
     "fechaEntrega": "2026-09-04T17:52:36.499Z",
     "guardaIngreso": "admin",
     "guardaEntrega": "admin",
-    "codigoRetiro": "3145",
-    "retiradoPor": "Propietario Test"
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$A4yKSszG0Cp194q5YXYGaO65CqCLjxBBiL3ECOp.0Y78LnJupNgYS"
   },
   {
     "id": "pkg-1788467920436-1788467920436-ebccb4",
@@ -64,8 +149,8 @@
     "fechaEntrega": "2026-09-03T20:38:40.469Z",
     "guardaIngreso": "admin",
     "guardaEntrega": "admin",
-    "codigoRetiro": "1569",
-    "retiradoPor": "Propietario Test"
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$FVrAXiIHUHwuNQkHBYYBXeUH3It5oPzEp7rsQkelzU52tIw7FSwKO"
   },
   {
     "id": "pkg-1788467850605-1788467850605-c22aa0",
@@ -81,8 +166,8 @@
     "fechaEntrega": "2026-09-03T20:37:30.637Z",
     "guardaIngreso": "admin",
     "guardaEntrega": "admin",
-    "codigoRetiro": "1109",
-    "retiradoPor": "Propietario Test"
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$trAjeLbjprucH9w5uZZQAOD8pfLmlWUfsMu4PwuiJ5qT1T5s/f0i."
   },
   {
     "id": "pkg-1788467832649-1788467832649-fb6aa5",
@@ -98,8 +183,8 @@
     "fechaEntrega": "2026-09-03T20:37:12.682Z",
     "guardaIngreso": "admin",
     "guardaEntrega": "admin",
-    "codigoRetiro": "2712",
-    "retiradoPor": "Propietario Test"
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$IA3O207ZeQCt92.hEd2TCOX2Oa9Xhox8ZDs64D8UM6uf0yx5V1tpi"
   },
   {
     "id": "pkg-1788467506349-1788467506349-2dbf83",
@@ -115,8 +200,8 @@
     "fechaEntrega": "2026-09-03T20:31:46.384Z",
     "guardaIngreso": "admin",
     "guardaEntrega": "admin",
-    "codigoRetiro": "5036",
-    "retiradoPor": "Propietario Test"
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$OaiV5lgX8f2zIH1HQ37QtOJd7SL2jFUfF.uujHIlBAmedx0zlsBIC"
   },
   {
     "id": "pkg-1788466580533-1788466580533-d1a59b",
@@ -132,8 +217,8 @@
     "fechaEntrega": "2026-09-03T20:16:20.570Z",
     "guardaIngreso": "admin",
     "guardaEntrega": "admin",
-    "codigoRetiro": "6634",
-    "retiradoPor": "Propietario Test"
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$.lZi2Ulq8E7jxP4Oc8NWFOBo3EFvkC/6bjqLUshU/OP7YVmRyR7/."
   },
   {
     "id": "pkg-1788466561597-1788466561597-dc9b20",
@@ -149,8 +234,8 @@
     "fechaEntrega": "2026-09-03T20:16:01.631Z",
     "guardaIngreso": "admin",
     "guardaEntrega": "admin",
-    "codigoRetiro": "6471",
-    "retiradoPor": "Propietario Test"
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$7L05lepXP.6rlKo5Qw8tvOuxll3yP4lTstxupDJ/L/YZrsregfMcK"
   },
   {
     "id": "pkg-1788466532405-1788466532405-c2f795",
@@ -166,8 +251,8 @@
     "fechaEntrega": "2026-09-03T20:15:32.440Z",
     "guardaIngreso": "admin",
     "guardaEntrega": "admin",
-    "codigoRetiro": "3023",
-    "retiradoPor": "Propietario Test"
+    "retiradoPor": "Propietario Test",
+    "codigoRetiroHash": "$2b$10$i2KDYXRXMdMZYqmmJNuZeud1MvnUVBvgTZvNrTXoo9xUX83td/nnW"
   },
   {
     "id": "pkg-101",
@@ -178,13 +263,13 @@
     "empresa": "Servientrega",
     "guia": "SER-9948201",
     "descripcion": "Caja mediana de ropa y accesorios",
-    "codigoRetiro": "8832",
     "fechaIngreso": "2026-09-03T18:15:23.429Z",
     "fechaEntrega": null,
     "retiradoPor": null,
     "estado": "recibido",
     "guarda": "Guarda Rodríguez",
-    "notificadoWhatsapp": true
+    "notificadoWhatsapp": true,
+    "codigoRetiroHash": "$2b$10$kU6ki18jsKSIow3xibfnqewf5QKV9Y8UHjpJVK0awONauQQQckzhO"
   },
   {
     "id": "pkg-102",
@@ -196,13 +281,13 @@
     "destinatario": "Titular Apto 101",
     "guia": "REC-ENEL-101",
     "descripcion": "Factura de Energía Eléctrica",
-    "codigoRetiro": "4410",
     "fechaIngreso": "2026-09-02T20:15:23.429Z",
     "fechaEntrega": null,
     "retiradoPor": null,
     "estado": "recibido",
     "guarda": "Guarda Rodríguez",
-    "notificadoWhatsapp": false
+    "notificadoWhatsapp": false,
+    "codigoRetiroHash": "$2b$10$TjLWW2Ri1GTeh.OpRbvpY./HKLsmfAqQB3BwuLjAWI8BxtAce2Z7K"
   },
   {
     "id": "pkg-103",
@@ -213,13 +298,13 @@
     "empresa": "Amazon / Coordinadora",
     "guia": "AMZ-CO-88123",
     "descripcion": "Sobre acolchado con repuestos electrónicos",
-    "codigoRetiro": "5192",
     "fechaIngreso": "2026-09-03T16:15:23.429Z",
     "fechaEntrega": null,
     "retiradoPor": null,
     "estado": "recibido",
     "guarda": "Guarda Rodríguez",
-    "notificadoWhatsapp": true
+    "notificadoWhatsapp": true,
+    "codigoRetiroHash": "$2b$10$XvROV0j0V7ZrmlmhZKZkqe5bPgbp30pMNd62MwuN0ssrcyx/Bwe1W"
   },
   {
     "id": "pkg-104",
@@ -230,13 +315,13 @@
     "empresa": "MercadoLibre",
     "guia": "ML-77884102",
     "descripcion": "Caja con artículos para el hogar",
-    "codigoRetiro": "9034",
     "fechaIngreso": "2026-09-03T15:15:23.429Z",
     "fechaEntrega": null,
     "retiradoPor": null,
     "estado": "recibido",
     "guarda": "Guarda Martínez",
-    "notificadoWhatsapp": true
+    "notificadoWhatsapp": true,
+    "codigoRetiroHash": "$2b$10$G4L1tW6muWpAzSE037x4FOYk3G7QYK56X2PD13YkEY0AfQHCupelK"
   },
   {
     "id": "pkg-105",
@@ -248,13 +333,13 @@
     "destinatario": "Titular Apto 204",
     "guia": "REC-VANTI-204",
     "descripcion": "Recibo servicio de gas",
-    "codigoRetiro": "3318",
     "fechaIngreso": "2026-09-01T20:15:23.429Z",
     "fechaEntrega": null,
     "retiradoPor": null,
     "estado": "recibido",
     "guarda": "Guarda Martínez",
-    "notificadoWhatsapp": false
+    "notificadoWhatsapp": false,
+    "codigoRetiroHash": "$2b$10$QGppjtf4.cAXchpEdUb1U.knpJwJHdJs39zaXgJE/TTMH16YtuRcu"
   },
   {
     "id": "pkg-106",
@@ -265,13 +350,13 @@
     "empresa": "Interrapidísimo",
     "guia": "INT-400192",
     "descripcion": "Documentos legales en sobre sellado",
-    "codigoRetiro": "7721",
     "fechaIngreso": "2026-09-03T19:15:23.429Z",
     "fechaEntrega": null,
     "retiradoPor": null,
     "estado": "recibido",
     "guarda": "Guarda Rodríguez",
-    "notificadoWhatsapp": true
+    "notificadoWhatsapp": true,
+    "codigoRetiroHash": "$2b$10$c0FTMSwyumUAPsw2PKa/sO4ynavxOl/Lp06izgMjQP9PbnrIfBdUe"
   },
   {
     "id": "pkg-107",
@@ -282,12 +367,12 @@
     "empresa": "FedEx",
     "guia": "FDX-112233",
     "descripcion": "Paquete de libros",
-    "codigoRetiro": "1209",
     "fechaIngreso": "2026-08-31T20:15:23.429Z",
     "fechaEntrega": "2026-09-01T20:15:23.429Z",
     "retiradoPor": "Mariana Rodríguez (Titular)",
     "estado": "entregado",
     "guarda": "Guarda Rodríguez",
-    "notificadoWhatsapp": true
+    "notificadoWhatsapp": true,
+    "codigoRetiroHash": "$2b$10$OEyyOQwy/J1w2gchyG6Xsu62EXVrahmMdKVUBGJzWqL.RlRABXixy"
   }
 ]

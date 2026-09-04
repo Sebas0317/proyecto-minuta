@@ -50,9 +50,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1101",
-    "pinAcceso": "1003",
     "bodega": null,
-    "bicicletero": "BIC-01"
+    "bicicletero": "BIC-01",
+    "pinAccesoHash": "$2b$10$JepxkDrwQ1Iqa/SdsfWFiuUCZP55Y9skfw/RcKzZf43k3M/SKHHBC"
   },
   {
     "id": "t1-102",
@@ -105,9 +105,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1102",
-    "pinAcceso": "1006",
     "bodega": "B-1102",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$sMAmwbxBf1HgpPN/kFfdOuOS71xXQQEUxxISPLb49OxLr7xzfgCG6"
   },
   {
     "id": "t1-103",
@@ -169,9 +169,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1103",
-    "pinAcceso": "1009",
     "bodega": "B-1103",
-    "bicicletero": "BIC-03"
+    "bicicletero": "BIC-03",
+    "pinAccesoHash": "$2b$10$a2uD6x2loOfBnu6Wrooc3Oq2yE695kK3wqcR7/TINil28K4jN6sfy"
   },
   {
     "id": "t1-104",
@@ -221,9 +221,9 @@
       }
     },
     "observaciones": "Inmueble sin bahía privada comprada.",
-    "pinAcceso": "1012",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$K1ail9tg2MSnnx6jsxEqnOUlRvtarJ3TjZxi5OL9ACzdBFeyu2abi"
   },
   {
     "id": "t1-201",
@@ -276,9 +276,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1201",
-    "pinAcceso": "1015",
     "bodega": "B-1201",
-    "bicicletero": "BIC-05"
+    "bicicletero": "BIC-05",
+    "pinAccesoHash": "$2b$10$2B093/xbD4oxn0lvmmvssu3jYvugEp.jl4U7ad/ScS6T/m2J75632"
   },
   {
     "id": "t1-202",
@@ -340,9 +340,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1202",
-    "pinAcceso": "1018",
     "bodega": "B-1202",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$s9Z89oKZltAvxwS/R88xvu7hJCJpa3pCwq81.Q/suc2CpNn0j04E6"
   },
   {
     "id": "t1-203",
@@ -380,9 +380,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1203",
-    "pinAcceso": "1021",
     "bodega": null,
-    "bicicletero": "BIC-07"
+    "bicicletero": "BIC-07",
+    "pinAccesoHash": "$2b$10$9TRBgXeBvJWw6.InHerzV.RrU3FmNbiQOF28fBrrnezySm2t6MNVy"
   },
   {
     "id": "t1-204",
@@ -432,9 +432,9 @@
       }
     },
     "observaciones": "Inmueble sin bahía privada comprada.",
-    "pinAcceso": "1024",
     "bodega": "B-1204",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$d77FRPGfcsVvVqPnY99hzOFWBShBgLwFhYgQ2v0w./pp/vHvatle."
   },
   {
     "id": "t1-301",
@@ -496,9 +496,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1301",
-    "pinAcceso": "1027",
     "bodega": "B-1301",
-    "bicicletero": "BIC-09"
+    "bicicletero": "BIC-09",
+    "pinAccesoHash": "$2b$10$EDz.kZWpw7PFcb49TsNTpuUAsQSOq6yoZwp2NL4nYR24NAsaNAC5."
   },
   {
     "id": "t1-302",
@@ -551,9 +551,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1302",
-    "pinAcceso": "1030",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$OrgN14Fy2OntawpUbWV6o.4YdswhkRxQ74IbO3h/b/yKil.qqtmNS"
   },
   {
     "id": "t1-303",
@@ -591,9 +591,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1303",
-    "pinAcceso": "1033",
     "bodega": "B-1303",
-    "bicicletero": "BIC-11"
+    "bicicletero": "BIC-11",
+    "pinAccesoHash": "$2b$10$ag/QeUrbBxfAfFVn8UNE4eFrYU1mV7tXCWOpH1M1bzdywSvx4.9qq"
   },
   {
     "id": "t1-304",
@@ -661,9 +661,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1304",
-    "pinAcceso": "1036",
     "bodega": "B-1304",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$NFWX6ill7XxkZETEixulGOKDq54R44hxjQMQIZxdYPFQFptbw1.2O"
   },
   {
     "id": "t1-401",
@@ -702,9 +702,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1401A, P-1401B",
-    "pinAcceso": "1039",
     "bodega": null,
-    "bicicletero": "BIC-13"
+    "bicicletero": "BIC-13",
+    "pinAccesoHash": "$2b$10$j3oByvhFOi0V6n4MV2CvAeIG3cohMwmnvNLsk2IIZ7gSiXbEEaVdS"
   },
   {
     "id": "t1-402",
@@ -742,9 +742,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1402",
-    "pinAcceso": "1042",
     "bodega": "B-1402",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$Rj3kwdcgRrxnnl.RxoQzf.smdnk/2/qMl7YLrQqUTrpNTZvCk.MhS"
   },
   {
     "id": "t1-403",
@@ -806,9 +806,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1403",
-    "pinAcceso": "1045",
     "bodega": "B-1403",
-    "bicicletero": "BIC-15"
+    "bicicletero": "BIC-15",
+    "pinAccesoHash": "$2b$10$HxeaZirKTCtIXv2KI.zCEuqvWLO/wdRgjS3Zn8n/0phPsGTZKH9a."
   },
   {
     "id": "t1-404",
@@ -867,9 +867,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1404",
-    "pinAcceso": "1048",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$So9RVgWe3wusSVBYYx3sd.YwM6AdCCv.rORMTyqB9IFPYAnHYERda"
   },
   {
     "id": "t1-501",
@@ -923,9 +923,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1501A, P-1501B",
-    "pinAcceso": "1051",
     "bodega": "B-1501",
-    "bicicletero": "BIC-17"
+    "bicicletero": "BIC-17",
+    "pinAccesoHash": "$2b$10$jdnfZ1v7ukxGzTDar2f7c.CieOAvniv2B.JoYtYFfrarQgEVdPHAW"
   },
   {
     "id": "t1-502",
@@ -988,9 +988,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1502A, P-1502B",
-    "pinAcceso": "1054",
     "bodega": "B-1502",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$kSd.aAMlcxP.DY3dXORIYOzwPzC3fGAZkHkDCVPr1sybZ6Y4zuu/u"
   },
   {
     "id": "t1-503",
@@ -1043,9 +1043,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1503",
-    "pinAcceso": "1057",
     "bodega": null,
-    "bicicletero": "BIC-19"
+    "bicicletero": "BIC-19",
+    "pinAccesoHash": "$2b$10$AbE5q3DfaOeKceTYkkXC1es06iD1WOSYY3RfIQuBgWex8DLZmkjTu"
   },
   {
     "id": "t1-504",
@@ -1104,9 +1104,9 @@
       }
     },
     "observaciones": "Asignada bahía P-1504",
-    "pinAcceso": "1060",
     "bodega": "B-1504",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$3FFKFy5P2vW7SQsO3vfCDuDuCEZO4NF0ljqSVDe4aKLS0yRUoX.Mq"
   },
   {
     "id": "t2-101",
@@ -1144,9 +1144,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2101",
-    "pinAcceso": "1063",
     "bodega": "B-2101",
-    "bicicletero": "BIC-21"
+    "bicicletero": "BIC-21",
+    "pinAccesoHash": "$2b$10$RH1ocvLdLEk2nb46MnDrCOR0xXYHUh9a9buMAfV4bLAVc70YZSUZO"
   },
   {
     "id": "t2-102",
@@ -1184,9 +1184,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2102",
-    "pinAcceso": "1066",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$Sy2jXvzC6shz0XJt1qyR2u.gD02IrDecY0neNPHYxlBj.P7u4MHOm"
   },
   {
     "id": "t2-103",
@@ -1239,9 +1239,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2103",
-    "pinAcceso": "1069",
     "bodega": "B-2103",
-    "bicicletero": "BIC-23"
+    "bicicletero": "BIC-23",
+    "pinAccesoHash": "$2b$10$9/bDw7LOHerRXMRJasj2iu6eGsw9U8AAD65tJVQ8vHA.TfGWMJ0ru"
   },
   {
     "id": "t2-104",
@@ -1300,9 +1300,9 @@
       }
     },
     "observaciones": "Inmueble sin bahía privada comprada.",
-    "pinAcceso": "1072",
     "bodega": "B-2104",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$54X2gvYC8W1MZuJUYXeou.Nq95mnaes4SDXclIf0cTB3BtSnO8Mzy"
   },
   {
     "id": "t2-201",
@@ -1355,9 +1355,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2201",
-    "pinAcceso": "1075",
     "bodega": null,
-    "bicicletero": "BIC-25"
+    "bicicletero": "BIC-25",
+    "pinAccesoHash": "$2b$10$93iCH3reIh4pdbznUEvReujoyij0uYxY7ExdgCzeft7Ul.2eSJfa6"
   },
   {
     "id": "t2-202",
@@ -1395,9 +1395,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2202",
-    "pinAcceso": "1078",
     "bodega": "B-2202",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$rvRIttNWIB8dsFTcu8y2muoq.tp49Nqb.rnzYkLbVtuV0gO0eMKc."
   },
   {
     "id": "t2-203",
@@ -1459,9 +1459,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2203",
-    "pinAcceso": "1081",
     "bodega": "B-2203",
-    "bicicletero": "BIC-27"
+    "bicicletero": "BIC-27",
+    "pinAccesoHash": "$2b$10$sz66GJk4EB4Iamfv.4inBuRD86qxgdgpiM8TpFNDerus7qPwDzwL2"
   },
   {
     "id": "t2-204",
@@ -1503,9 +1503,9 @@
       }
     },
     "observaciones": "Inmueble sin bahía privada comprada.",
-    "pinAcceso": "1084",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$iZAKi9HbaUq7ea6FkhNTDeeWYZ8WjbMKblXtRWlO.Wn8d0c2wmKL6"
   },
   {
     "id": "t2-301",
@@ -1558,9 +1558,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2301",
-    "pinAcceso": "1087",
     "bodega": "B-2301",
-    "bicicletero": "BIC-29"
+    "bicicletero": "BIC-29",
+    "pinAccesoHash": "$2b$10$/sM8Xql3PmKs8gaGeT29ZeeiPfl3bJ24YLibtEriFI8XX1/AjQ57K"
   },
   {
     "id": "t2-302",
@@ -1622,9 +1622,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2302",
-    "pinAcceso": "1090",
     "bodega": "B-2302",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$xumXrrjbcyA.ztNNzJKxLu9zeg0KlB/QdE5wWWkogwUUJjCpl/hYW"
   },
   {
     "id": "t2-303",
@@ -1677,9 +1677,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2303",
-    "pinAcceso": "1093",
     "bodega": null,
-    "bicicletero": "BIC-31"
+    "bicicletero": "BIC-31",
+    "pinAccesoHash": "$2b$10$adcKmIqydqwmI/CJGSdIsONCEgSJS/103bk1Es6ieSic02QgkiXs."
   },
   {
     "id": "t2-304",
@@ -1738,9 +1738,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2304",
-    "pinAcceso": "1096",
     "bodega": "B-2304",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$Ea7t4jaNh0ICzbSYny/wFuLXHZdrkJA4Q7kba7eDzUqjGySCGc0Vy"
   },
   {
     "id": "t2-401",
@@ -1779,9 +1779,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2401A, P-2401B",
-    "pinAcceso": "1099",
     "bodega": "B-2401",
-    "bicicletero": "BIC-33"
+    "bicicletero": "BIC-33",
+    "pinAccesoHash": "$2b$10$YWkv7dUoaVpfbZuqhWY50ubGpxInuKVJ3TBGnEGXRvoHHqOvWu9m2"
   },
   {
     "id": "t2-402",
@@ -1834,9 +1834,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2402",
-    "pinAcceso": "1102",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$zmUSBflaylJsgAxs/JD5f.2Zh.F.cGtgIcZwyXIQrkFanuWrVKeLe"
   },
   {
     "id": "t2-403",
@@ -1874,9 +1874,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2403",
-    "pinAcceso": "1105",
     "bodega": "B-2403",
-    "bicicletero": "BIC-35"
+    "bicicletero": "BIC-35",
+    "pinAccesoHash": "$2b$10$Stxwg6hzXlXQrp8OxenCUu5o1FZLux5bUkdifwsycTd2lfcTeaFXm"
   },
   {
     "id": "t2-404",
@@ -1944,9 +1944,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2404",
-    "pinAcceso": "1108",
     "bodega": "B-2404",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$yMEqmET0TQKhFBPagZxyvO3ByvVI/quK5XuP6Ix1riypl8Kb2viBi"
   },
   {
     "id": "t2-501",
@@ -2000,9 +2000,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2501A, P-2501B",
-    "pinAcceso": "1111",
     "bodega": null,
-    "bicicletero": "BIC-37"
+    "bicicletero": "BIC-37",
+    "pinAccesoHash": "$2b$10$hecP.AGVzaSYWc9zdOYAfuyW.3djzehjG658lTL.vKbqRXU/ewOV2"
   },
   {
     "id": "t2-502",
@@ -2056,9 +2056,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2502A, P-2502B",
-    "pinAcceso": "1114",
     "bodega": "B-2502",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$Yo2.gd2aDXjHfZM6x1nrCO805fR66HmnWKoN.oicy13/uwdEyrIGi"
   },
   {
     "id": "t2-503",
@@ -2096,9 +2096,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2503",
-    "pinAcceso": "1117",
     "bodega": "B-2503",
-    "bicicletero": "BIC-39"
+    "bicicletero": "BIC-39",
+    "pinAccesoHash": "$2b$10$Zq8LEW8KJBcmwkmsDGI9KuVvjPYSL2aKSOBTICa03NRDC6pRaDcxa"
   },
   {
     "id": "t2-504",
@@ -2157,9 +2157,9 @@
       }
     },
     "observaciones": "Asignada bahía P-2504",
-    "pinAcceso": "1120",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$UZ3CS/4qmKy5N2okegMch.E3efyAVaYQDg0n5CjcNNCf0x.n7u4va"
   },
   {
     "id": "t3-101",
@@ -2212,9 +2212,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3101",
-    "pinAcceso": "1123",
     "bodega": "B-3101",
-    "bicicletero": "BIC-01"
+    "bicicletero": "BIC-01",
+    "pinAccesoHash": "$2b$10$KmY7F23tHN3hgDL6fM9T5eOhwenXJDaPm7z.9jAasR6cEU.1Dua/G"
   },
   {
     "id": "t3-102",
@@ -2252,9 +2252,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3102",
-    "pinAcceso": "1126",
     "bodega": "B-3102",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$H5tj96HJXVSQ1XWRk9TYwOdMI85MaG3zjzGY2TQj5VCYZFfGgHH0C"
   },
   {
     "id": "t3-103",
@@ -2307,9 +2307,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3103",
-    "pinAcceso": "1129",
     "bodega": null,
-    "bicicletero": "BIC-03"
+    "bicicletero": "BIC-03",
+    "pinAccesoHash": "$2b$10$P0DD4tXVMUGA/YGzdYj2ROT6MeyIOuO8WOyU9Q6B3/C/mcCm3QR.S"
   },
   {
     "id": "t3-104",
@@ -2351,9 +2351,9 @@
       }
     },
     "observaciones": "Inmueble sin bahía privada comprada.",
-    "pinAcceso": "1132",
     "bodega": "B-3104",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$F2VdyRO9ZI8LTC2yj5FBruHQcnxPylkfdLL9NAtZhVaRzbuaPIJEW"
   },
   {
     "id": "t3-201",
@@ -2415,9 +2415,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3201",
-    "pinAcceso": "1135",
     "bodega": "B-3201",
-    "bicicletero": "BIC-05"
+    "bicicletero": "BIC-05",
+    "pinAccesoHash": "$2b$10$9KTyyAWFWzjlJWyLaGik0eI9QeXp6/TPk6R9bahpOw9XAogTmy1Ae"
   },
   {
     "id": "t3-202",
@@ -2470,9 +2470,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3202",
-    "pinAcceso": "1138",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$KZWQ02oxV/7EWMU3ueVAY.2SSa4k75WAIEb8xdRFMbH9Mo/wjc7oG"
   },
   {
     "id": "t3-203",
@@ -2525,9 +2525,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3203",
-    "pinAcceso": "1141",
     "bodega": "B-3203",
-    "bicicletero": "BIC-07"
+    "bicicletero": "BIC-07",
+    "pinAccesoHash": "$2b$10$fkD2dGjJ2iKIQSpatY3ugOxywY1mnEPuDwXFNYjBDVO8.8UuinVRC"
   },
   {
     "id": "t3-204",
@@ -2586,9 +2586,9 @@
       }
     },
     "observaciones": "Inmueble sin bahía privada comprada.",
-    "pinAcceso": "1144",
     "bodega": "B-3204",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$AvWdOmzQ4x.Nb/iLhl8wEu57uNs57Xh6DvjLRQi5jqYL8TpfsHPmy"
   },
   {
     "id": "t3-301",
@@ -2626,9 +2626,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3301",
-    "pinAcceso": "1147",
     "bodega": null,
-    "bicicletero": "BIC-09"
+    "bicicletero": "BIC-09",
+    "pinAccesoHash": "$2b$10$x/4MPl2H0/rvV7MsDq73D.V7G62.vk17gDmJeRq1BciWRYjJFoUdq"
   },
   {
     "id": "t3-302",
@@ -2681,9 +2681,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3302",
-    "pinAcceso": "1150",
     "bodega": "B-3302",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$rgEC57pVCNVKruWpf30smuMS1Rp10v.Ce8YTRpmkUVY6DYiqMVCQ6"
   },
   {
     "id": "t3-303",
@@ -2745,9 +2745,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3303",
-    "pinAcceso": "1153",
     "bodega": "B-3303",
-    "bicicletero": "BIC-11"
+    "bicicletero": "BIC-11",
+    "pinAccesoHash": "$2b$10$Xw7euSjOshtUjg.kXp/30ez8lw.9hLxqqFr8W96VCmObIOtdtD4iC"
   },
   {
     "id": "t3-304",
@@ -2791,9 +2791,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3304",
-    "pinAcceso": "1156",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$KGGFd.sN01RItyFbDzguE.XJXjcV.IlQzbnoovFb7XseR6VOBB1yO"
   },
   {
     "id": "t3-401",
@@ -2847,9 +2847,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3401A, P-3401B",
-    "pinAcceso": "1159",
     "bodega": "B-3401",
-    "bicicletero": "BIC-13"
+    "bicicletero": "BIC-13",
+    "pinAccesoHash": "$2b$10$ZQKHlm0JbcKEF4T05TnLAeuVeBjA22xaw2hTA6AB8c3U4Btu9pBuy"
   },
   {
     "id": "t3-402",
@@ -2911,9 +2911,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3402",
-    "pinAcceso": "1162",
     "bodega": "B-3402",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$kIjesF/6AeVMje74ay5qLOIPuq8PRjmBzYtIPz3bvDD/SoO1jp1ce"
   },
   {
     "id": "t3-403",
@@ -2951,9 +2951,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3403",
-    "pinAcceso": "1165",
     "bodega": null,
-    "bicicletero": "BIC-15"
+    "bicicletero": "BIC-15",
+    "pinAccesoHash": "$2b$10$WdQVD9DTROyjWsN/bTEHiOJlAy6eOaRLMOmras9nwoBrisN5Gk2YK"
   },
   {
     "id": "t3-404",
@@ -2997,9 +2997,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3404",
-    "pinAcceso": "1168",
     "bodega": "B-3404",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$jLNxXaT1lV26UbkgxAQiyeeGDyD3Nmrh2.v73PlRtcl8UUP8CuXy2"
   },
   {
     "id": "t3-501",
@@ -3062,9 +3062,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3501A, P-3501B",
-    "pinAcceso": "1171",
     "bodega": "B-3501",
-    "bicicletero": "BIC-17"
+    "bicicletero": "BIC-17",
+    "pinAccesoHash": "$2b$10$uN8vpGS/.bxquiPP4dsp3ew.ZadLWD8wajPmY2kBx9HWvhyGA2x5m"
   },
   {
     "id": "t3-502",
@@ -3118,9 +3118,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3502A, P-3502B",
-    "pinAcceso": "1174",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$tb3AJ.iAg9kFhBDPmGPUc.8iSyeqV6jstbdw/iUzOTC9hJ6sQv5oS"
   },
   {
     "id": "t3-503",
@@ -3173,9 +3173,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3503",
-    "pinAcceso": "1177",
     "bodega": "B-3503",
-    "bicicletero": "BIC-19"
+    "bicicletero": "BIC-19",
+    "pinAccesoHash": "$2b$10$RsU4WWuoO3Z3S.Y/ZZspj.ONd7W5CglSn8new2C4W.tfXajst0KuK"
   },
   {
     "id": "t3-504",
@@ -3243,9 +3243,9 @@
       }
     },
     "observaciones": "Asignada bahía P-3504",
-    "pinAcceso": "1180",
     "bodega": "B-3504",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$hN5UzbTcn4rd3SCamE2sEuMkfYfCsRhWS9Sm7s1gG72eny5VN5/q."
   },
   {
     "id": "t4-101",
@@ -3298,9 +3298,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4101",
-    "pinAcceso": "1183",
     "bodega": null,
-    "bicicletero": "BIC-21"
+    "bicicletero": "BIC-21",
+    "pinAccesoHash": "$2b$10$BSv/zpbDfQ5gNoj2q8sbsuu.vuipbSfBe6Qmp1LHz4LZGVEX2GfWS"
   },
   {
     "id": "t4-102",
@@ -3353,9 +3353,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4102",
-    "pinAcceso": "1186",
     "bodega": "B-4102",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$KHUTV3RmQLEkItQZOfd/buj0IxjydF2EwrPP12x1nBm33C0NCS5MO"
   },
   {
     "id": "t4-103",
@@ -3393,9 +3393,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4103",
-    "pinAcceso": "1189",
     "bodega": "B-4103",
-    "bicicletero": "BIC-23"
+    "bicicletero": "BIC-23",
+    "pinAccesoHash": "$2b$10$8XrxIjtt13y0ybSBYnQF3OMkJqMiBvg8TrwrHg04ecSQUw/6YWJ/u"
   },
   {
     "id": "t4-104",
@@ -3445,9 +3445,9 @@
       }
     },
     "observaciones": "Inmueble sin bahía privada comprada.",
-    "pinAcceso": "1192",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$T/7Db.68/Kwcv5dzr.RSSe7mEINw5ofDJY3rvrN5RDgRVaeoY3Hge"
   },
   {
     "id": "t4-201",
@@ -3485,9 +3485,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4201",
-    "pinAcceso": "1195",
     "bodega": "B-4201",
-    "bicicletero": "BIC-25"
+    "bicicletero": "BIC-25",
+    "pinAccesoHash": "$2b$10$LQsKp1Yenrpa1gbxS3OoZuv4dIO5SoUtVQuInaP6uB6YcqEgRF.Gm"
   },
   {
     "id": "t4-202",
@@ -3525,9 +3525,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4202",
-    "pinAcceso": "1198",
     "bodega": "B-4202",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$dOlYFh0rZJYSuJ3Rgaoztue.gGI8MOAzfx2UQKoVsJhvyhaow.dlG"
   },
   {
     "id": "t4-203",
@@ -3580,9 +3580,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4203",
-    "pinAcceso": "1201",
     "bodega": null,
-    "bicicletero": "BIC-27"
+    "bicicletero": "BIC-27",
+    "pinAccesoHash": "$2b$10$vMn7in2/.Uxu3OOrmILaiuRUOQ7QnwrlffMKbc9KA/9pWI7JbflN2"
   },
   {
     "id": "t4-204",
@@ -3632,9 +3632,9 @@
       }
     },
     "observaciones": "Inmueble sin bahía privada comprada.",
-    "pinAcceso": "1204",
     "bodega": "B-4204",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$xWqew1LN7YCBCkRkgMatauIsq.mejSj/bHpkxRUMBJDxMrLv86Nhu"
   },
   {
     "id": "t4-301",
@@ -3696,9 +3696,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4301",
-    "pinAcceso": "1207",
     "bodega": "B-4301",
-    "bicicletero": "BIC-29"
+    "bicicletero": "BIC-29",
+    "pinAccesoHash": "$2b$10$e9SP0K4ruhvwG8coH0NuIueQ1NeAp48CkJLPHTB99Ih1xL86CLYiG"
   },
   {
     "id": "t4-302",
@@ -3736,9 +3736,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4302",
-    "pinAcceso": "1210",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$lfG1jTfOAnCcQUDpMIxKreplQeL4Jr0ja5ppB8gZjT3um/mFjxg1W"
   },
   {
     "id": "t4-303",
@@ -3791,9 +3791,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4303",
-    "pinAcceso": "1213",
     "bodega": "B-4303",
-    "bicicletero": "BIC-31"
+    "bicicletero": "BIC-31",
+    "pinAccesoHash": "$2b$10$0ePD0jfsdA4tlrFNFjKY4.qQD62h0WGOo0MUGuqtpu664Pt71gh5S"
   },
   {
     "id": "t4-304",
@@ -3861,9 +3861,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4304",
-    "pinAcceso": "1216",
     "bodega": "B-4304",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$B9OmzSERxwZR2YTNdpFPZez6EGKgcf/QDoM.Z9655H16rfe8t7y1i"
   },
   {
     "id": "t4-401",
@@ -3917,9 +3917,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4401A, P-4401B",
-    "pinAcceso": "1219",
     "bodega": null,
-    "bicicletero": "BIC-33"
+    "bicicletero": "BIC-33",
+    "pinAccesoHash": "$2b$10$IXGZb38ChLv0jge2oZpCgu83oBmFJpdkq3XYBO6dUFePCIwkV8Uuy"
   },
   {
     "id": "t4-402",
@@ -3972,9 +3972,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4402",
-    "pinAcceso": "1222",
     "bodega": "B-4402",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$a7MnKZ4oCL8wATdw0zajRuySKpSMco1oq7Wefoy51JiZgervk5r1e"
   },
   {
     "id": "t4-403",
@@ -4036,9 +4036,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4403",
-    "pinAcceso": "1225",
     "bodega": "B-4403",
-    "bicicletero": "BIC-35"
+    "bicicletero": "BIC-35",
+    "pinAccesoHash": "$2b$10$fMcVNKDn4xvKM30v8Zvb8eqov1qbocKXNdO9ea31EtxGSNwD/T6CW"
   },
   {
     "id": "t4-404",
@@ -4097,9 +4097,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4404",
-    "pinAcceso": "1228",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$imHCPfUlNGvaDNKsHo7PB.amV3gbiBxGMW2oxpr/q26ojyMvPY6qa"
   },
   {
     "id": "t4-501",
@@ -4138,9 +4138,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4501A, P-4501B",
-    "pinAcceso": "1231",
     "bodega": "B-4501",
-    "bicicletero": "BIC-37"
+    "bicicletero": "BIC-37",
+    "pinAccesoHash": "$2b$10$mQI21U0P/14Be5gWJRLkS.zTrjphTRQopv0EQZWznjOb8rsjHFLTq"
   },
   {
     "id": "t4-502",
@@ -4179,9 +4179,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4502A, P-4502B",
-    "pinAcceso": "1234",
     "bodega": "B-4502",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$ZfjbCoZgF/8o2ic4z6J3.uexuUaHVssv8DwknPFfcBE3fLHv8aWjC"
   },
   {
     "id": "t4-503",
@@ -4234,9 +4234,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4503",
-    "pinAcceso": "1237",
     "bodega": null,
-    "bicicletero": "BIC-39"
+    "bicicletero": "BIC-39",
+    "pinAccesoHash": "$2b$10$ttkDc3G6bmegyoP4gmAdQezOqxMmnPDh3sGvnqHpyxem.ptosUwJW"
   },
   {
     "id": "t4-504",
@@ -4295,9 +4295,9 @@
       }
     },
     "observaciones": "Asignada bahía P-4504",
-    "pinAcceso": "1240",
     "bodega": "B-4504",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$lnYDfSvV2m.xJTfjo/m.Aut9OMMOf4h4zxRqX3p7x6.FMnu.gdue6"
   },
   {
     "id": "t5-101",
@@ -4359,9 +4359,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5101",
-    "pinAcceso": "1243",
     "bodega": "B-5101",
-    "bicicletero": "BIC-01"
+    "bicicletero": "BIC-01",
+    "pinAccesoHash": "$2b$10$99hFj2u28rM1vcI4Nb1PXO/tUpeXdKCm.XLcMkqYanX1juSS7GkTm"
   },
   {
     "id": "t5-102",
@@ -4414,9 +4414,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5102",
-    "pinAcceso": "1246",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$YFq9B33oJeZ.2xIPHBU3mekRYOz/I/qBhy/H6O3bwfiSsoKbw6Pli"
   },
   {
     "id": "t5-103",
@@ -4469,9 +4469,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5103",
-    "pinAcceso": "1249",
     "bodega": "B-5103",
-    "bicicletero": "BIC-03"
+    "bicicletero": "BIC-03",
+    "pinAccesoHash": "$2b$10$oEdn1lssQrgudbE7sbtBNeLwe7RZVGokUrttiBf4v.eHGLCq2i6pW"
   },
   {
     "id": "t5-104",
@@ -4513,9 +4513,9 @@
       }
     },
     "observaciones": "Inmueble sin bahía privada comprada.",
-    "pinAcceso": "1252",
     "bodega": "B-5104",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$DCbHF.3xwi0/vf2JWsifVe3HnTj/EpEtRiC4sFuQWez8cmrx4nl5y"
   },
   {
     "id": "t5-201",
@@ -4568,9 +4568,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5201",
-    "pinAcceso": "1255",
     "bodega": null,
-    "bicicletero": "BIC-05"
+    "bicicletero": "BIC-05",
+    "pinAccesoHash": "$2b$10$N4I8m9wjhUC2mFegv4YdmeG9Soa9UYWfuhUMFR1XN1TOqr0Vlxxaq"
   },
   {
     "id": "t5-202",
@@ -4623,9 +4623,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5202",
-    "pinAcceso": "1258",
     "bodega": "B-5202",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$vbI686vmYErziKdHWDy2oO5r.kdRf.lAvGH/.G.sUM7rMCZMdhIla"
   },
   {
     "id": "t5-203",
@@ -4687,9 +4687,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5203",
-    "pinAcceso": "1261",
     "bodega": "B-5203",
-    "bicicletero": "BIC-07"
+    "bicicletero": "BIC-07",
+    "pinAccesoHash": "$2b$10$qu05907I8l/TtaNZsEv/jOj18d0IioTZpfy1BRZUor0O2KcqsHleW"
   },
   {
     "id": "t5-204",
@@ -4731,9 +4731,9 @@
       }
     },
     "observaciones": "Inmueble sin bahía privada comprada.",
-    "pinAcceso": "1264",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$PefYIACm6o1akOYZVWdJzeNFr57b65nzcf3z3p80feyrO.YO4hNW."
   },
   {
     "id": "t5-301",
@@ -4786,9 +4786,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5301",
-    "pinAcceso": "1267",
     "bodega": "B-5301",
-    "bicicletero": "BIC-09"
+    "bicicletero": "BIC-09",
+    "pinAccesoHash": "$2b$10$eVHTvcs8bXyt0OotN25iTevmgrzdRv/mI8ispBB1VdzPpy.ODQTBu"
   },
   {
     "id": "t5-302",
@@ -4850,9 +4850,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5302",
-    "pinAcceso": "1270",
     "bodega": "B-5302",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$P3z0X/cQrNrQ6NQkZx2PRe70p/hlOHufkr5J6Vj8INktYLOVE4D5e"
   },
   {
     "id": "t5-303",
@@ -4890,9 +4890,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5303",
-    "pinAcceso": "1273",
     "bodega": null,
-    "bicicletero": "BIC-11"
+    "bicicletero": "BIC-11",
+    "pinAccesoHash": "$2b$10$T6l8MdJKgIUd4Z4.EY0B9.F2DZBeeTh.XQoYvdHGrW9ap4JKVrEme"
   },
   {
     "id": "t5-304",
@@ -4951,9 +4951,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5304",
-    "pinAcceso": "1276",
     "bodega": "B-5304",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$ygPogJT7ECkxCssewpXKVupXyoHb6iV.Iq7qAmMrhq1dD8h4P0q1S"
   },
   {
     "id": "t5-401",
@@ -5016,9 +5016,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5401A, P-5401B",
-    "pinAcceso": "1279",
     "bodega": "B-5401",
-    "bicicletero": "BIC-13"
+    "bicicletero": "BIC-13",
+    "pinAccesoHash": "$2b$10$2vrkUwd2LajnFSA6esWTt.ZmOnjp3BOLjnjIudohcPU4yW8G5Gka6"
   },
   {
     "id": "t5-402",
@@ -5071,9 +5071,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5402",
-    "pinAcceso": "1282",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$8ErfAszM1WYnfSxTUEOSF.ms5XMzon79lHyzaLJpMp2z44aMJcUuy"
   },
   {
     "id": "t5-403",
@@ -5126,9 +5126,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5403",
-    "pinAcceso": "1285",
     "bodega": "B-5403",
-    "bicicletero": "BIC-15"
+    "bicicletero": "BIC-15",
+    "pinAccesoHash": "$2b$10$s.WiCz1rQSFmi79x9CSxf.IASD1Xnk3F9A2Uwx.CSlpDCxGzNdIFS"
   },
   {
     "id": "t5-404",
@@ -5196,9 +5196,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5404",
-    "pinAcceso": "1288",
     "bodega": "B-5404",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$RdoBUVgt.UOZmkExEvj02ORpcP3cDNTua5RKU6BwRFZjC.g2qSsOy"
   },
   {
     "id": "t5-501",
@@ -5252,9 +5252,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5501A, P-5501B",
-    "pinAcceso": "1291",
     "bodega": null,
-    "bicicletero": "BIC-17"
+    "bicicletero": "BIC-17",
+    "pinAccesoHash": "$2b$10$93WGy2fhhoCgENZqrfsUbeLjPnNdveCkCOX031w6EdPEorVhxIA0y"
   },
   {
     "id": "t5-502",
@@ -5293,9 +5293,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5502A, P-5502B",
-    "pinAcceso": "1294",
     "bodega": "B-5502",
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$MLtpcRZ2rf43JjdQeRPM8Ot1M5TeAcveSfNM5LrnjnHgeV1PMIT9K"
   },
   {
     "id": "t5-503",
@@ -5333,9 +5333,9 @@
       }
     },
     "observaciones": "Asignada bahía P-5503",
-    "pinAcceso": "1297",
     "bodega": "B-5503",
-    "bicicletero": "BIC-19"
+    "bicicletero": "BIC-19",
+    "pinAccesoHash": "$2b$10$.3eH3/Bi2eEVEgE/G663QOqW/qcy4BVmMyh6nKuGrv.CaMRQYuvna"
   },
   {
     "id": "t5-504",
@@ -5394,8 +5394,8 @@
       }
     },
     "observaciones": "Asignada bahía P-5504",
-    "pinAcceso": "1300",
     "bodega": null,
-    "bicicletero": null
+    "bicicletero": null,
+    "pinAccesoHash": "$2b$10$BGrajRsXpIBSRkNXZqMjBu7P/x9TdxNdQ6CayRKhIkQ8HzUMkXrre"
   }
 ]

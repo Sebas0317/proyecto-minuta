@@ -2,21 +2,25 @@
 
 const { Redis } = require('@upstash/redis');
 
-const KV_REST_API_URL = process.env.KV_REST_API_URL;
-const KV_REST_API_TOKEN = process.env.KV_REST_API_TOKEN;
-
 let redis = null;
-let redisAvailable = false;
+let redisChecked = false;
 
-if (KV_REST_API_URL && KV_REST_API_TOKEN) {
-  try {
-    const timeoutFetch = (url, init) =>
-      fetch(url, { ...init, signal: AbortSignal.timeout(5000) });
-    redis = new Redis({ url: KV_REST_API_URL, token: KV_REST_API_TOKEN, fetch: timeoutFetch });
-    redisAvailable = true;
-  } catch {
-    redisAvailable = false;
+function getRedisClient() {
+  if (redisChecked) return redis;
+  const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (redisUrl && redisToken) {
+    try {
+      const timeoutFetch = (url, init) =>
+        fetch(url, { ...init, signal: AbortSignal.timeout(5000) });
+      redis = new Redis({ url: redisUrl, token: redisToken, fetch: timeoutFetch });
+    } catch {
+      redis = null;
+    }
   }
+  redisChecked = true;
+  return redis;
 }
 
 /**
@@ -41,8 +45,9 @@ class UpstashStore {
     const fullKey = this.prefix + key;
     const now = Date.now();
     const resetTime = new Date(now + this.windowMs);
+    const r = getRedisClient();
 
-    if (!redisAvailable) {
+    if (!r) {
       // Fallback to memory
       const entry = this.memoryFallback.get(fullKey);
       if (!entry || now > entry.resetTime) {
@@ -59,7 +64,7 @@ class UpstashStore {
 
     try {
       const member = `${now}-${Math.random().toString(36).slice(2, 8)}`;
-      const multi = redis.multi();
+      const multi = r.multi();
       multi.zadd(fullKey, { score: now, member });
       multi.zremrangebyscore(fullKey, 0, now - this.windowMs);
       multi.zcard(fullKey);
@@ -68,7 +73,7 @@ class UpstashStore {
       const totalHits = results[2] || 0;
       return { totalHits, resetTime };
     } catch {
-      // Fall back to memory on Redis error (not recursive — direct memory access)
+      // Fall back to memory on Redis error
       const entry = this.memoryFallback.get(fullKey);
       if (!entry || now > entry.resetTime) {
         const newEntry = { totalHits: 1, resetTime };
@@ -85,14 +90,14 @@ class UpstashStore {
 
   async decrement(key) {
     const fullKey = this.prefix + key;
-    if (!redisAvailable) {
+    const r = getRedisClient();
+    if (!r) {
       const entry = this.memoryFallback.get(fullKey);
       if (entry && entry.totalHits > 0) entry.totalHits -= 1;
       return;
     }
     try {
-      const _member = `${Date.now()}`;
-      await redis.zremrangebyrank(fullKey, -1, -1);
+      await r.zremrangebyrank(fullKey, -1, -1);
     } catch {
       /* */
     }
@@ -100,9 +105,10 @@ class UpstashStore {
 
   async resetKey(key) {
     const fullKey = this.prefix + key;
-    if (redisAvailable) {
+    const r = getRedisClient();
+    if (r) {
       try {
-        await redis.del(fullKey);
+        await r.del(fullKey);
       } catch {
         /* */
       }
@@ -120,7 +126,5 @@ class UpstashStore {
     }
   }
 }
-
-module.exports = { UpstashStore };
 
 module.exports = { UpstashStore };
