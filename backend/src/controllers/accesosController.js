@@ -282,7 +282,7 @@ async function aprobarPreautorizado(req, res) {
     const acceso = accesos[index];
     const guardaResponsable = guarda || req.user?.username || req.user?.firstName || 'Guarda de Turno';
 
-    acceso.estado = 'activo';
+    acceso.estado = 'en_conjunto';
     acceso.fechaIngreso = new Date().toISOString();
     acceso.guarda = guardaResponsable;
     acceso.parqueaderoAsignado = parqueaderoAsignado || null;

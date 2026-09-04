@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { 
   fetchUnidades, fetchAccesos, fetchPaquetes, fetchMinuta, fetchParqueaderos,
   registrarIngreso, registrarSalida, createPaquete, notificarPaquete, entregarPaquete,
-  createMinutaEntry, ocuparParqueadero, liberarParqueadero
+  createMinutaEntry, ocuparParqueadero, liberarParqueadero, aprobarAccesoPreautorizado
 } from '../services/api';
 import CertificadosModal from './CertificadosModal';
 
@@ -279,6 +279,18 @@ export default function PorteriaDashboard() {
       notificarPaquete(paquete.id).then(() => loadData());
     } else {
       toast.info(`Código de retiro: ${paquete.codigoRetiro}`);
+    }
+  };
+
+  const handleAprobarPreautorizado = async (visita) => {
+    try {
+      await aprobarAccesoPreautorizado(visita.id, {
+        guarda: 'Guarda de Turno'
+      });
+      toast.success(`Ingreso de ${visita.nombre} autorizado y registrado en la minuta`);
+      loadData();
+    } catch (err) {
+      toast.error(err.message || 'Error al autorizar ingreso pre-autorizado');
     }
   };
 
@@ -634,7 +646,7 @@ export default function PorteriaDashboard() {
               <h3 className="text-base font-bold text-white">Visitantes y Domicilios</h3>
             </div>
             
-            <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-700 text-xs">
+            <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-700 text-xs flex-wrap">
               <button
                 onClick={() => setTabVisitas('activos')}
                 className={`px-3 py-1 rounded-lg font-bold transition-all ${
@@ -646,6 +658,18 @@ export default function PorteriaDashboard() {
                 🟢 Activos ({accesos.filter(a => a.estado === 'en_conjunto').length})
               </button>
               <button
+                onClick={() => setTabVisitas('preautorizados')}
+                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                  tabVisitas === 'preautorizados'
+                    ? 'bg-purple-600 text-white shadow'
+                    : accesos.filter(a => a.estado === 'preautorizado').length > 0
+                    ? 'text-purple-300 hover:text-white font-black animate-pulse'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                🎫 Pases QR ({accesos.filter(a => a.estado === 'preautorizado').length})
+              </button>
+              <button
                 onClick={() => setTabVisitas('salidas')}
                 className={`px-3 py-1 rounded-lg font-bold transition-all ${
                   tabVisitas === 'salidas'
@@ -653,7 +677,7 @@ export default function PorteriaDashboard() {
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                📜 Salidas Recientes ({accesos.filter(a => a.estado === 'finalizado').length})
+                📜 Salidas ({accesos.filter(a => a.estado === 'finalizado').length})
               </button>
             </div>
           </div>
@@ -700,6 +724,55 @@ export default function PorteriaDashboard() {
                         title="Registrar salida de portería"
                       >
                         <LogOut className="w-3.5 h-3.5" /> Registrar Salida
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )
+            ) : tabVisitas === 'preautorizados' ? (
+              accesos.filter(a => a.estado === 'preautorizado').length === 0 ? (
+                <div className="text-center py-12 text-slate-500 space-y-2">
+                  <UserCheck className="w-12 h-12 mx-auto opacity-30 text-purple-400" />
+                  <p>No hay pases pre-autorizados pendientes.</p>
+                  <span className="text-xs text-slate-400 block">Los residentes pueden generar pases QR desde su Portal Móvil.</span>
+                </div>
+              ) : (
+                accesos.filter(a => a.estado === 'preautorizado').map((a) => (
+                  <div key={a.id} className="bg-slate-900/90 border-2 border-purple-500/40 p-3.5 rounded-xl flex items-center justify-between gap-3 hover:border-purple-400 transition-all shadow-md">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-purple-950 text-purple-300 border border-purple-700 rounded-xl font-mono font-bold text-xs">
+                        {a.paseQR || a.apto}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white text-sm flex items-center gap-2">
+                          {a.nombre}
+                          <span className="text-[10px] font-bold px-2 py-0.5 bg-purple-950 text-purple-300 rounded-full capitalize border border-purple-700">
+                            {a.tipo}
+                          </span>
+                        </h4>
+                        <p className="text-xs text-slate-400">
+                          Destino: <strong className="text-purple-300">{a.torre} - Apto {a.apto}</strong> • Motivo: {a.motivo}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px]">
+                          <span className="text-slate-300">
+                            📅 Esperado: <strong className="text-white">{a.fechaEsperada || 'Hoy'}</strong>
+                          </span>
+                          {a.vehiculo?.placa && (
+                            <span className="text-purple-400 font-mono font-bold bg-purple-950/60 border border-purple-800/80 px-2 py-0.5 rounded-md">
+                              🚗 {a.vehiculo.placa}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleAprobarPreautorizado(a)}
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-950/60"
+                        title="Permitir ingreso inmediato"
+                      >
+                        <Check className="w-4 h-4" /> Validar & Ingresar
                       </button>
                     </div>
                   </div>
@@ -1290,6 +1363,58 @@ export default function PorteriaDashboard() {
                   placeholder="Ej: Carlos Gómez (Titular)"
                   className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-blue-500"
                 />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between text-xs font-medium text-slate-300 mb-1">
+                  <span>Código PIN de Retiro</span>
+                  <span className="text-[10px] text-amber-400 font-mono">
+                    {showEntregaModal.codigoRetiro ? `PIN Asignado: ${showEntregaModal.codigoRetiro}` : 'Opcional'}
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={entregaForm.codigoRetiro}
+                  onChange={(e) => setEntregaForm({ ...entregaForm, codigoRetiro: e.target.value })}
+                  placeholder="Digitar PIN"
+                  className="w-full bg-slate-900 border border-slate-700 text-amber-400 font-mono font-black text-center tracking-widest text-xl px-3 py-2 rounded-xl outline-none focus:border-amber-500"
+                />
+
+                {/* TECLADO TÁCTIL RÁPIDO PARA TABLETS / CELULARES */}
+                <div className="grid grid-cols-3 gap-1.5 mt-2 bg-slate-900/80 p-2 rounded-xl border border-slate-700">
+                  {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(num => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setEntregaForm(prev => ({ ...prev, codigoRetiro: (prev.codigoRetiro + num).slice(0, 6) }))}
+                      className="py-2 bg-slate-800 hover:bg-slate-700 active:bg-amber-600 text-white font-bold rounded-lg text-sm transition-all"
+                    >
+                      {num}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setEntregaForm(prev => ({ ...prev, codigoRetiro: '' }))}
+                    className="py-2 bg-red-950/60 hover:bg-red-900 text-red-300 font-bold rounded-lg text-xs"
+                  >
+                    Borrar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEntregaForm(prev => ({ ...prev, codigoRetiro: (prev.codigoRetiro + '0').slice(0, 6) }))}
+                    className="py-2 bg-slate-800 hover:bg-slate-700 active:bg-amber-600 text-white font-bold rounded-lg text-sm transition-all"
+                  >
+                    0
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEntregaForm(prev => ({ ...prev, codigoRetiro: prev.codigoRetiro.slice(0, -1) }))}
+                    className="py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg text-sm"
+                  >
+                    ⌫
+                  </button>
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-2">

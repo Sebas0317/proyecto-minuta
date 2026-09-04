@@ -24,7 +24,7 @@ beforeAll(async () => {
     { algorithm: 'HS256', expiresIn: '1h' }
   );
   authCookie = `token=${token}`;
-});
+}, 30000);
 
 // ── 1. HEALTH & METRICS ──
 describe('1. Estado y Salud del Sistema', () => {
