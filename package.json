@@ -4,6 +4,7 @@
   "private": true,
   "description": "Sistema Integral de Portería y Minuta de Vigilancia",
   "scripts": {
+    "build": "cd frontend && npm run build",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "build:frontend": "cd frontend && npm run build",
