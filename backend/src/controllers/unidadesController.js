@@ -4,6 +4,61 @@ const { getUnidades, saveUnidades } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
+/**
+ * Serializer / DTO para protección de PII (Habeas Data / Privacidad)
+ * Si el usuario es admin o guarda autenticado, accede a la información de gestión.
+ * Si es público / no autenticado, elimina estrictamente documentos, teléfonos, emails y PINs.
+ */
+function serializeUnidad(unidad, isAdminOrStaff = false) {
+  if (!unidad || typeof unidad !== 'object') return unidad;
+
+  if (isAdminOrStaff) {
+    const safe = { ...unidad };
+    delete safe.pinAcceso; // Nunca exponer PINs en listados generales
+    return safe;
+  }
+
+  // DTO Público estricto
+  return {
+    id: unidad.id,
+    torre: unidad.torre,
+    numero: unidad.numero,
+    piso: unidad.piso,
+    tipoOcupacion: unidad.tipoOcupacion || 'propietario',
+    estadoComercial: unidad.estadoComercial || 'habitado',
+    estado: unidad.estado || 'habitado',
+    coeficiente: unidad.coeficiente || 1.0,
+    propietario: unidad.propietario ? {
+      nombre: unidad.propietario.nombre || 'Propietario'
+    } : null,
+    residentes: Array.isArray(unidad.residentes)
+      ? unidad.residentes.map(r => ({
+          nombre: r.nombre,
+          parentesco: r.parentesco || 'Residente',
+          principal: !!r.principal
+        }))
+      : [],
+    vehiculos: Array.isArray(unidad.vehiculos)
+      ? unidad.vehiculos.map(v => ({
+          placa: v.placa,
+          tipo: v.tipo || 'carro',
+          marca: v.marca || ''
+        }))
+      : [],
+    parqueaderosPrivados: Array.isArray(unidad.parqueaderosPrivados) ? unidad.parqueaderosPrivados : [],
+    mascotas: Array.isArray(unidad.mascotas) ? unidad.mascotas : [],
+    estadoFinanciero: unidad.estadoFinanciero ? {
+      administracion: {
+        alDia: !!unidad.estadoFinanciero?.administracion?.alDia,
+        mesesMora: unidad.estadoFinanciero?.administracion?.mesesMora || 0
+      }
+    } : null,
+    observaciones: unidad.observaciones || '',
+    bodega: unidad.bodega || null,
+    bicicletero: unidad.bicicletero || null
+  };
+}
+
 async function getAllUnidades(req, res) {
   try {
     const unidades = await getUnidades();
@@ -25,12 +80,15 @@ async function getAllUnidades(req, res) {
         u.numero?.toLowerCase().includes(q) ||
         u.torre?.toLowerCase().includes(q) ||
         u.propietario?.nombre?.toLowerCase().includes(q) ||
-        u.residentes?.some(r => r.nombre.toLowerCase().includes(q) || r.documento.includes(q)) ||
-        u.vehiculos?.some(v => v.placa.toLowerCase().includes(q))
+        u.residentes?.some(r => r.nombre?.toLowerCase().includes(q) || r.documento?.includes(q)) ||
+        u.vehiculos?.some(v => v.placa?.toLowerCase().includes(q))
       );
     }
 
-    res.json(filtered);
+    const isStaff = req.user && ['admin', 'guarda', 'superadmin', 'auditor'].includes(req.user.role);
+    const sanitized = filtered.map(u => serializeUnidad(u, isStaff));
+
+    res.json(sanitized);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener unidades');
     res.status(500).json({ error: 'Error interno al obtener unidades' });
@@ -47,7 +105,8 @@ async function getUnidadById(req, res) {
       return res.status(404).json({ error: 'Unidad no encontrada' });
     }
 
-    res.json(unidad);
+    const isStaff = req.user && ['admin', 'guarda', 'superadmin', 'auditor'].includes(req.user.role);
+    res.json(serializeUnidad(unidad, isStaff));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener unidad');
     res.status(500).json({ error: 'Error interno al obtener unidad' });
@@ -86,7 +145,7 @@ async function createUnidad(req, res) {
     await saveUnidades(unidades);
 
     logger.info({ id: nuevaUnidad.id }, 'Unidad creada exitosamente');
-    res.status(201).json(nuevaUnidad);
+    res.status(201).json(serializeUnidad(nuevaUnidad, true));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al crear unidad');
     res.status(500).json({ error: 'Error interno al crear unidad' });
@@ -114,7 +173,7 @@ async function updateUnidad(req, res) {
     await saveUnidades(unidades);
 
     logger.info({ id }, 'Unidad actualizada exitosamente');
-    res.json(unidadActualizada);
+    res.json(serializeUnidad(unidadActualizada, true));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al actualizar unidad');
     res.status(500).json({ error: 'Error interno al actualizar unidad' });
@@ -180,7 +239,8 @@ async function getUnidadPortalData(req, res) {
       return res.status(404).json({ error: 'Inmueble no encontrado en el condominio' });
     }
 
-    res.json(unidad);
+    const isStaff = req.user && ['admin', 'guarda', 'superadmin', 'auditor'].includes(req.user.role);
+    res.json(serializeUnidad(unidad, isStaff));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al consultar portal de unidad');
     res.status(500).json({ error: 'Error interno al cargar portal de unidad' });
@@ -194,5 +254,6 @@ module.exports = {
   updateUnidad,
   deleteUnidad,
   getPublicUnidadesSummary,
-  getUnidadPortalData
+  getUnidadPortalData,
+  serializeUnidad
 };

@@ -1,5 +1,54 @@
 [
   {
+    "id": "asmb-1788544921724-1788544921724-95d72d",
+    "titulo": "Asamblea Extraordinaria de Prueba",
+    "fecha": "2026-09-04",
+    "horaInicio": "08:00 AM",
+    "estado": "en_curso",
+    "totalCoeficiente": 100,
+    "quorumRegistrado": 0,
+    "votaciones": [
+      {
+        "id": "vot-1788544921752-1788544921752-49b70d",
+        "pregunta": "¿Aprueba el presupuesto de seguridad?",
+        "estado": "activa",
+        "votosSi": 2.5,
+        "votosNo": 1.25,
+        "votosBlanco": 0,
+        "totalVotado": 3.75,
+        "votantes": [
+          "t1-101",
+          "t1-102",
+          "unidad-residente"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "asmb-1788544893407-1788544893407-57f133",
+    "titulo": "Asamblea Extraordinaria de Prueba",
+    "fecha": "2026-09-04",
+    "horaInicio": "08:00 AM",
+    "estado": "en_curso",
+    "totalCoeficiente": 100,
+    "quorumRegistrado": 0,
+    "votaciones": [
+      {
+        "id": "vot-1788544893434-1788544893434-6491ad",
+        "pregunta": "¿Aprueba el presupuesto de seguridad?",
+        "estado": "activa",
+        "votosSi": 1.25,
+        "votosNo": 1.25,
+        "votosBlanco": 0,
+        "totalVotado": 2.5,
+        "votantes": [
+          "t1-101",
+          "t1-102"
+        ]
+      }
+    ]
+  },
+  {
     "id": "asm-2026-01",
     "titulo": "Asamblea General Ordinaria de Copropietarios 2026",
     "fecha": "2026-09-15",

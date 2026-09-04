@@ -4,6 +4,20 @@ const { getPaquetes, savePaquetes, getUnidades } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
+/**
+ * Serializer para paquetería:
+ * Oculta el código PIN de retiro en listados generales / consultas públicas.
+ * Solo se expone a administradores autenticados o al momento de creación.
+ */
+function serializePaquete(paquete, isStaffOrOwner = false) {
+  if (!paquete || typeof paquete !== 'object') return paquete;
+  const safe = { ...paquete };
+  if (!isStaffOrOwner) {
+    delete safe.codigoRetiro;
+  }
+  return safe;
+}
+
 async function getAllPaquetes(req, res) {
   try {
     const paquetes = await getPaquetes();
@@ -26,18 +40,18 @@ async function getAllPaquetes(req, res) {
     if (search) {
       const q = search.toLowerCase();
       filtered = filtered.filter(p =>
-        p.destinatario.toLowerCase().includes(q) ||
+        p.destinatario?.toLowerCase().includes(q) ||
         p.guia?.toLowerCase().includes(q) ||
         p.empresa?.toLowerCase().includes(q) ||
-        p.apto?.includes(q) ||
-        p.codigoRetiro?.includes(q)
+        p.apto?.includes(q)
       );
     }
 
     // Sort newest first
     filtered.sort((a, b) => new Date(b.fechaIngreso) - new Date(a.fechaIngreso));
 
-    res.json(filtered);
+    const isStaff = req.user && ['admin', 'guarda', 'superadmin'].includes(req.user.role);
+    res.json(filtered.map(p => serializePaquete(p, isStaff)));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener paquetes');
     res.status(500).json({ error: 'Error interno al obtener paquetes' });
@@ -78,6 +92,7 @@ async function createPaquete(req, res) {
     await savePaquetes(paquetes);
 
     logger.info({ id: nuevoPaquete.id, torre, apto }, 'Paquete registrado exitosamente');
+    // Al crearse se devuelve con el PIN para poder notificarlo inmediatamente al residente
     res.status(201).json(nuevoPaquete);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al crear paquete');
@@ -117,15 +132,23 @@ async function entregarPaquete(req, res) {
       return res.status(404).json({ error: 'Paquete no encontrado' });
     }
 
-    // Validación opcional de código si fue provisto
-    if (codigoRetiro && paquete.codigoRetiro && codigoRetiro !== paquete.codigoRetiro) {
-      return res.status(400).json({ error: 'Código de retiro incorrecto' });
+    if (paquete.estado === 'entregado') {
+      return res.status(400).json({ error: 'Este paquete ya fue entregado previamente' });
+    }
+
+    // ── VALIDACIÓN ESTRICTA Y OBLIGATORIA DEL PIN DE RETIRO ──
+    if (!codigoRetiro || String(codigoRetiro).trim() === '') {
+      return res.status(400).json({ error: 'El código PIN de retiro es obligatorio para autorizar la entrega' });
+    }
+
+    if (String(codigoRetiro).trim() !== String(paquete.codigoRetiro).trim()) {
+      return res.status(400).json({ error: 'Código PIN de retiro incorrecto' });
     }
 
     paquete.estado = 'entregado';
     paquete.fechaEntrega = new Date().toISOString();
     paquete.guardaEntrega = guardaEntrega || req.user?.username || req.user?.firstName || 'Guarda de Turno';
-    paquete.retiradoPor = retiradoPor || 'Residente titular';
+    paquete.retiradoPor = (retiradoPor && String(retiradoPor).trim()) || 'Residente titular';
 
     await savePaquetes(paquetes);
 
@@ -151,7 +174,12 @@ async function getPaquetesByApto(req, res) {
     });
 
     list.sort((a, b) => new Date(b.fechaIngreso) - new Date(a.fechaIngreso));
-    res.json(list);
+
+    // NUNCA devolver el PIN de retiro en consultas públicas/listados de apartamento
+    const isStaff = req.user && ['admin', 'guarda', 'superadmin'].includes(req.user.role);
+    const sanitized = list.map(p => serializePaquete(p, isStaff));
+
+    res.json(sanitized);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener paquetes por apartamento');
     res.status(500).json({ error: 'Error interno al consultar paquetería del inmueble' });
@@ -163,5 +191,6 @@ module.exports = {
   createPaquete,
   notificarPaquete,
   entregarPaquete,
-  getPaquetesByApto
+  getPaquetesByApto,
+  serializePaquete
 };
