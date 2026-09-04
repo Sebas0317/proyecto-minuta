@@ -13,6 +13,7 @@
 const express = require('express');
 const router = express.Router();
 const { validateAll, repairFromBackup } = require('../utils/jsonValidator');
+const { isRedisAvailable } = require('../data/persistence');
 
 const startTime = Date.now();
 
@@ -49,6 +50,7 @@ router.get('/', (_req, res) => {
   res.json({
     status: 'healthy',
     uptime: `${hours}h ${minutes}m ${seconds}s`,
+    redisAvailable: isRedisAvailable(),
     timestamp: new Date().toISOString(),
   });
 });
