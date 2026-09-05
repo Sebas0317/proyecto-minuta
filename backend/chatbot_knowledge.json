@@ -340,5 +340,70 @@
       "label": "Ver Directorio Telefónico",
       "ruta": "/admin/info"
     }
+  },
+  {
+    "id": "kb-pqrs",
+    "categoria": "pqrs",
+    "titulo": "Radicación y Seguimiento de PQRS (Peticiones, Quejas, Reclamos y Sugerencias)",
+    "keywords": [
+      "pqrs",
+      "pqr",
+      "queja",
+      "quejas",
+      "reclamo",
+      "reclamos",
+      "peticion",
+      "peticiones",
+      "solicitud",
+      "solicitudes",
+      "sugerencia",
+      "sugerencias",
+      "felicitacion",
+      "radicado",
+      "como poner una queja",
+      "radicar pqrs",
+      "derecho de peticion"
+    ],
+    "preguntasFrecuentes": [
+      "¿Cómo radicar una queja o reclamo a la administración?",
+      "¿Puedo radicar una PQRS por el chat?",
+      "¿Dónde consulto el estado de mi radicado de PQRS?"
+    ],
+    "respuesta": "📝 **Gestión de PQRS (Ley 1755 de 2015 & Ley 675)**\n\nPuedes radicar y hacer seguimiento a tus Peticiones, Quejas, Reclamos, Sugerencias y Felicitaciones de dos formas:\n\n1. **Directamente en este chat:** Dime por ejemplo *\"Quiero radicar una queja por filtración en el apto 302\"* y la radicaré al instante con número de radicado oficial y plazo de 15 días hábiles.\n2. **En el Portal del Residente:** Ingresa a la pestaña **Mis PQRS & Solicitudes** para crear tickets, consultar respuestas y descargar el acta en PDF.\n3. **Panel Administrativo:** El administrador gestiona, responde y clasifica los radicados en el módulo de PQRS.",
+    "accionRapida": {
+      "tipo": "link",
+      "label": "Ver Módulo de PQRS",
+      "ruta": "/admin/pqrs"
+    }
+  },
+  {
+    "id": "kb-pqrs-plazos",
+    "categoria": "pqrs",
+    "titulo": "Plazos Legales y Términos de Respuesta para PQRS (Ley 1755)",
+    "keywords": [
+      "plazo",
+      "plazos",
+      "plazo legal",
+      "plazo pqrs",
+      "cuanto tiempo responder",
+      "dias habiles",
+      "termino legal",
+      "tiempo de respuesta",
+      "15 dias habiles",
+      "ley 1755",
+      "vencimiento pqrs"
+    ],
+    "preguntasFrecuentes": [
+      "¿Cuál es el plazo legal para responder una PQRS?",
+      "¿Cuánto tiempo tiene la administración para responder una PQRS?",
+      "¿Qué pasa si mi PQRS se vence?",
+      "¿Los 15 días de PQRS son hábiles o calendario?"
+    ],
+    "respuesta": "⏱️ **Términos Legales de Respuesta (Ley 1755 de 2015)**\n\n• **Término Legal General:** Toda Petición, Queja o Reclamo debe responderse dentro de los **quince (15) días hábiles** siguientes a su radicación (no cuentan sábados, domingos ni festivos).\n• **Peticiones de Información / Documentos:** 10 días hábiles.\n• **Consultas:** 30 días hábiles.\n\n*El sistema EcoBosque calcula automáticamente la fecha límite legal de cada ticket y emite alertas de vencimiento prioritarias a la administración.*",
+    "accionRapida": {
+      "tipo": "link",
+      "label": "Consultar mis Radicados",
+      "ruta": "/residente"
+    }
   }
 ]

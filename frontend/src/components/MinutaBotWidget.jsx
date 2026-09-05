@@ -40,6 +40,8 @@ function playChime() {
 }
 
 const INITIAL_SUGGESTIONS = [
+  '📝 Radicar PQRS',
+  '📋 Estado de mi PQRS',
   '🏊 Horario Piscina',
   '🏋️ Gimnasio & Aforo',
   '🗑️ Día de Basuras',

@@ -290,6 +290,34 @@ describe('12. MinutaBot IA & Motor NLP', () => {
     expect(res.body.answer).toContain('SOS-');
   });
 
+  it('Debe responder consultas sobre plazos y radicación de PQRS', async () => {
+    const res = await request(app).post('/chatbot/query').send({
+      message: '¿Cuál es el plazo legal para responder una PQRS?'
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.answer).toMatch(/d[íi]as h[áa]biles/i);
+    expect(res.body.answer).toMatch(/15/);
+  });
+
+  it('Debe radicar automáticamente una PQRS desde el chat en lenguaje natural', async () => {
+    const res = await request(app).post('/chatbot/query').send({
+      message: 'Quiero radicar una queja por filtración de agua en el apto 402'
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.answer).toContain('PQR-');
+    expect(res.body.answer).toContain('402');
+    expect(res.body.answer).toContain('15 días hábiles');
+  });
+
+  it('Debe consultar el estado de un radicado PQRS existente', async () => {
+    // Consultar una PQR por radicado o apto
+    const res = await request(app).post('/chatbot/query').send({
+      message: 'Estado del radicado PQR-2026-0001'
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.answer).toContain('PQR-2026-0001');
+  });
+
   it('GET /chatbot/analytics -> Debe entregar métricas de autoaprendizaje', async () => {
     const res = await request(app).get('/chatbot/analytics');
     expect(res.statusCode).toBe(200);

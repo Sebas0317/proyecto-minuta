@@ -1,8 +1,6 @@
-'use strict';
-
 const path = require('node:path');
 const { readJsonFile, writeJsonFile } = require('../data/jsonStoreHelper');
-const { getPaquetes, getParqueaderos, getMinuta, saveMinuta, getUnidades } = require('../data/jsonStore');
+const { getPaquetes, getParqueaderos, getMinuta, saveMinuta, getUnidades, getPqrs, savePqrs } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
@@ -11,6 +9,20 @@ const UNANSWERED_FILE = path.resolve(__dirname, '..', '..', 'unanswered_question
 const MANUAL_FILE = path.resolve(__dirname, '..', '..', 'manual_convivencia.json');
 const ANALYTICS_FILE = path.resolve(__dirname, '..', '..', 'consultas_analytics.json');
 const RESERVAS_FILE = path.resolve(__dirname, '..', '..', 'reservas_zonas.json');
+
+function calcular15DiasHabiles(fechaInicio = new Date()) {
+  const fecha = new Date(fechaInicio);
+  let diasAgregados = 0;
+  while (diasAgregados < 15) {
+    fecha.setDate(fecha.getDate() + 1);
+    const diaSemana = fecha.getDay();
+    if (diaSemana !== 0 && diaSemana !== 6) {
+      diasAgregados++;
+    }
+  }
+  fecha.setHours(23, 59, 59, 999);
+  return fecha.toISOString();
+}
 
 // Normalizador de texto
 function normalizarTexto(str) {
@@ -344,6 +356,129 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
       titulo: 'Disponibilidad de Parqueaderos',
       respuesta: `🚗 **Disponibilidad de Bahías en Vivo:**\n\n• **Bahías de Visitantes Libres:** ${visitantesLibres.length} de ${visitantes.length} cupos.\n• **Total Parqueaderos Libres:** ${libres.length} bahías.\n\n*El tiempo de cortesía para visitantes es de 4 horas continuas y la velocidad máxima en sótanos es de 10 km/h.*`,
       accionRapida: { tipo: 'link', label: 'Ver Mapa de Parqueaderos', ruta: '/admin/parqueadero' }
+    };
+  }
+
+  // 7. 📋 CONSULTA DE ESTADO DE RADICADO PQRS
+  const radicadoMatch = textoOriginal.match(/PQR-\d{4}-\d{4}/i);
+  const esConsultaEstadoPqrs = radicadoMatch || ((/estado|como va|consultar|seguimiento|respuesta|radicado/i.test(textoNormalizado) && /pqr|pqrs|queja|reclamo|solicitud|peticion/i.test(textoNormalizado)));
+  
+  if (esConsultaEstadoPqrs) {
+    const listaPqrs = (await getPqrs()) || [];
+    let pqrEncontrada = null;
+
+    if (radicadoMatch) {
+      const radCod = radicadoMatch[0].toUpperCase();
+      pqrEncontrada = listaPqrs.find(p => p.radicado && p.radicado.toUpperCase() === radCod);
+    } else if (aptoNumero) {
+      pqrEncontrada = listaPqrs.find(p => String(p.apto) === String(aptoNumero));
+    }
+
+    if (pqrEncontrada) {
+      await logAnalytics(textoOriginal, 'pqrs');
+      const ultResp = (pqrEncontrada.respuestas && pqrEncontrada.respuestas.length > 0)
+        ? pqrEncontrada.respuestas[pqrEncontrada.respuestas.length - 1]
+        : null;
+
+      const estadoLabel = pqrEncontrada.estado === 'respondido'
+        ? '🟢 Respondido (Resuelto)'
+        : pqrEncontrada.estado === 'en_tramite'
+        ? '🟡 En Trámite / Inspección'
+        : pqrEncontrada.estado === 'cerrado'
+        ? '⚪ Cerrado'
+        : '🔵 Radicado (En cola de atención)';
+
+      let respuestaTxt = `📋 **Consulta de Estado PQRS - Radicado \`${pqrEncontrada.radicado}\`**\n\n• **Tipo / Categoría:** ${pqrEncontrada.categoria || pqrEncontrada.tipo || 'Petición'}\n• **Inmueble:** ${pqrEncontrada.torre || 'Torre 1'} - Apto ${pqrEncontrada.apto}\n• **Asunto:** ${pqrEncontrada.asunto}\n• **Estado Actual:** ${estadoLabel}\n• **Fecha Radicación:** ${pqrEncontrada.fecha ? pqrEncontrada.fecha.slice(0, 10) : 'Reciente'}\n• **Plazo Límite Legal (15 días hábiles):** ${pqrEncontrada.fechaLimiteRespuesta ? pqrEncontrada.fechaLimiteRespuesta.slice(0, 10) : 'En término legal'}`;
+
+      if (ultResp) {
+        respuestaTxt += `\n\n✅ **Última Respuesta Oficial de la Administración:**\n*"${ultResp.respuesta || ultResp.mensaje}"*\n*(Fecha: ${ultResp.fecha})*`;
+      } else {
+        respuestaTxt += `\n\n⏳ *Tu solicitud se encuentra en revisión dentro del plazo legal de 15 días hábiles según la Ley 1755 de 2015.*`;
+      }
+
+      return {
+        tipo: 'consulta_pqrs',
+        titulo: `PQRS ${pqrEncontrada.radicado}`,
+        respuesta: respuestaTxt,
+        accionRapida: { tipo: 'link', label: 'Ver en Portal del Residente', ruta: '/residente' },
+        updatedContext: { ...context, apto: aptoNumero || pqrEncontrada.apto, ultimoRadicado: pqrEncontrada.radicado }
+      };
+    }
+  }
+
+  // 8. 📝 RADICACIÓN DIRECTA DE PQRS POR CHAT EN LENGUAJE NATURAL
+  const esIntencionRadicarPqrs = (/radicar|poner|crear|abrir|hacer|enviar|tengo|quiero/i.test(textoNormalizado) && /pqr|pqrs|queja|reclamo|peticion|solicitud|inconformidad/i.test(textoNormalizado)) || /quiero quejarme|tengo una queja|tengo un reclamo|hacer una peticion/i.test(textoNormalizado);
+
+  if (esIntencionRadicarPqrs) {
+    if (aptoNumero && textoOriginal.length > 20) {
+      try {
+        const listaPqrs = (await getPqrs()) || [];
+        let categoriaDetectada = 'Petición';
+        if (/ruido|musica|fiesta|vecino|perro|mascota|olor|convivencia|gritos/i.test(textoNormalizado)) {
+          categoriaDetectada = 'Queja';
+        } else if (/mantenimiento|luz|bombillo|filtracion|fuga|humedad|ascensor|puerta|dano|dano electrico|danado|reparar/i.test(textoNormalizado)) {
+          categoriaDetectada = 'Mantenimiento';
+        } else if (/seguridad|guarda|portero|camara|acceso|llave|porton|robo|intruso/i.test(textoNormalizado)) {
+          categoriaDetectada = 'Seguridad';
+        } else if (/felicitacion|agradecer|excelente|felicito/i.test(textoNormalizado)) {
+          categoriaDetectada = 'Felicitación';
+        } else if (/reclamo|inconformidad|cobro|factura|interes/i.test(textoNormalizado)) {
+          categoriaDetectada = 'Reclamo';
+        }
+
+        const year = new Date().getFullYear();
+        const num = String(listaPqrs.length + 1).padStart(4, '0');
+        const radicado = `PQR-${year}-${num}`;
+        const fechaActual = new Date().toISOString();
+        const fechaLimite = calcular15DiasHabiles(new Date());
+
+        const asuntoLimpio = textoOriginal.length > 60 ? textoOriginal.slice(0, 57) + '...' : textoOriginal;
+
+        const nuevaPqr = {
+          id: `pqr-${Date.now()}-${generateId(4)}`,
+          radicado: radicado,
+          tipo: categoriaDetectada.toLowerCase(),
+          categoria: categoriaDetectada,
+          torre: 'Torre 1',
+          apto: String(aptoNumero),
+          solicitante: `Residente Apto ${aptoNumero}`,
+          telefono: 'Registrado en Bot',
+          asunto: asuntoLimpio,
+          descripcion: textoOriginal,
+          estado: 'radicado',
+          prioridad: 'media',
+          fecha: fechaActual,
+          fechaRadicado: fechaActual,
+          fechaLimiteRespuesta: fechaLimite,
+          fechaVencimiento: fechaLimite,
+          respuestas: [],
+          notasInternas: 'Radicada automáticamente por MinutaBot mediante comando en chat.',
+          creadoPor: 'MinutaBot IA'
+        };
+
+        listaPqrs.push(nuevaPqr);
+        await savePqrs(listaPqrs);
+        await logAnalytics(textoOriginal, 'pqrs');
+
+        return {
+          tipo: 'pqrs_radicada_automatica',
+          titulo: `PQRS Radicada: ${radicado}`,
+          respuesta: `🎉 **¡Tu PQRS ha sido radicada formalmente por MinutaBot!**\n\n• **Radicado Oficial:** \`${radicado}\`\n• **Tipo de Solicitud:** ${categoriaDetectada}\n• **Inmueble:** Apto ${aptoNumero}\n• **Fecha Límite Legal:** ${fechaLimite.slice(0, 10)} *(15 días hábiles - Ley 1755 de 2015)*\n• **Estado:** 🔵 Radicado (Pendiente de gestión)\n\nLa administración ha recibido la solicitud y responderá dentro del plazo legal. Puedes consultar el seguimiento y descargar el comprobante en tu Portal del Residente.`,
+          accionRapida: { tipo: 'link', label: 'Ver mis PQRS en el Portal', ruta: '/residente' },
+          updatedContext: { ...context, apto: aptoNumero, ultimoRadicado: radicado }
+        };
+      } catch (err) {
+        logger.error({ error: err.message }, 'Error al radicar PQRS desde MinutaBot');
+      }
+    }
+
+    await logAnalytics(textoOriginal, 'pqrs');
+    return {
+      tipo: 'asistente_radicar_pqrs',
+      titulo: 'Radicación de PQRS & Solicitudes',
+      respuesta: `📝 **Radicación de PQRS (Ley 1755 de 2015 & Ley 675)**\n\nCon gusto te ayudo a radicar tu **Petición, Queja, Reclamo o Mantenimiento** ante la administración.\n\nPuedes hacerlo directamente diciéndome tu número de apartamento y el motivo (ejemplo:\n👉 *"Quiero radicar una queja por filtración en el apto 302"* o\n👉 *"Radicar reclamo de mantenimiento apto 204: farola apagada"*)\n\nO si lo prefieres, haz clic en el botón de abajo para abrir el formulario completo en el Portal del Residente con consecutivo oficial y plazo de 15 días hábiles.`,
+      accionRapida: { tipo: 'link', label: 'Abrir Formulario de PQRS', ruta: '/residente' },
+      updatedContext: { ...context, waitingFor: 'apto_pqrs' }
     };
   }
 
