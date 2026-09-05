@@ -16,8 +16,8 @@
     "seed:reservas": "node scripts/seedReservasCalendar.js",
     "certs": "node scripts/generate-dev-certs.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["porteria", "seguridad", "propiedad-horizontal", "minuta", "sn2_f_"],
+  "author": "sn2_f_",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {

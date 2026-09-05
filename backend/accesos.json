@@ -1,5 +1,22 @@
 [
   {
+    "id": "acc-1788613148666-1788613148666-df4adb",
+    "tipo": "visitante",
+    "nombre": "Visitante Test",
+    "documento": "10203040",
+    "unidadId": "torre2-302",
+    "torre": "Torre 2",
+    "apto": "302",
+    "motivo": "Visita general",
+    "vehiculo": null,
+    "parqueaderoAsignado": null,
+    "fechaIngreso": "2026-09-05T12:59:08.666Z",
+    "fechaSalida": "2026-09-05T12:59:08.716Z",
+    "estado": "finalizado",
+    "autorizadoPor": "Residente",
+    "guarda": "admin"
+  },
+  {
     "id": "acc-1788612911016-1788612911016-a4ffee",
     "tipo": "visitante",
     "nombre": "Visitante Test",

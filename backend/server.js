@@ -207,8 +207,10 @@ app.use('/health', healthRoutes);
 
 // Root endpoint
 app.get('/', (_req, res) => res.json({
-  service: 'EcoBosque API',
+  service: 'EcoBosque API - Sistema Integral de Portería y Minuta Residencial',
   version: '1.0.0',
+  author: 'sn2_f_',
+  signature: 'sn2_f_',
   status: 'running',
   docs: '/api-docs',
   health: '/health/detailed',

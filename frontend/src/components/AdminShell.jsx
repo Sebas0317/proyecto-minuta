@@ -295,6 +295,14 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
               {!collapsed && <span>Salir</span>}
             </button>
           </div>
+
+          {!collapsed && (
+            <div className="pt-1 text-center">
+              <span className="text-[10px] font-mono font-medium text-slate-500 hover:text-emerald-400 transition-colors cursor-default">
+                EcoBosque PH • <span className="text-emerald-500 font-bold">sn2_f_</span>
+              </span>
+            </div>
+          )}
         </div>
       </aside>
 

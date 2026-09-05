@@ -2,7 +2,9 @@
   "name": "proyecto-minuta-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "Sistema Integral de Portería y Minuta de Vigilancia",
+  "description": "Sistema Integral de Portería y Minuta de Vigilancia Residencial",
+  "author": "sn2_f_",
+  "creator": "sn2_f_",
   "scripts": {
     "build": "cd frontend && npm run build",
     "dev:backend": "cd backend && npm run dev",
