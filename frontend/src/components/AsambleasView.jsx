@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { Vote, Plus, Clock, RefreshCw, BarChart3 } from 'lucide-react';
+import { Vote, Plus, Clock, RefreshCw, BarChart3, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchAsambleas, createAsamblea, updateQuorum, addVotacion, castVote, closeVotacion } from '../services/api';
+import { generarActaAsambleaPDF } from '../utils/pdfGenerator';
 
 export default function AsambleasView() {
   const [asambleas, setAsambleas] = useState([]);
@@ -123,6 +124,19 @@ export default function AsambleasView() {
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
+          {activeAsamblea && (
+            <button
+              onClick={() => {
+                generarActaAsambleaPDF(activeAsamblea);
+                toast.success('Acta Oficial de Asamblea descargada en PDF');
+              }}
+              className="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-600 text-indigo-300 hover:text-white border border-slate-600 px-3.5 py-2.5 rounded-xl font-bold text-xs transition-all"
+              title="Descargar Acta Oficial en PDF"
+            >
+              <Download className="w-4 h-4 text-indigo-400" />
+              <span className="hidden sm:inline">Descargar Acta PDF</span>
+            </button>
+          )}
           <button
             onClick={() => setShowAsambleaModal(true)}
             className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-indigo-950/40 transition-all hover:scale-105"

@@ -28,6 +28,7 @@ import {
   Flame,
   Vote,
   Heart,
+  MessageSquareQuote,
   AlertOctagon
 } from 'lucide-react';
 import {
@@ -61,6 +62,7 @@ const NAV_GROUPS = [
     title: 'GESTIÓN & SEGURIDAD',
     items: [
       { key: 'asambleas', label: 'Asambleas & Votos', icon: Vote, path: '/admin/asambleas' },
+      { key: 'pqrs', label: 'PQRS & Radicados', icon: MessageSquareQuote, path: '/admin/pqrs' },
       { key: 'equipos', label: 'Extintores & Equipos', icon: Flame, path: '/admin/equipos' },
       { key: 'mascotas', label: 'Censo de Mascotas', icon: Heart, path: '/admin/mascotas' },
       { key: 'unidades', label: 'Censo de Inmuebles', icon: Building2, path: '/admin/unidades' },
@@ -112,6 +114,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
     if (path.includes('/admin/rondas')) return 'rondas';
     if (path.includes('/admin/reservas')) return 'reservas';
     if (path.includes('/admin/asambleas')) return 'asambleas';
+    if (path.includes('/admin/pqrs')) return 'pqrs';
     if (path.includes('/admin/equipos')) return 'equipos';
     if (path.includes('/admin/mascotas')) return 'mascotas';
     if (path.includes('/admin/info')) return 'info';
@@ -136,6 +139,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
         trasteos: '/admin/trasteos',
         reservas: '/admin/reservas',
         asambleas: '/admin/asambleas',
+        pqrs: '/admin/pqrs',
         equipos: '/admin/equipos',
         mascotas: '/admin/mascotas',
         unidades: '/admin/unidades',

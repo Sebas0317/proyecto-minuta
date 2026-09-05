@@ -1320,5 +1320,39 @@ export async function fetchPaquetesUnidad(apto, params = {}) {
   return apiFetch(`/paquetes/unidad/${apto}${query ? '?' + query : ''}`, { method: 'GET' });
 }
 
+// ── PQRS (PETICIONES, QUEJAS, RECLAMOS Y SOLICITUDES) ──
+export async function fetchPqrs(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  return apiFetch(`/pqrs${query ? '?' + query : ''}`, { method: 'GET' });
+}
 
+export async function fetchPqrsById(id) {
+  return apiFetch(`/pqrs/${id}`, { method: 'GET' });
+}
 
+export async function createPqrs(data) {
+  return apiFetch('/pqrs', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function responderPqrs(id, data) {
+  return apiFetch(`/pqrs/${id}/responder`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updatePqrsEstado(id, data) {
+  return apiFetch(`/pqrs/${id}/estado`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deletePqrs(id) {
+  return apiFetch(`/pqrs/${id}`, {
+    method: 'DELETE',
+  });
+}

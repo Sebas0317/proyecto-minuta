@@ -296,3 +296,64 @@ describe('12. MinutaBot IA & Motor NLP', () => {
     expect(res.body).toHaveProperty('totalConsultas');
   });
 });
+
+// ── 13. MÓDULO DE PQRS (PETICIONES, QUEJAS, RECLAMOS Y SOLICITUDES) ──
+describe('13. Módulo de PQRS & Término Legal Ley 1755', () => {
+  let createdTicketId;
+
+  it('GET /pqrs -> Debe listar los tickets de PQRS', async () => {
+    const res = await request(app).get('/pqrs').set('Cookie', authCookie);
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+  });
+
+  it('POST /pqrs -> Debe crear una nueva PQRS con radicado y plazo de 15 días hábiles', async () => {
+    const res = await request(app).post('/pqrs').send({
+      categoria: 'Petición',
+      asunto: 'Solicitud de copia de actas de asamblea anterior',
+      descripcion: 'Requiero copia del acta firmada de la asamblea ordinaria',
+      torre: 'Torre 2',
+      apto: '401',
+      solicitante: 'Laura Morales',
+      email: 'laura@test.com',
+      telefono: '3129876543',
+      prioridad: 'media'
+    });
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body).toHaveProperty('id');
+    expect(res.body).toHaveProperty('radicado');
+    expect(res.body.radicado).toMatch(/^PQR-\d{4}-\d{4}$/);
+    expect(res.body).toHaveProperty('fechaLimiteRespuesta');
+    expect(res.body.estado).toBe('radicado');
+    createdTicketId = res.body.id;
+  });
+
+  it('POST /pqrs/:id/responder -> Debe registrar respuesta oficial de la administración', async () => {
+    const res = await request(app)
+      .post(`/pqrs/${createdTicketId}/responder`)
+      .set('Cookie', authCookie)
+      .send({
+        respuesta: 'Estimada copropietaria, se adjunta copia digital del acta solicitada.',
+        respondidoPor: 'Administración EcoBosque',
+        nuevoEstado: 'respondido'
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.estado).toBe('respondido');
+    expect(Array.isArray(res.body.respuestas)).toBe(true);
+    expect(res.body.respuestas.length).toBeGreaterThan(0);
+    expect(res.body.respuestas[0].respuesta).toContain('se adjunta copia digital');
+  });
+
+  it('PATCH /pqrs/:id/estado -> Debe actualizar el estado de la PQRS', async () => {
+    const res = await request(app)
+      .patch(`/pqrs/${createdTicketId}/estado`)
+      .set('Cookie', authCookie)
+      .send({ estado: 'cerrado' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.estado).toBe('cerrado');
+  });
+});

@@ -36,7 +36,8 @@ import {
   Layers,
   Filter,
   Check,
-  UserX
+  UserX,
+  MessageSquareQuote
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -51,14 +52,18 @@ import {
   castVote,
   fetchMascotas,
   createMascota,
-  queryChatbot
+  queryChatbot,
+  fetchPqrs,
+  createPqrs
 } from '../services/api';
 import CertificadosModal from './CertificadosModal';
+import { generarPazYSalvoPDF, generarTicketPqrsPDF } from '../utils/pdfGenerator';
 
 const TABS = [
   { id: 'resumen', label: 'Mi Inmueble & Finanzas', icon: Home },
   { id: 'paquetes', label: 'Paquetes & Recibos', icon: Package },
   { id: 'visitas', label: 'Pre-autorizar Visitas', icon: UserCheck },
+  { id: 'pqrs', label: 'Mis PQRS & Solicitudes', icon: MessageSquareQuote },
   { id: 'reservas', label: 'Reservar Zonas', icon: Calendar },
   { id: 'asambleas', label: 'Asamblea Digital', icon: Vote },
   { id: 'mascotas', label: 'Mis Mascotas', icon: Dog },
@@ -148,6 +153,17 @@ export default function PortalResidenteView() {
   const [certModalOpen, setCertModalOpen] = useState(false);
   const [certTipo, setCertTipo] = useState('paz_y_salvo');
 
+  // PQRS del Residente
+  const [pqrsList, setPqrsList] = useState([]);
+  const [loadingPqrs, setLoadingPqrs] = useState(false);
+  const [showPqrsModal, setShowPqrsModal] = useState(false);
+  const [formPqrs, setFormPqrs] = useState({
+    categoria: 'Petición',
+    asunto: '',
+    descripcion: '',
+    telefono: ''
+  });
+
   // Cargar lista de unidades para el navegador vertical
   const loadUnidadesList = async () => {
     try {
@@ -170,13 +186,14 @@ export default function PortalResidenteView() {
       setUnidadData(data);
       localStorage.setItem('residente_unidad_id', uId);
 
-      // Cargar paquetes, visitas, reservas, asambleas y mascotas del apartamento
+      // Cargar paquetes, visitas, reservas, asambleas, mascotas y pqrs del apartamento
       const aptoNum = data?.numero || '101';
       fetchPaquetesUnidad(aptoNum, { torre: data?.torre }).then(setPaquetes).catch(() => {});
       fetchPreautorizadosUnidad(data?.id || uId, { apto: aptoNum }).then(setVisitas).catch(() => {});
       fetchReservasZonas().then(setReservas).catch(() => {});
       fetchAsambleas().then(setAsambleas).catch(() => {});
       fetchMascotas({ apto: aptoNum }).then(setMascotas).catch(() => {});
+      fetchPqrs({ apto: aptoNum, torre: data?.torre }).then(setPqrsList).catch(() => {});
     } catch (e) {
       toast.error('No se pudo cargar la información del apartamento');
     } finally {
@@ -189,6 +206,43 @@ export default function PortalResidenteView() {
       loadUnidad(selectedUnidadId);
     }
   }, [selectedUnidadId]);
+
+  // Manejar radicación de PQRS por residente
+  const handleCrearPqrs = async (e) => {
+    e.preventDefault();
+    if (!formPqrs.asunto.trim() || !formPqrs.descripcion.trim()) {
+      toast.error('Asunto y descripción son obligatorios');
+      return;
+    }
+
+    try {
+      const payload = {
+        categoria: formPqrs.categoria,
+        asunto: formPqrs.asunto.trim(),
+        descripcion: formPqrs.descripcion.trim(),
+        torre: unidadData?.torre || 'Torre 1',
+        apto: String(unidadData?.numero || '101'),
+        solicitante: unidadData?.propietario?.nombre || 'Residente',
+        telefono: formPqrs.telefono || unidadData?.propietario?.telefono || '',
+        prioridad: 'media'
+      };
+
+      const res = await createPqrs(payload);
+      toast.success(`PQRS radicada con éxito: Radicado ${res.radicado || ''}`);
+      setShowPqrsModal(false);
+      setFormPqrs({
+        categoria: 'Petición',
+        asunto: '',
+        descripcion: '',
+        telefono: ''
+      });
+
+      const aptoNum = unidadData?.numero || '101';
+      fetchPqrs({ apto: aptoNum, torre: unidadData?.torre }).then(setPqrsList).catch(() => {});
+    } catch (err) {
+      toast.error(err.message || 'Error al radicar PQRS');
+    }
+  };
 
   // Manejar pre-autorización de visitas
   const handlePreautorizar = async (e) => {
@@ -797,15 +851,26 @@ export default function PortalResidenteView() {
                   <p><span className="text-slate-400 font-sans">Titular:</span> CONDOMINIO MINUTA P.H.</p>
                   <p><span className="text-slate-400 font-sans">Enviar comprobante:</span> <span className="text-blue-400">pagos@minuta.com</span></p>
                 </div>
-                <button
-                  onClick={() => {
-                    setCertTipo('paz_y_salvo');
-                    setCertModalOpen(true);
-                  }}
-                  className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
-                >
-                  <FileCheck className="w-3.5 h-3.5 text-emerald-400" /> Generar Certificado de Residencia
-                </button>
+                <div className="pt-2 border-t border-slate-800 space-y-2">
+                  <button
+                    onClick={() => {
+                      generarPazYSalvoPDF(unidadData);
+                      toast.success('Paz y Salvo Oficial generado y descargado en PDF');
+                    }}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-950/40"
+                  >
+                    <Download className="w-4 h-4" /> 📄 Descargar Paz y Salvo Oficial (PDF)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCertTipo('paz_y_salvo');
+                      setCertModalOpen(true);
+                    }}
+                    className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                  >
+                    <FileCheck className="w-3.5 h-3.5 text-emerald-400" /> Ver Otros Certificados Digitales
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -952,6 +1017,118 @@ export default function PortalResidenteView() {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 3: MIS PQRS & SOLICITUDES */}
+          {activeTab === 'pqrs' && (
+            <div className="space-y-4">
+              {/* Header de la pestaña */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 p-4 rounded-2xl shadow-lg">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <MessageSquareQuote className="w-5 h-5 text-cyan-400" /> Mis PQRS & Solicitudes
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Radica peticiones, quejas, reclamos o sugerencias con número de radicado oficial y plazo legal de 15 días hábiles.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowPqrsModal(true)}
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-all shadow-lg shadow-cyan-950/40 shrink-0"
+                >
+                  <Plus className="w-4 h-4" /> Radicar PQRS
+                </button>
+              </div>
+
+              {pqrsList.length === 0 ? (
+                <div className="bg-slate-900/60 border border-slate-800 p-12 rounded-2xl text-center space-y-3">
+                  <MessageSquareQuote className="w-12 h-12 text-cyan-400/50 mx-auto" />
+                  <h4 className="text-base font-bold text-white">No tienes solicitudes o reclamos registrados</h4>
+                  <p className="text-xs text-slate-400 max-w-md mx-auto">
+                    Si requieres reportar un daño, solicitar un mantenimiento, enviar una petición formal o presentar un reclamo a la administración, puedes radicarlo aquí.
+                  </p>
+                  <button
+                    onClick={() => setShowPqrsModal(true)}
+                    className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-xl text-xs font-bold transition-all"
+                  >
+                    + Radicar mi primera PQRS
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {pqrsList.map(ticket => {
+                    const isRespondido = ticket.estado === 'respondido' || ticket.estado === 'cerrado';
+                    return (
+                      <div
+                        key={ticket.id}
+                        className="bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 p-5 rounded-2xl shadow-xl space-y-4 transition-all"
+                      >
+                        {/* Top Bar */}
+                        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">
+                              {ticket.radicado}
+                            </span>
+                            <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-semibold uppercase">
+                              {ticket.categoria}
+                            </span>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                            isRespondido
+                              ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                              : ticket.estado === 'en_tramite'
+                              ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                              : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                          }`}>
+                            {(ticket.estado || 'radicado').toUpperCase()}
+                          </span>
+                        </div>
+
+                        {/* Title & Desc */}
+                        <div>
+                          <h4 className="font-bold text-white text-sm mb-1">{ticket.asunto}</h4>
+                          <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 whitespace-pre-wrap">
+                            {ticket.descripcion}
+                          </p>
+                        </div>
+
+                        {/* Respuestas de la Administracion */}
+                        {ticket.respuestas && ticket.respuestas.length > 0 && (
+                          <div className="bg-emerald-950/30 border border-emerald-800/40 p-3.5 rounded-xl space-y-1.5">
+                            <div className="flex items-center justify-between text-[11px] text-emerald-400 font-bold">
+                              <span>✅ Respuesta Oficial de Administración</span>
+                              <span className="text-slate-400 font-normal">{ticket.respuestas[ticket.respuestas.length - 1].fecha}</span>
+                            </div>
+                            <p className="text-xs text-emerald-100 whitespace-pre-wrap leading-relaxed">
+                              {ticket.respuestas[ticket.respuestas.length - 1].respuesta}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Fechas y Descarga */}
+                        <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]">
+                          <div className="text-slate-400">
+                            <span>Radicado: {ticket.fecha ? ticket.fecha.slice(0, 10) : 'Hoy'}</span>
+                            <span className="mx-1.5">•</span>
+                            <span className="text-amber-400 font-semibold">Límite: {ticket.fechaLimiteRespuesta || '15 días'}</span>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              generarTicketPqrsPDF(ticket);
+                              toast.success(`Radicado ${ticket.radicado} descargado en PDF`);
+                            }}
+                            className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 font-semibold flex items-center justify-center gap-1 transition-all"
+                          >
+                            <Download className="w-3.5 h-3.5 text-cyan-400" /> Descargar PDF
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -1473,6 +1650,98 @@ export default function PortalResidenteView() {
                   className="bg-pink-600 hover:bg-pink-500 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg"
                 >
                   Guardar Mascota
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: RADICAR PQRS RESIDENTE */}
+      {showPqrsModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <MessageSquareQuote className="w-5 h-5 text-cyan-400" /> Radicar PQRS
+              </h3>
+              <button onClick={() => setShowPqrsModal(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-cyan-950/40 border border-cyan-800/40 p-3 rounded-xl text-xs text-cyan-300">
+              📌 Tu solicitud será asignada con número de radicado y contará con un plazo de respuesta de <strong>15 días hábiles</strong> según la Ley 1755 de 2015.
+            </div>
+
+            <form onSubmit={handleCrearPqrs} className="space-y-3.5 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Tipo de Solicitud *</label>
+                  <select
+                    value={formPqrs.categoria}
+                    onChange={e => setFormPqrs({ ...formPqrs, categoria: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-xl outline-none focus:border-cyan-500 font-medium"
+                    required
+                  >
+                    <option value="Petición">Petición</option>
+                    <option value="Queja">Queja</option>
+                    <option value="Reclamo">Reclamo</option>
+                    <option value="Sugerencia">Sugerencia</option>
+                    <option value="Felicitación">Felicitación</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Teléfono / WhatsApp</label>
+                  <input
+                    type="text"
+                    value={formPqrs.telefono}
+                    onChange={e => setFormPqrs({ ...formPqrs, telefono: e.target.value })}
+                    placeholder="Ej. 3124567890"
+                    className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-xl outline-none focus:border-cyan-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Asunto / Título Resumido *</label>
+                <input
+                  type="text"
+                  required
+                  value={formPqrs.asunto}
+                  onChange={e => setFormPqrs({ ...formPqrs, asunto: e.target.value })}
+                  placeholder="Ej: Filtración de humedad en techo o solicitud de poda"
+                  className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-xl outline-none focus:border-cyan-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Descripción y Detalles del Hecho *</label>
+                <textarea
+                  rows="4"
+                  required
+                  value={formPqrs.descripcion}
+                  onChange={e => setFormPqrs({ ...formPqrs, descripcion: e.target.value })}
+                  placeholder="Explica detalladamente la situación, lugar exacto, antecedentes o solicitud puntual..."
+                  className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-xl outline-none focus:border-cyan-500"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowPqrsModal(false)}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl font-bold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-cyan-950/50"
+                >
+                  Radicar Solicitud
                 </button>
               </div>
             </form>

@@ -49,6 +49,7 @@ const ACCESOS_KEY = 'data:accesos';
 const TRASTEOS_KEY = 'data:trasteos';
 const PARQUEADEROS_KEY = 'data:parqueaderos';
 const ASAMBLEAS_KEY = 'data:asambleas';
+const PQRS_KEY = 'data:pqrs';
 const ROOMS_KEY = 'data:rooms';
 const CONSUMOS_KEY = 'data:consumos';
 const USERS_KEY = 'data:users';
@@ -192,6 +193,7 @@ function fileForKey(key) {
     [TRASTEOS_KEY]: 'trasteos.json',
     [PARQUEADEROS_KEY]: 'parqueaderos.json',
     [ASAMBLEAS_KEY]: 'asambleas.json',
+    [PQRS_KEY]: 'pqrs.json',
     [ROOMS_KEY]: 'rooms.json',
     [CONSUMOS_KEY]: 'consumos.json',
     [USERS_KEY]: 'users.json',
@@ -258,6 +260,13 @@ async function getAsambleas() {
 }
 async function setAsambleas(data) {
   return setData(ASAMBLEAS_KEY, data);
+}
+
+async function getPqrs() {
+  return getData(PQRS_KEY, []);
+}
+async function setPqrs(data) {
+  return setData(PQRS_KEY, data);
 }
 
 async function getRooms() {
@@ -391,6 +400,8 @@ module.exports = {
   setParqueaderos,
   getAsambleas,
   setAsambleas,
+  getPqrs,
+  setPqrs,
   isRedisAvailable,
   bootstrapFromFiles,
   getRooms,

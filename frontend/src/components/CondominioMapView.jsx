@@ -2,10 +2,11 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Building2, Home, MapPin, Search, Filter, AlertTriangle, 
   CheckCircle, Clock, User, Phone, Car, DollarSign, Calendar, 
-  X, RefreshCw, Layers, Shield, ArrowUpRight, Copy, Check
+  X, RefreshCw, Layers, Shield, ArrowUpRight, Copy, Check, Download
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchUnidades } from '../services/api';
+import { generarPazYSalvoPDF } from '../utils/pdfGenerator';
 
 export default function CondominioMapView() {
   const [unidades, setUnidades] = useState([]);
@@ -598,7 +599,19 @@ export default function CondominioMapView() {
             </div>
 
             {/* FOOTER MODAL */}
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex justify-end items-center gap-3 pt-2">
+              {selectedUnidad.estadoFinanciero?.administracion?.alDia && (
+                <button
+                  onClick={() => {
+                    generarPazYSalvoPDF(selectedUnidad);
+                    toast.success('Paz y Salvo Oficial generado y descargado en PDF');
+                  }}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-md"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Descargar Paz y Salvo (PDF)</span>
+                </button>
+              )}
               <button
                 onClick={() => setSelectedUnidad(null)}
                 className="px-5 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl text-xs transition-all"

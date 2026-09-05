@@ -40,6 +40,7 @@ const ReservasZonasView = lazy(() => import('./components/ReservasZonasView'));
 const AsambleasView = lazy(() => import('./components/AsambleasView'));
 const EquiposEmergenciaView = lazy(() => import('./components/EquiposEmergenciaView'));
 const MascotasView = lazy(() => import('./components/MascotasView'));
+const PqrsAdminView = lazy(() => import('./components/PqrsAdminView'));
 const PortalResidenteView = lazy(() => import('./components/PortalResidenteView'));
 import MinutaBotWidget from './components/MinutaBotWidget';
 
@@ -327,6 +328,7 @@ export default function App() {
               <Route path="asambleas" element={<AsambleasView />} />
               <Route path="equipos" element={<EquiposEmergenciaView />} />
               <Route path="mascotas" element={<MascotasView />} />
+              <Route path="pqrs" element={<PqrsAdminView />} />
               <Route path="info" element={<InfoCondominioView />} />
               <Route path="chatbot" element={<ChatbotAdminView />} />
               <Route path="users" element={<PantallaUsuarios userRole={rol} />} />

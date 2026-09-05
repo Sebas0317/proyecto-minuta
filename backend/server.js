@@ -66,6 +66,7 @@ const reservasZonasRoutes = require('./src/routes/reservasZonas');
 const asambleasRoutes = require('./src/routes/asambleas');
 const equiposRoutes = require('./src/routes/equipos');
 const mascotasRoutes = require('./src/routes/mascotas');
+const pqrsRoutes = require('./src/routes/pqrs');
 
 const app = express();
 
@@ -246,6 +247,8 @@ app.use('/v1/equipos', equiposRoutes);
 app.use('/equipos', equiposRoutes);
 app.use('/v1/mascotas', mascotasRoutes);
 app.use('/mascotas', mascotasRoutes);
+app.use('/v1/pqrs', pqrsRoutes);
+app.use('/pqrs', pqrsRoutes);
 
 // ── BACKUP MANAGEMENT (admin only) ──
 function requireAdminRole(req, res, next) {

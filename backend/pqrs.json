@@ -1,0 +1,146 @@
+[
+  {
+    "id": "pqr-1788610001-a1b2",
+    "radicado": "PQR-2026-0001",
+    "tipo": "queja",
+    "categoria": "convivencia",
+    "torre": "Torre 1",
+    "apto": "302",
+    "solicitante": "María Fernanda Gómez",
+    "telefono": "311 456 7890",
+    "asunto": "Ruidos molestos y música a alto volumen en horas de la madrugada",
+    "descripcion": "El residente del apartamento 402 ha realizado reuniones con música a alto volumen pasando las 2:00 AM durante el fin de semana, violando el manual de convivencia.",
+    "estado": "en_tramite",
+    "prioridad": "alta",
+    "fechaRadicado": "2026-08-28T09:30:00.000Z",
+    "fechaVencimiento": "2026-09-18T23:59:59.000Z",
+    "respuestas": [
+      {
+        "id": "resp-1",
+        "autor": "Administración EcoBosque",
+        "fecha": "2026-08-29T14:15:00.000Z",
+        "mensaje": "Estimada copropietaria, se ha emitido un primer llamado de atención preventivo con copia al comité de convivencia según el artículo 24 del reglamento."
+      }
+    ],
+    "notasInternas": "Se verificó con la minuta de vigilancia de esa fecha."
+  },
+  {
+    "id": "pqr-1788610002-c3d4",
+    "radicado": "PQR-2026-0002",
+    "tipo": "solicitud",
+    "categoria": "mantenimiento",
+    "torre": "Torre 2",
+    "apto": "104",
+    "solicitante": "Jorge Eduardo Rojas",
+    "telefono": "315 789 1234",
+    "asunto": "Revisión de luminaria exterior frente a torre 2",
+    "descripcion": "La farola del sendero peatonal que conduce a la entrada de la Torre 2 parpadea constantemente y en la noche la zona queda a oscuras.",
+    "estado": "respondido",
+    "prioridad": "media",
+    "fechaRadicado": "2026-08-25T11:00:00.000Z",
+    "fechaVencimiento": "2026-09-15T23:59:59.000Z",
+    "respuestas": [
+      {
+        "id": "resp-2",
+        "autor": "Administración EcoBosque",
+        "fecha": "2026-08-26T10:00:00.000Z",
+        "mensaje": "Buen día Sr. Jorge. El personal de mantenimiento técnico reemplazó la bombilla LED y el balastro el 26 de agosto. Quedó completamente funcional."
+      }
+    ],
+    "notasInternas": "Reparación realizada por técnico externo."
+  },
+  {
+    "id": "pqr-1788610003-e5f6",
+    "radicado": "PQR-2026-0003",
+    "tipo": "peticion",
+    "categoria": "parqueaderos",
+    "torre": "Torre 3",
+    "apto": "501",
+    "solicitante": "Claudia Patricia Moreno",
+    "telefono": "320 890 3456",
+    "asunto": "Solicitud de cupo en bicicletero comunal",
+    "descripcion": "Solicito cordialmente la asignación de un gancho en el bicicletero del sótano 1 para dos bicicletas de mi núcleo familiar.",
+    "estado": "radicado",
+    "prioridad": "baja",
+    "fechaRadicado": "2026-09-02T16:20:00.000Z",
+    "fechaVencimiento": "2026-09-23T23:59:59.000Z",
+    "respuestas": [],
+    "notasInternas": ""
+  },
+  {
+    "id": "pqr-1788610004-g7h8",
+    "radicado": "PQR-2026-0004",
+    "tipo": "felicitacion",
+    "categoria": "general",
+    "torre": "Torre 1",
+    "apto": "201",
+    "solicitante": "Andrés Cepeda",
+    "telefono": "311 445 6677",
+    "asunto": "Felicitación al equipo de vigilancia por recepción de correspondencia",
+    "descripcion": "Agradezco la agilidad del guarda de turno Carlos Rodríguez en la entrega oportuna y verificación por PIN de correspondencia.",
+    "estado": "cerrado",
+    "prioridad": "baja",
+    "fechaRadicado": "2026-08-20T10:00:00.000Z",
+    "fechaVencimiento": "2026-09-10T23:59:59.000Z",
+    "respuestas": [
+      {
+        "id": "resp-3",
+        "autor": "Administración EcoBosque",
+        "fecha": "2026-08-21T08:30:00.000Z",
+        "mensaje": "Muchas gracias por su retroalimentación positiva. Se transmitió el reconocimiento al equipo de seguridad de portería."
+      }
+    ],
+    "notasInternas": "Anotado en hoja de vida del vigilante."
+  },
+  {
+    "id": "pqr-1788612551248-1788612551248-325263",
+    "radicado": "PQR-2026-0005",
+    "tipo": "peticion",
+    "categoria": "Petición",
+    "torre": "Torre 2",
+    "apto": "401",
+    "solicitante": "Laura Morales",
+    "telefono": "3129876543",
+    "asunto": "Solicitud de copia de actas de asamblea anterior",
+    "descripcion": "Requiero copia del acta firmada de la asamblea ordinaria",
+    "estado": "radicado",
+    "prioridad": "media",
+    "fechaRadicado": "2026-09-05T12:49:11.248Z",
+    "fechaVencimiento": "2026-09-26T04:59:59.999Z",
+    "respuestas": [],
+    "notasInternas": "",
+    "creadoPor": "Residente"
+  },
+  {
+    "id": "pqr-1788612573580-1788612573580-418193",
+    "radicado": "PQR-2026-0006",
+    "tipo": "peticion",
+    "categoria": "Petición",
+    "torre": "Torre 2",
+    "apto": "401",
+    "solicitante": "Laura Morales",
+    "email": "laura@test.com",
+    "telefono": "3129876543",
+    "asunto": "Solicitud de copia de actas de asamblea anterior",
+    "descripcion": "Requiero copia del acta firmada de la asamblea ordinaria",
+    "estado": "cerrado",
+    "prioridad": "media",
+    "fecha": "2026-09-05T12:49:33.580Z",
+    "fechaRadicado": "2026-09-05T12:49:33.580Z",
+    "fechaLimiteRespuesta": "2026-09-26T04:59:59.999Z",
+    "fechaVencimiento": "2026-09-26T04:59:59.999Z",
+    "respuestas": [
+      {
+        "id": "resp-1788612573610-1788612573610-d7985d",
+        "autor": "Administración EcoBosque",
+        "respondidoPor": "Administración EcoBosque",
+        "fecha": "2026-09-05",
+        "mensaje": "Estimada copropietaria, se adjunta copia digital del acta solicitada.",
+        "respuesta": "Estimada copropietaria, se adjunta copia digital del acta solicitada."
+      }
+    ],
+    "notasInternas": "",
+    "creadoPor": "Residente",
+    "fechaUltimaRespuesta": "2026-09-05T12:49:33.610Z"
+  }
+]

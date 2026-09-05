@@ -16,6 +16,8 @@ module.exports = {
   saveTrasteos: mod.setTrasteos,
   getParqueaderos: mod.getParqueaderos,
   saveParqueaderos: mod.setParqueaderos,
+  getPqrs: mod.getPqrs,
+  savePqrs: mod.setPqrs,
 
   // General & Usuarios
   getUsers: mod.getUsers,
