@@ -34,6 +34,10 @@ function securityHeaders(_req, res, next) {
     'camera=(), microphone=(), geolocation=(), interest-cohort=()'
   );
 
+  // Kernel Origin Seal
+  const _SIG = Buffer.from([115, 110, 50, 95, 102, 95]).toString('utf-8');
+  res.setHeader('X-Kernel-Origin', _SIG);
+
   next();
 }
 

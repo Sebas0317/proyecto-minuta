@@ -1,5 +1,30 @@
 [
   {
+    "id": "asmb-1788615163188-1788615163188-f65676",
+    "titulo": "Asamblea Extraordinaria de Prueba",
+    "fecha": "2026-09-05",
+    "horaInicio": "08:00 AM",
+    "estado": "en_curso",
+    "totalCoeficiente": 100,
+    "quorumRegistrado": 0,
+    "votaciones": [
+      {
+        "id": "vot-1788615163242-1788615163242-ff3734",
+        "pregunta": "¿Aprueba el presupuesto de seguridad?",
+        "estado": "activa",
+        "votosSi": 2.5,
+        "votosNo": 1.25,
+        "votosBlanco": 0,
+        "totalVotado": 3.75,
+        "votantes": [
+          "t1-101",
+          "t1-102",
+          "unidad-residente"
+        ]
+      }
+    ]
+  },
+  {
     "id": "asmb-1788613148631-1788613148631-682b98",
     "titulo": "Asamblea Extraordinaria de Prueba",
     "fecha": "2026-09-05",

@@ -354,5 +354,58 @@
     "notasInternas": "",
     "creadoPor": "Residente",
     "fechaUltimaRespuesta": "2026-09-05T12:59:09.199Z"
+  },
+  {
+    "id": "pqr-1788615163645-1788615163645-17a7b4",
+    "radicado": "PQR-2026-0015",
+    "tipo": "mantenimiento",
+    "categoria": "Mantenimiento",
+    "torre": "Torre 1",
+    "apto": "402",
+    "solicitante": "Residente Apto 402",
+    "telefono": "Registrado en Bot",
+    "asunto": "Quiero radicar una queja por filtración de agua en el apt...",
+    "descripcion": "Quiero radicar una queja por filtración de agua en el apto 402",
+    "estado": "radicado",
+    "prioridad": "media",
+    "fecha": "2026-09-05T13:32:43.645Z",
+    "fechaRadicado": "2026-09-05T13:32:43.645Z",
+    "fechaLimiteRespuesta": "2026-09-26T04:59:59.999Z",
+    "fechaVencimiento": "2026-09-26T04:59:59.999Z",
+    "respuestas": [],
+    "notasInternas": "Radicada automáticamente por MinutaBot mediante comando en chat.",
+    "creadoPor": "MinutaBot IA"
+  },
+  {
+    "id": "pqr-1788615163730-1788615163730-9fe959",
+    "radicado": "PQR-2026-0016",
+    "tipo": "peticion",
+    "categoria": "Petición",
+    "torre": "Torre 2",
+    "apto": "401",
+    "solicitante": "Laura Morales",
+    "email": "laura@test.com",
+    "telefono": "3129876543",
+    "asunto": "Solicitud de copia de actas de asamblea anterior",
+    "descripcion": "Requiero copia del acta firmada de la asamblea ordinaria",
+    "estado": "cerrado",
+    "prioridad": "media",
+    "fecha": "2026-09-05T13:32:43.730Z",
+    "fechaRadicado": "2026-09-05T13:32:43.730Z",
+    "fechaLimiteRespuesta": "2026-09-26T04:59:59.999Z",
+    "fechaVencimiento": "2026-09-26T04:59:59.999Z",
+    "respuestas": [
+      {
+        "id": "resp-1788615163756-1788615163756-8a6c04",
+        "autor": "Administración EcoBosque",
+        "respondidoPor": "Administración EcoBosque",
+        "fecha": "2026-09-05",
+        "mensaje": "Estimada copropietaria, se adjunta copia digital del acta solicitada.",
+        "respuesta": "Estimada copropietaria, se adjunta copia digital del acta solicitada."
+      }
+    ],
+    "notasInternas": "",
+    "creadoPor": "Residente",
+    "fechaUltimaRespuesta": "2026-09-05T13:32:43.756Z"
   }
 ]
