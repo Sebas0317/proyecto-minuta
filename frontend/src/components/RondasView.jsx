@@ -237,22 +237,22 @@ export default function RondasView() {
       </div>
 
       {/* TABS NAVEGACIÓN */}
-      <div className="flex gap-2 border-b border-slate-700/80 pb-2">
+      <div className="flex gap-2 border-b border-slate-700/80 pb-2 overflow-x-auto scrollbar-none flex-nowrap sm:flex-wrap">
         <button
           onClick={() => setActiveTab('ronda_activa')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
             activeTab === 'ronda_activa'
               ? 'bg-emerald-600 text-white shadow-lg'
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
           }`}
         >
           <CheckCircle2 className="w-4 h-4" />
-          <span>Ronda Activa & Validación ({stats.verificados}/{stats.totalPuntos})</span>
+          <span>Ronda Activa ({stats.verificados}/{stats.totalPuntos})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('codigos_qr')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
             activeTab === 'codigos_qr'
               ? 'bg-cyan-600 text-white shadow-lg'
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -264,7 +264,7 @@ export default function RondasView() {
 
         <button
           onClick={() => setActiveTab('historial')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
             activeTab === 'historial'
               ? 'bg-slate-700 text-white shadow-lg'
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -480,8 +480,8 @@ export default function RondasView() {
 
       {/* MODAL: VALIDAR PUNTO DE CONTROL */}
       {selectedPunto && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl">
@@ -583,8 +583,8 @@ export default function RondasView() {
 
       {/* MODAL: CREAR NUEVO PUNTO DE CONTROL */}
       {showNewPuntoModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Plus className="w-5 h-5 text-emerald-400" />

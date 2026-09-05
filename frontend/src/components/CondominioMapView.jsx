@@ -413,8 +413,8 @@ export default function CondominioMapView() {
 
       {/* MODAL DETALLADO DE FICHA TÉCNICA DEL APARTAMENTO */}
       {selectedUnidad && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 w-full max-w-2xl rounded-2xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-2xl rounded-2xl p-4 sm:p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
             {/* MODAL HEADER */}
             <div className="flex items-start justify-between border-b border-slate-700 pb-4">
               <div className="flex items-center gap-3">

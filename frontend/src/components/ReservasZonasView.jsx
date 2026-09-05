@@ -197,12 +197,12 @@ export default function ReservasZonasView() {
           </button>
         </div>
 
-        <div className="flex gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-none flex-nowrap w-full sm:w-auto pb-1 sm:pb-0">
           {ESPACIOS.map((esp) => (
             <button
               key={esp.id}
               onClick={() => setSelectedEspacio(esp.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 selectedEspacio === esp.id
                   ? 'bg-emerald-600 text-white shadow-md'
                   : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-700'
@@ -228,31 +228,32 @@ export default function ReservasZonasView() {
             return (
               <div
                 key={res.id}
-                className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-xl flex flex-col justify-between gap-4"
+                className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-xl flex flex-col justify-between gap-3 hover:border-slate-600 transition-all"
               >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-2 border-b border-slate-700/80 pb-3">
+                <div>
+                  <div className="flex items-start justify-between border-b border-slate-700/80 pb-2.5">
                     <div>
-                      <span className="text-xs font-black text-white">{res.espacio}</span>
-                      <p className="text-xs text-emerald-400 font-bold mt-0.5">
-                        Apto {res.apto} (Torre {res.torre || '1'})
-                      </p>
+                      <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded-md">
+                        {res.espacio}
+                      </span>
+                      <h4 className="font-bold text-white text-sm mt-1">
+                        Torre {res.torre} - Apto {res.apto}
+                      </h4>
                     </div>
-
                     <span
-                      className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase border ${
+                      className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                         res.estado === 'confirmada'
-                          ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
-                          : res.estado === 'finalizada'
-                          ? 'bg-slate-900 text-slate-400 border-slate-700'
-                          : 'bg-red-950 text-red-300 border-red-800'
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                          : res.estado === 'cancelada'
+                          ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                          : 'bg-slate-700 text-slate-300'
                       }`}
                     >
                       {res.estado}
                     </span>
                   </div>
 
-                  <div className="space-y-1.5 text-xs text-slate-300">
+                  <div className="space-y-1.5 text-xs text-slate-300 mt-3">
                     <div className="flex items-center justify-between text-slate-400">
                       <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-slate-500" /> Horario:</span>
                       <span className="font-bold text-white font-mono">{res.horaInicio} - {res.horaFin}</span>
@@ -309,8 +310,8 @@ export default function ReservasZonasView() {
 
       {/* MODAL: CREAR NUEVA RESERVA */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <CalendarIcon className="w-5 h-5 text-emerald-400" />
@@ -337,7 +338,7 @@ export default function ReservasZonasView() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-slate-300 font-semibold block mb-1">Apartamento</label>
                   <input
@@ -365,7 +366,7 @@ export default function ReservasZonasView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-slate-300 font-semibold block mb-1">Nombre del Solicitante</label>
                   <input
@@ -388,7 +389,7 @@ export default function ReservasZonasView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="text-slate-300 font-semibold block mb-1">Fecha</label>
                   <input

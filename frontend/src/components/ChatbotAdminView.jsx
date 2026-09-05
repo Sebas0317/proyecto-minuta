@@ -311,10 +311,10 @@ export default function ChatbotAdminView() {
       </div>
 
       {/* TABS DE VISTA: BASE DE CONOCIMIENTO VS CONSULTAS SIN RESPUESTA */}
-      <div className="flex gap-2 border-b border-slate-700/80 pb-2">
+      <div className="flex gap-2 border-b border-slate-700/80 pb-2 overflow-x-auto scrollbar-none flex-nowrap sm:flex-wrap">
         <button
           onClick={() => setActiveTab('knowledge')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
             activeTab === 'knowledge'
               ? 'bg-emerald-600 text-white shadow-lg'
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -326,37 +326,37 @@ export default function ChatbotAdminView() {
 
         <button
           onClick={() => setActiveTab('simulator')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
             activeTab === 'simulator'
               ? 'bg-teal-600 text-white shadow-lg'
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
           }`}
         >
           <Smartphone className="w-4 h-4" />
-          <span>📱 Simulador WhatsApp / Móvil</span>
+          <span>📱 Simulador WhatsApp</span>
         </button>
 
         <button
           onClick={() => setActiveTab('analytics')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
             activeTab === 'analytics'
               ? 'bg-indigo-600 text-white shadow-lg'
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
           }`}
         >
           <BarChart3 className="w-4 h-4" />
-          <span>📊 Analítica & Autoaprendizaje</span>
+          <span>📊 Analítica IA</span>
         </button>
         <button
           onClick={() => setActiveTab('unanswered')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
             activeTab === 'unanswered'
               ? 'bg-amber-600 text-white shadow-lg'
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
           }`}
         >
           <HelpCircle className="w-4 h-4" />
-          <span>Consultas Sin Respuesta ({unanswered.length})</span>
+          <span>Sin Respuesta ({unanswered.length})</span>
         </button>
       </div>
 
@@ -760,8 +760,8 @@ export default function ChatbotAdminView() {
 
       {/* MODAL: CREAR / EDITAR RESPUESTA */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Bot className="w-5 h-5 text-emerald-400" />

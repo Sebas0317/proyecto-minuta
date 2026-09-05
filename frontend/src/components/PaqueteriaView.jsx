@@ -289,10 +289,10 @@ export default function PaqueteriaView() {
       </div>
 
       {/* PESTAÑAS DE NAVEGACIÓN */}
-      <div className="flex items-center gap-2 border-b border-slate-700/80 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-700/80 pb-2 overflow-x-auto scrollbar-none flex-nowrap sm:flex-wrap">
         <button
           onClick={() => setTabActiva('paquetes')}
-          className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+          className={`shrink-0 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
             tabActiva === 'paquetes'
               ? 'bg-blue-600 text-white shadow-lg shadow-blue-950/50'
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -304,19 +304,19 @@ export default function PaqueteriaView() {
 
         <button
           onClick={() => setTabActiva('recibos')}
-          className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+          className={`shrink-0 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
             tabActiva === 'recibos'
               ? 'bg-amber-600 text-white shadow-lg shadow-amber-950/50'
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
           }`}
         >
           <FileText className="w-4 h-4" />
-          Recibos Públicos en Casillero ({recibosPublicos.length})
+          Recibos Públicos ({recibosPublicos.length})
         </button>
 
         <button
           onClick={() => setTabActiva('historial')}
-          className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+          className={`shrink-0 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
             tabActiva === 'historial'
               ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/50'
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -552,8 +552,8 @@ export default function PaqueteriaView() {
 
       {/* MODAL NUEVA ENCOMIENDA */}
       {showPaqueteModal && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Package className="w-5 h-5 text-blue-400" /> Registrar Encomienda
@@ -666,8 +666,8 @@ export default function PaqueteriaView() {
 
       {/* MODAL NUEVO RECIBO PÚBLICO */}
       {showReciboModal && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <FileText className="w-5 h-5 text-amber-400" /> Ingresar Recibo Público
@@ -785,8 +785,8 @@ export default function PaqueteriaView() {
 
       {/* MODAL ENTREGAR CORRESPONDENCIA */}
       {entregaModal && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-emerald-400" /> Registrar Entrega

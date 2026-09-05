@@ -326,7 +326,7 @@ export default function PorteriaDashboard() {
     }
   };
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-6 space-y-6">
+    <div className="space-y-4 sm:space-y-6 text-slate-100">
       {/* HEADER DE CONTROL */}
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-slate-800/90 backdrop-blur border border-slate-700/80 p-4 md:p-6 rounded-2xl shadow-xl">
         <div className="flex items-center gap-3.5">
@@ -480,7 +480,7 @@ export default function PorteriaDashboard() {
 
         {/* RESULTADOS DE BÚSQUEDA FLOTANTES */}
         {filteredUnidades.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800/95 backdrop-blur-md border border-slate-700 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-700/60">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800/95 backdrop-blur-md border border-slate-700 rounded-2xl shadow-2xl z-50 max-h-80 overflow-y-auto divide-y divide-slate-700/60">
             {filteredUnidades.map((u) => (
               <div 
                 key={u.id}
@@ -972,7 +972,7 @@ export default function PorteriaDashboard() {
       {/* MODAL: REGISTRO DE RECIBO PÚBLICO */}
       {showReciboModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Receipt className="w-5 h-5 text-amber-400" /> Registrar Llegada de Recibo Público
@@ -1235,7 +1235,7 @@ export default function PorteriaDashboard() {
       {/* MODAL: LLEGADA DE PAQUETE */}
       {showPaqueteModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Package className="w-5 h-5 text-blue-400" /> Registrar Llegada de Paquete
@@ -1336,7 +1336,7 @@ export default function PorteriaDashboard() {
       {/* MODAL: ENTREGA DE PAQUETE */}
       {showEntregaModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Check className="w-5 h-5 text-emerald-400" /> Confirmar Entrega de Paquete
@@ -1440,7 +1440,7 @@ export default function PorteriaDashboard() {
       {/* MODAL: REGISTRAR EN MINUTA */}
       {showMinutaModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-amber-400" /> Asentar Novedad en Minuta Digital

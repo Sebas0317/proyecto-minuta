@@ -79,7 +79,7 @@ export default function TrasteosView() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-6 space-y-6">
+    <div className="space-y-6">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-800/80 backdrop-blur border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl">
         <div className="flex items-center gap-3">
@@ -173,10 +173,10 @@ export default function TrasteosView() {
         )}
       </div>
 
-      {/* MODAL PROGRAMAR */}
+      {/* MODAL PROGRAMAR TRASTEO */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Truck className="w-5 h-5 text-amber-400" /> Programar Mudanza / Trasteo
@@ -187,16 +187,17 @@ export default function TrasteosView() {
             </div>
 
             <form onSubmit={handleCreate} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-300">Tipo</label>
+                  <label className="text-xs font-medium text-slate-300">Tipo de Mudanza</label>
                   <select
                     value={form.tipo}
                     onChange={(e) => setForm({ ...form, tipo: e.target.value })}
                     className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none"
                   >
-                    <option value="ingreso">Ingreso (Llegada)</option>
-                    <option value="salida">Salida (Desocupación)</option>
+                    <option value="ingreso">Ingreso (Trasteo de Llegada)</option>
+                    <option value="salida">Salida (Trasteo de Desalojo)</option>
+                    <option value="interno">Movimiento Interno</option>
                   </select>
                 </div>
                 <div>
@@ -211,7 +212,7 @@ export default function TrasteosView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs font-medium text-slate-300">Torre *</label>
                   <select
@@ -249,7 +250,7 @@ export default function TrasteosView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-slate-300">Solicitante *</label>
                   <input
@@ -274,7 +275,7 @@ export default function TrasteosView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-slate-300">Empresa de Mudanza</label>
                   <input

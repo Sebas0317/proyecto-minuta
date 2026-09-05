@@ -86,7 +86,7 @@ export default function InfoCondominioView() {
       </div>
 
       {/* TABS DE CATEGORÍAS */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-700/80 pb-2">
+      <div className="flex gap-2 border-b border-slate-700/80 pb-2 overflow-x-auto scrollbar-none flex-nowrap sm:flex-wrap">
         {CATEGORIES.map((cat) => {
           const Icon = cat.icon;
           const isActive = activeTab === cat.id;
@@ -94,7 +94,7 @@ export default function InfoCondominioView() {
             <button
               key={cat.id}
               onClick={() => setActiveTab(cat.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+              className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
                 isActive
                   ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 scale-[1.02]'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'

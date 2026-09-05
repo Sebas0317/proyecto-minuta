@@ -203,6 +203,15 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
+
+          {/* BOTÓN CERRAR DRAWER EN MÓVIL */}
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="md:hidden p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all"
+            title="Cerrar Menú"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* NAVEGACIÓN AGRUPADA CON SCROLL INTERNO INDEPENDIENTE */}
@@ -288,19 +297,20 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
       {/* CONTENIDO PRINCIPAL: TOPBAR FIJO Y MAIN ESCROLEABLE */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
         {/* TOPBAR FLOTANTE */}
-        <header className="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shrink-0 px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <header className="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shrink-0 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white"
+              className="md:hidden p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0"
+              title="Abrir Menú"
             >
               <Menu className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-500 font-semibold">Minuta</span>
-              <span className="text-slate-600">/</span>
-              <span className="text-white font-bold capitalize">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs truncate">
+              <span className="text-slate-500 font-semibold hidden sm:inline">Minuta</span>
+              <span className="text-slate-600 hidden sm:inline">/</span>
+              <span className="text-white font-bold capitalize truncate">
                 {activeView === 'porteria' ? 'Tablero Operativo' :
                  activeView === 'mapa' ? 'Plano / Mapa Maestro' :
                  activeView === 'minuta' ? 'Minuta Digital' :
@@ -321,7 +331,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <button
               onClick={() => navigate('/residente')}
               className="hidden sm:flex items-center gap-1.5 text-xs font-bold bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/40 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow"
@@ -331,13 +341,14 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
 
             <button
               onClick={() => setShowPanicModal(true)}
-              className="flex items-center gap-1.5 text-xs font-black bg-red-600 hover:bg-red-500 text-white px-3.5 py-1.5 rounded-full shadow-lg shadow-red-950/60 animate-pulse transition-all hover:scale-105 cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-black bg-red-600 hover:bg-red-500 text-white px-2.5 sm:px-3.5 py-1.5 rounded-full shadow-lg shadow-red-950/60 animate-pulse transition-all hover:scale-105 cursor-pointer"
             >
-              <AlertOctagon className="w-4 h-4" />
-              <span>🚨 SOS PÁNICO</span>
+              <AlertOctagon className="w-4 h-4 shrink-0" />
+              <span className="hidden sm:inline">🚨 SOS PÁNICO</span>
+              <span className="sm:hidden">SOS</span>
             </button>
 
-            <span className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-full">
+            <span className="hidden lg:flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-full">
               <Activity className="w-3.5 h-3.5 animate-pulse" /> Sistema Conectado
             </span>
           </div>
@@ -385,7 +396,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
         )}
 
         {/* ÁREA PRINCIPAL ESCROLEABLE */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin scrollbar-thumb-slate-700">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 scrollbar-thin scrollbar-thumb-slate-700">
           <div className="max-w-7xl mx-auto w-full">
             <Outlet context={{ rol, onSalir, handleNavigate }} />
           </div>

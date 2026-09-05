@@ -318,8 +318,8 @@ export default function AccesosView() {
 
       {/* MODAL: REGISTRO DE INGRESO */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-700 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <UserCheck className="w-5 h-5 text-emerald-400" /> Registro de Ingreso
@@ -330,7 +330,7 @@ export default function AccesosView() {
             </div>
 
             <form onSubmit={handleCreate} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-slate-300">Tipo de Acceso</label>
                   <select
@@ -357,7 +357,7 @@ export default function AccesosView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs font-medium text-slate-300">Cédula</label>
                   <input
@@ -393,7 +393,7 @@ export default function AccesosView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-slate-300">Autorizado Por</label>
                   <input
@@ -418,7 +418,7 @@ export default function AccesosView() {
 
               <div className="p-3 bg-slate-900/60 border border-slate-700/80 rounded-xl space-y-2">
                 <span className="text-xs font-semibold text-purple-300 uppercase">Vehículo Visitante (Opcional)</span>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="text-[11px] text-slate-400">Placa</label>
                     <input

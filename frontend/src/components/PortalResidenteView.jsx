@@ -82,7 +82,9 @@ export default function PortalResidenteView() {
   const [sidebarSearch, setSidebarSearch] = useState('');
   const [sidebarTorreFilter, setSidebarTorreFilter] = useState('todas');
   const [sidebarEstadoFilter, setSidebarEstadoFilter] = useState('todos');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
+  });
 
   // Paquetes
   const [paquetes, setPaquetes] = useState([]);
@@ -422,21 +424,38 @@ export default function PortalResidenteView() {
         </div>
       </header>
 
+      {/* BACKDROP MOBILE PARA NAVEGADOR DE INMUEBLES */}
+      {!sidebarCollapsed && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarCollapsed(true)}
+        />
+      )}
+
       {/* CONTENEDOR PRINCIPAL CON NAV VERTICAL A LA IZQUIERDA */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* NAV VERTICAL IZQUIERDO: SELECTOR Y NAVEGADOR DE APARTAMENTOS */}
         <aside className={`${
-          sidebarCollapsed ? 'hidden' : 'flex'
-        } w-80 md:w-88 flex-shrink-0 bg-slate-900/90 border-r border-slate-800 flex-col h-[calc(100vh-61px)] sticky top-[61px] z-30 transition-all shadow-2xl`}>
+          sidebarCollapsed ? 'hidden' : 'fixed lg:static inset-y-0 left-0 z-50 flex'
+        } w-80 md:w-88 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex-col h-screen lg:h-[calc(100vh-61px)] top-0 lg:top-[61px] transition-all shadow-2xl`}>
           {/* Header del Nav */}
           <div className="p-3.5 border-b border-slate-800 space-y-2.5 bg-slate-950/40">
             <div className="flex items-center justify-between">
               <span className="text-xs font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                 <Layers className="w-4 h-4 text-emerald-400" /> Directorio de Inmuebles
               </span>
-              <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">
-                {filteredUnidades.length} de {unidadesList.length}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">
+                  {filteredUnidades.length} de {unidadesList.length}
+                </span>
+                <button
+                  onClick={() => setSidebarCollapsed(true)}
+                  className="lg:hidden p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+                  title="Cerrar"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Buscador de Apto o Propietario */}
@@ -513,6 +532,7 @@ export default function PortalResidenteView() {
                     key={u.id}
                     onClick={() => {
                       setSelectedUnidadId(u.id);
+                      if (window.innerWidth < 1024) setSidebarCollapsed(true);
                       toast.success(`Cambiando a ${u.torre} — Apto ${u.numero}`);
                     }}
                     className={`w-full p-2.5 rounded-xl text-left text-xs transition-all flex items-center justify-between group ${
@@ -574,9 +594,9 @@ export default function PortalResidenteView() {
         </aside>
 
         {/* CONTENIDO PRINCIPAL DEL PORTAL (DERECHA) */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8 space-y-6">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-8 space-y-4 sm:space-y-6 min-w-0">
           {/* BANNER DE RESUMEN DEL INMUEBLE ACTIVO */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* Tarjeta 1: Inmueble & Propietario */}
             <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl shadow-lg relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
@@ -667,7 +687,7 @@ export default function PortalResidenteView() {
           </div>
 
           {/* NAVEGACIÓN DE TABS */}
-          <div className="flex flex-wrap gap-2 border-b border-slate-800 pb-2">
+          <div className="flex overflow-x-auto scrollbar-none flex-nowrap sm:flex-wrap gap-2 border-b border-slate-800 pb-2">
             {TABS.map(tab => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -675,14 +695,14 @@ export default function PortalResidenteView() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all shrink-0 sm:shrink ${
                     isActive
                       ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 scale-[1.02]'
                       : 'bg-slate-900/60 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-800'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className="whitespace-nowrap">{tab.label}</span>
                   {tab.id === 'paquetes' && paquetesPendientes.length > 0 && (
                     <span className="bg-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.2 rounded-full">
                       {paquetesPendientes.length}

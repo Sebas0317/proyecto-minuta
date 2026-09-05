@@ -307,8 +307,8 @@ export default function AsambleasView() {
       </div>
 
       {showAsambleaModal && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
             <h3 className="text-lg font-bold text-white">Convocar Nueva Asamblea</h3>
             <form onSubmit={handleCreateAsamblea} className="space-y-3">
               <div>
@@ -322,7 +322,7 @@ export default function AsambleasView() {
                   className="w-full bg-slate-950 border border-slate-700 text-white p-2.5 rounded-xl text-xs outline-none focus:border-indigo-500"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="text-xs text-slate-300 block mb-1">Fecha</label>
                   <input
@@ -354,8 +354,8 @@ export default function AsambleasView() {
       )}
 
       {showVotModal && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
             <h3 className="text-lg font-bold text-white">Nueva Pregunta a Votación</h3>
             <form onSubmit={handleAddVotacion} className="space-y-3">
               <div>

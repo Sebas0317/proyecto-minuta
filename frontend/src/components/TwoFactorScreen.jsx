@@ -107,7 +107,7 @@ export default function TwoFactorScreen({ userId, onVerified, onBack, email }) {
               {email ? ` ${email}` : ' tu correo'}
             </p>
 
-            <div className="flex justify-center gap-2.5 mb-6">
+            <div className="flex justify-center gap-1.5 sm:gap-2.5 mb-6">
               {code.map((digit, index) => (
                 <input
                   key={index}
@@ -119,7 +119,7 @@ export default function TwoFactorScreen({ userId, onVerified, onBack, email }) {
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   onPaste={index === 0 ? handlePaste : undefined}
-                  className="w-11 h-13 text-center text-2xl font-bold rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/50 transition-all"
+                  className="w-9 sm:w-11 h-11 sm:h-13 text-center text-xl sm:text-2xl font-bold rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/50 transition-all"
                 />
               ))}
             </div>
