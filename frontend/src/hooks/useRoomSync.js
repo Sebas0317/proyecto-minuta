@@ -56,7 +56,8 @@ export function useRoomSync({
         onChange
       ) {
         try {
-          const prev = JSON.parse(prevSnapshot.current);
+          const parsed = JSON.parse(prevSnapshot.current);
+          const prev = Array.isArray(parsed) ? parsed : [];
           const curr = roomsData.map((r) => ({
             id: r.id,
             estado: r.estado,

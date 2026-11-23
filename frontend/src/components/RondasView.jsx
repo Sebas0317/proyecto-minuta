@@ -45,9 +45,19 @@ export default function RondasView() {
     try {
       setLoading(true);
       const res = await fetchRondas();
-      setData(res || { puntosControl: [], registrosRondas: [] });
+      const puntos = Array.isArray(res?.puntosControl) ? res.puntosControl : [];
+      const registros = Array.isArray(res?.registrosRondas)
+        ? res.registrosRondas
+        : Array.isArray(res?.historialRondas)
+          ? res.historialRondas
+          : [];
+      setData({
+        puntosControl: puntos,
+        registrosRondas: registros
+      });
     } catch (e) {
       toast.error('Error al cargar datos de rondas de vigilancia');
+      setData({ puntosControl: [], registrosRondas: [] });
     } finally {
       setLoading(false);
     }
@@ -59,13 +69,15 @@ export default function RondasView() {
 
   // Calcular porcentaje de cobertura de la ronda actual (últimas 4 horas)
   const stats = useMemo(() => {
-    const totalPuntos = data.puntosControl.length || 6;
+    const puntos = Array.isArray(data?.puntosControl) ? data.puntosControl : [];
+    const registros = Array.isArray(data?.registrosRondas) ? data.registrosRondas : [];
+    const totalPuntos = puntos.length || 6;
     const ahora = Date.now();
     const hace4Horas = ahora - 4 * 3600000;
 
     const puntosVerificadosRecientes = new Set();
-    data.registrosRondas.forEach((r) => {
-      if (new Date(r.fecha).getTime() >= hace4Horas) {
+    registros.forEach((r) => {
+      if (r?.fecha && new Date(r.fecha).getTime() >= hace4Horas) {
         puntosVerificadosRecientes.add(r.puntoId);
       }
     });
@@ -73,7 +85,7 @@ export default function RondasView() {
     const verificados = puntosVerificadosRecientes.size;
     const porcentaje = totalPuntos > 0 ? Math.round((verificados / totalPuntos) * 100) : 0;
 
-    const totalNovedades = data.registrosRondas.filter(r => r.estado === 'novedad').length;
+    const totalNovedades = registros.filter(r => r?.estado === 'novedad').length;
 
     return { totalPuntos, verificados, porcentaje, totalNovedades };
   }, [data]);
@@ -123,19 +135,20 @@ export default function RondasView() {
   };
 
   const handleExportCSV = () => {
-    if (!data.registrosRondas.length) {
+    const registros = Array.isArray(data?.registrosRondas) ? data.registrosRondas : [];
+    if (!registros.length) {
       toast.info('No hay registros de rondas para exportar');
       return;
     }
 
     const headers = ['ID', 'Fecha y Hora', 'Punto de Control', 'Ubicación', 'Guarda', 'Estado', 'Observaciones'];
-    const rows = data.registrosRondas.map(r => [
+    const rows = registros.map(r => [
       r.id,
       new Date(r.fecha).toLocaleString('es-CO'),
-      `"${r.nombrePunto}"`,
+      `"${r.nombrePunto || ''}"`,
       `"${r.ubicacion || ''}"`,
-      `"${r.guarda}"`,
-      r.estado.toUpperCase(),
+      `"${r.guarda || ''}"`,
+      (r.estado || 'normal').toUpperCase(),
       `"${(r.observaciones || '').replace(/"/g, '""')}"`
     ]);
 
@@ -151,16 +164,17 @@ export default function RondasView() {
   };
 
   const registrosFiltrados = useMemo(() => {
-    return data.registrosRondas.filter((r) => {
+    const registros = Array.isArray(data?.registrosRondas) ? data.registrosRondas : [];
+    return registros.filter((r) => {
       const q = filtroTexto.toLowerCase();
       return (
         !q ||
-        r.nombrePunto?.toLowerCase().includes(q) ||
-        r.guarda?.toLowerCase().includes(q) ||
-        r.observaciones?.toLowerCase().includes(q)
+        r?.nombrePunto?.toLowerCase().includes(q) ||
+        r?.guarda?.toLowerCase().includes(q) ||
+        r?.observaciones?.toLowerCase().includes(q)
       );
     });
-  }, [data.registrosRondas, filtroTexto]);
+  }, [data?.registrosRondas, filtroTexto]);
 
   return (
     <div className="space-y-6">
@@ -259,7 +273,7 @@ export default function RondasView() {
           }`}
         >
           <QrCode className="w-4 h-4" />
-          <span>Códigos QR Imprimibles ({data.puntosControl.length})</span>
+          <span>Códigos QR Imprimibles ({(data?.puntosControl || []).length})</span>
         </button>
 
         <button
@@ -271,16 +285,16 @@ export default function RondasView() {
           }`}
         >
           <Clock className="w-4 h-4" />
-          <span>Bitácora de Inspecciones ({data.registrosRondas.length})</span>
+          <span>Bitácora de Inspecciones ({(data?.registrosRondas || []).length})</span>
         </button>
       </div>
 
       {/* ── TAB 1: RONDA ACTIVA (PUNTOS A VALIDAR) ── */}
       {activeTab === 'ronda_activa' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.puntosControl.map((punto, idx) => {
+          {(data?.puntosControl || []).map((punto, idx) => {
             // Verificar si fue validado recientemente
-            const ultimoRegistro = data.registrosRondas.find(r => r.puntoId === punto.id);
+            const ultimoRegistro = (data?.registrosRondas || []).find(r => r?.puntoId === punto.id);
             const esReciente = ultimoRegistro && (Date.now() - new Date(ultimoRegistro.fecha).getTime() < 4 * 3600000);
 
             return (
@@ -369,7 +383,7 @@ export default function RondasView() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.puntosControl.map((punto, idx) => (
+            {(data?.puntosControl || []).map((punto, idx) => (
               <div
                 key={punto.id}
                 className="bg-white text-slate-900 border-2 border-slate-900 rounded-2xl p-6 shadow-xl flex flex-col items-center text-center justify-between space-y-4"

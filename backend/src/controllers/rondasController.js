@@ -9,7 +9,32 @@ const RONDAS_FILE = path.resolve(__dirname, '..', '..', 'rondas.json');
 
 async function getRondasData() {
   const data = await readJsonFile(RONDAS_FILE);
-  return data || { puntosControl: [], registrosRondas: [] };
+  if (!data) {
+    return { puntosControl: [], registrosRondas: [], historialRondas: [] };
+  }
+
+  // Asegurar que puntosControl sea array y tenga campos completos
+  const rawPuntos = Array.isArray(data.puntosControl) ? data.puntosControl : [];
+  data.puntosControl = rawPuntos.map((p, idx) => ({
+    id: p.id || `PC-${idx + 1}`,
+    nombre: p.nombre || `Punto de Control #${idx + 1}`,
+    ubicacion: p.ubicacion || (p.torre ? `${p.torre} (Piso ${p.piso ?? 1})` : 'Área General'),
+    qrToken: p.qrToken || p.tag || `QR-${p.id || idx + 1}`,
+    orden: p.orden ?? (idx + 1),
+    torre: p.torre || 'General',
+    piso: p.piso ?? 1,
+    tag: p.tag || `PT-${idx + 1}`
+  }));
+
+  // Asegurar que registrosRondas sea array (con fallback a historialRondas)
+  if (!Array.isArray(data.registrosRondas)) {
+    data.registrosRondas = Array.isArray(data.historialRondas) ? data.historialRondas : [];
+  }
+  if (!Array.isArray(data.historialRondas)) {
+    data.historialRondas = data.registrosRondas;
+  }
+
+  return data;
 }
 
 async function saveRondasData(data) {
@@ -36,9 +61,9 @@ async function registrarPuntoRonda(req, res) {
     let punto = null;
 
     if (puntoId) {
-      punto = data.puntosControl.find(p => p.id === puntoId);
+      punto = data.puntosControl.find(p => p.id === puntoId || p.tag === puntoId || p.qrToken === puntoId);
     } else if (qrToken) {
-      punto = data.puntosControl.find(p => p.qrToken === qrToken);
+      punto = data.puntosControl.find(p => p.qrToken === qrToken || p.id === qrToken || p.tag === qrToken);
     }
 
     if (!punto) {
@@ -56,7 +81,13 @@ async function registrarPuntoRonda(req, res) {
       observaciones: observaciones || (estado === 'novedad' ? 'Novedad detectada en punto de control' : 'Punto verificado sin novedades.')
     };
 
+    if (!Array.isArray(data.registrosRondas)) {
+      data.registrosRondas = [];
+    }
     data.registrosRondas.unshift(nuevoRegistro);
+    if (Array.isArray(data.historialRondas)) {
+      data.historialRondas.unshift(nuevoRegistro);
+    }
     await saveRondasData(data);
 
     logger.info({ registroId: nuevoRegistro.id, punto: punto.nombre }, 'Punto de ronda registrado');

@@ -3,69 +3,162 @@
     {
       "id": "QR-01",
       "nombre": "Portería Principal & Acceso Vehicular",
+      "ubicacion": "Portería Principal - Acceso 1",
+      "qrToken": "QR-PT01-ACCESO-PRINCIPAL",
       "torre": "Portería",
       "piso": 1,
-      "tag": "PT-01"
+      "tag": "PT-01",
+      "orden": 1
     },
     {
       "id": "QR-02",
       "nombre": "Sótano 1 - Cuarto de Bombas & Tableros",
+      "ubicacion": "Sótano 1",
+      "qrToken": "QR-PT02-BOMBAS-S1",
       "torre": "Sótano",
       "piso": -1,
-      "tag": "PT-02"
+      "tag": "PT-02",
+      "orden": 2
     },
     {
       "id": "QR-03",
       "nombre": "Sótano 2 - Planta Eléctrica Diésel",
+      "ubicacion": "Sótano 2",
+      "qrToken": "QR-PT03-PLANTA-S2",
       "torre": "Sótano",
       "piso": -2,
-      "tag": "PT-03"
+      "tag": "PT-03",
+      "orden": 3
     },
     {
       "id": "QR-04",
       "nombre": "Torre 1 - Terraza y Cuarto de Máquinas",
+      "ubicacion": "Torre 1 Piso 5",
+      "qrToken": "QR-PT04-MAQUINAS-T1",
       "torre": "Torre 1",
       "piso": 5,
-      "tag": "PT-04"
+      "tag": "PT-04",
+      "orden": 4
     },
     {
       "id": "QR-05",
       "nombre": "Torre 2 - Terraza y Tanques de Reserva",
+      "ubicacion": "Torre 2 Piso 5",
+      "qrToken": "QR-PT05-TANQUES-T2",
       "torre": "Torre 2",
       "piso": 5,
-      "tag": "PT-05"
+      "tag": "PT-05",
+      "orden": 5
     },
     {
       "id": "QR-06",
       "nombre": "Cancha Sintética & Zona BBQ",
+      "ubicacion": "Zonas Comunes Piso 1",
+      "qrToken": "QR-PT06-BBQ-CANCHA",
       "torre": "Zonas Comunes",
       "piso": 1,
-      "tag": "PT-06"
+      "tag": "PT-06",
+      "orden": 6
     },
     {
       "id": "QR-07",
       "nombre": "Perímetro Trasero y Malla Electrificada",
+      "ubicacion": "Perímetro Exterior",
+      "qrToken": "QR-PT07-MALLA-PERIMETRO",
       "torre": "Perímetro",
       "piso": 1,
-      "tag": "PT-07"
+      "tag": "PT-07",
+      "orden": 7
+    }
+  ],
+  "registrosRondas": [
+    {
+      "id": "rd-1",
+      "fecha": "2026-11-21T15:30:00.000Z",
+      "puntoId": "QR-01",
+      "nombrePunto": "Portería Principal & Acceso Vehicular",
+      "ubicacion": "Portería Principal - Acceso 1",
+      "guarda": "Carlos Rodríguez",
+      "estado": "normal",
+      "observaciones": "Acceso vehicular operando normalmente, barreras y talanqueras despejadas."
+    },
+    {
+      "id": "rd-2",
+      "fecha": "2026-11-21T15:00:00.000Z",
+      "puntoId": "QR-02",
+      "nombrePunto": "Sótano 1 - Cuarto de Bombas & Tableros",
+      "ubicacion": "Sótano 1",
+      "guarda": "Carlos Rodríguez",
+      "estado": "normal",
+      "observaciones": "Presión hidroneumática en 45 PSI, bombas sin fugas ni sobrecalentamiento."
+    },
+    {
+      "id": "rd-3",
+      "fecha": "2026-11-21T14:30:00.000Z",
+      "puntoId": "QR-03",
+      "nombrePunto": "Sótano 2 - Planta Eléctrica Diésel",
+      "ubicacion": "Sótano 2",
+      "guarda": "Carlos Rodríguez",
+      "estado": "normal",
+      "observaciones": "Nivel de combustible al 85%, batería en 12.8V. Modo automático verificado."
+    },
+    {
+      "id": "rd-4",
+      "fecha": "2026-11-21T13:45:00.000Z",
+      "puntoId": "QR-04",
+      "nombrePunto": "Torre 1 - Terraza y Cuarto de Máquinas",
+      "ubicacion": "Torre 1 Piso 5",
+      "guarda": "Carlos Rodríguez",
+      "estado": "novedad",
+      "observaciones": "Cerradura de acceso a terraza con desajuste leve. Reportado a mantenimiento."
+    },
+    {
+      "id": "rd-5",
+      "fecha": "2026-11-21T13:15:00.000Z",
+      "puntoId": "QR-05",
+      "nombrePunto": "Torre 2 - Terraza y Tanques de Reserva",
+      "ubicacion": "Torre 2 Piso 5",
+      "guarda": "Carlos Rodríguez",
+      "estado": "normal",
+      "observaciones": "Tapas herméticas de tanques selladas. Flotadores operando correctamente."
+    },
+    {
+      "id": "rd-6",
+      "fecha": "2026-11-21T12:30:00.000Z",
+      "puntoId": "QR-06",
+      "nombrePunto": "Cancha Sintética & Zona BBQ",
+      "ubicacion": "Zonas Comunes Piso 1",
+      "guarda": "Carlos Rodríguez",
+      "estado": "normal",
+      "observaciones": "Cerramiento perimetral intacto, reflectores apagados en horario diurno."
+    },
+    {
+      "id": "rd-7",
+      "fecha": "2026-11-21T11:45:00.000Z",
+      "puntoId": "QR-07",
+      "nombrePunto": "Perímetro Trasero y Malla Electrificada",
+      "ubicacion": "Perímetro Exterior",
+      "guarda": "Carlos Rodríguez",
+      "estado": "normal",
+      "observaciones": "Malla electrificada con pulso activo y energizador perimetral en verde."
     }
   ],
   "historialRondas": [
     {
       "id": "rnd-101",
-      "guarda": "Guarda Rodríguez",
-      "fechaInicio": "2026-09-03T17:15:23.429Z",
-      "fechaFin": "2026-09-03T17:45:23.429Z",
+      "guarda": "Carlos Rodríguez",
+      "fechaInicio": "2026-11-21T14:00:00.000Z",
+      "fechaFin": "2026-11-21T15:30:00.000Z",
       "estado": "completada",
       "puntosEscaneados": 7,
       "totalPuntos": 7,
-      "novedadesDetectadas": "Sin novedades. Todas las puertas de acceso cerradas correctamente."
+      "novedadesDetectadas": "Sin novedades críticas. Todas las puertas de acceso cerradas correctamente."
     },
     {
       "id": "rnd-102",
-      "guarda": "Guarda Martínez",
-      "fechaInicio": "2026-09-03T13:15:23.429Z",
-      "fechaFin": "2026-09-03T13:45:23.429Z",
+      "guarda": "Andrés Morales",
+      "fechaInicio": "2026-11-21T08:00:00.000Z",
+      "fechaFin": "2026-11-21T09:30:00.000Z",
       "estado": "completada",
       "puntosEscaneados": 7,
       "totalPuntos": 7,

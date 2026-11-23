@@ -1,13 +1,43 @@
 {
-  "totalConsultas": 139,
+  "totalConsultas": 145,
   "categorias": {
-    "convivencia": 64,
-    "certificados": 31,
-    "emergencias": 31,
+    "convivencia": 66,
+    "certificados": 32,
+    "emergencias": 32,
     "paquetes": 1,
-    "pqrs": 12
+    "pqrs": 14
   },
   "historico": [
+    {
+      "pregunta": "Estado del radicado PQR-2026-0001",
+      "categoria": "pqrs",
+      "fecha": "2026-11-21T16:41:18.900Z"
+    },
+    {
+      "pregunta": "Quiero radicar una queja por filtración de agua en el apto 402",
+      "categoria": "pqrs",
+      "fecha": "2026-11-21T16:41:18.883Z"
+    },
+    {
+      "pregunta": "¡Auxilio fuego e incendio en el sótano 1!",
+      "categoria": "emergencias",
+      "fecha": "2026-11-21T16:41:18.838Z"
+    },
+    {
+      "pregunta": "Genera el paz y salvo de administración del 204",
+      "categoria": "certificados",
+      "fecha": "2026-11-21T16:41:18.809Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 12 sobre el horario de silencio?",
+      "categoria": "convivencia",
+      "fecha": "2026-11-21T16:41:18.794Z"
+    },
+    {
+      "pregunta": "¿Qué dice el artículo 18 sobre las mascotas?",
+      "categoria": "convivencia",
+      "fecha": "2026-11-21T16:41:18.776Z"
+    },
     {
       "pregunta": "Estado del radicado PQR-2026-0001",
       "categoria": "pqrs",
