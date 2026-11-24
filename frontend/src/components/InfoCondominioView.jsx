@@ -33,10 +33,33 @@ const CATEGORIES = [
   { id: 'emergencias', label: 'Directorio de Emergencias', icon: PhoneCall },
 ];
 
+const GUIDE_SEARCH_INDEX = [
+  { cat: 'recreacion', title: 'Piscina Climatizada', detail: 'Martes a Domingo 06:00 AM - 09:00 PM. Cerrada los Lunes por mantenimiento químico. Ducha, gorro y lycra obligatorios.' },
+  { cat: 'recreacion', title: 'Gimnasio Equipado', detail: 'Lunes a Domingo 05:00 AM - 10:00 PM. Aforo máximo 20 personas. Toalla personal y desinfección obligatoria.' },
+  { cat: 'recreacion', title: 'Cancha Sintética Fútbol 5', detail: 'Lunes a Domingo 08:00 AM - 10:00 PM. Turnos de 1h 30m gratuitos para residentes al día.' },
+  { cat: 'recreacion', title: 'Salón Social de Eventos', detail: 'Aforo 120 personas. Límite de sonido 02:00 AM. Depósito reembolsable $200.000 COP.' },
+  { cat: 'recreacion', title: 'Zona BBQ & Kiosco', detail: '11:00 AM - 09:00 PM. Bloques máx. 4 horas. Depósito $50.000 COP. Reserva 24h antes.' },
+  { cat: 'recreacion', title: 'Parque Infantil & Zona Mascotas (Pipican)', detail: 'Parque Infantil 08:00 AM - 07:30 PM. Zona canina 24h. Correa y recolección de heces obligatorias.' },
+  { cat: 'aseo', title: 'Rutas de Aseo por Torres y Sótanos', detail: 'Torres 1-2 Lunes y Jueves; Torres 3-4 Martes y Viernes; Torre 5 Miércoles y Sábados. Lavado de sótanos primer miércoles del mes.' },
+  { cat: 'basuras', title: 'Recolección de Basuras, Reciclaje y Shut', detail: 'Recolección Lunes, Miércoles y Viernes 07:00 PM. Reciclaje bolsa blanca Martes y Jueves. Shut abierto 06:00 AM - 09:00 PM (prohibido vidrio y cajas grandes).' },
+  { cat: 'convivencia', title: 'Manual de Convivencia: Ruido, Obras y Mudanzas', detail: 'Silencio 10:00 PM - 07:00 AM (máx. 45 dB). Obras Lun-Vie 08:00-17:00, Sáb 08:00-13:00. Mudanzas Lun-Sáb 08:00-17:00 con Paz y Salvo y depósito $100.000 COP.' },
+  { cat: 'parqueaderos', title: 'Parqueaderos, Bodegas y Bicicleteros', detail: 'Velocidad máx. 10 km/h. Cortesía visitantes 4 horas. Prohibido inflamables en bodegas. Bicicletero con candado U-Lock.' },
+  { cat: 'pagos', title: 'Cuentas Bancarias y Pago de Administración', detail: '10% descuento pronto pago días 1-10. Cuenta Ahorros Bancolombia/Davivienda 458-992145-02. NIT 901.458.772-1. Soportes a pagos@minuta.com.' },
+  { cat: 'emergencias', title: 'Directorio de Emergencias 24/7', detail: 'Portería Ext. 100/101 (320 114 4778), Policía 123 (Cuadrante 300 200 4455), Bomberos 119, Gas Vanti 164, Acueducto 116, Energía Enel 115.' },
+];
+
 export default function InfoCondominioView() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('recreacion');
   const [search, setSearch] = useState('');
+
+  const searchResults = search.trim()
+    ? GUIDE_SEARCH_INDEX.filter((item) => {
+        const q = search.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const haystack = `${item.title} ${item.detail}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return haystack.includes(q);
+      })
+    : [];
 
   return (
     <div className="space-y-6">
@@ -84,6 +107,45 @@ export default function InfoCondominioView() {
           </button>
         )}
       </div>
+
+      {/* RESULTADOS DE BÚSQUEDA EN TIEMPO REAL */}
+      {search.trim() && (
+        <div className="bg-slate-800/90 border border-emerald-500/40 rounded-2xl p-4 space-y-3 shadow-xl">
+          <div className="flex items-center justify-between border-b border-slate-700 pb-2">
+            <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+              Resultados encontrados para "{search}" ({searchResults.length})
+            </h3>
+            <button onClick={() => setSearch('')} className="text-xs text-slate-400 hover:text-white">
+              Cerrar búsqueda
+            </button>
+          </div>
+          {searchResults.length === 0 ? (
+            <p className="text-xs text-slate-400 py-4 text-center">
+              No se encontraron temas que coincidan con "{search}". Prueba con "piscina", "basura", "ruido", "pago" o "emergencia".
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {searchResults.map((res) => (
+                <div key={res.title} className="bg-slate-900/90 border border-slate-700 rounded-xl p-3.5 flex flex-col justify-between gap-2">
+                  <div>
+                    <h4 className="font-bold text-white text-xs">{res.title}</h4>
+                    <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">{res.detail}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setActiveTab(res.cat);
+                      setSearch('');
+                    }}
+                    className="self-start text-[11px] font-bold text-emerald-400 hover:text-emerald-300"
+                  >
+                    Ir a la sección →
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* TABS DE CATEGORÍAS */}
       <div className="flex gap-2 border-b border-slate-700/80 pb-2 overflow-x-auto scrollbar-none flex-nowrap sm:flex-wrap">

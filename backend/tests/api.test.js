@@ -209,12 +209,15 @@ describe('9. Módulo de Asambleas & Votaciones Digitales', () => {
 
   it('POST /asambleas/:id/votaciones/:votId/votar -> Debe registrar voto por coeficiente', async () => {
     const asambleas = (await request(app).get('/asambleas')).body;
-    if (asambleas.length > 0 && asambleas[0].votaciones?.length > 0) {
-      const aId = asambleas[0].id;
-      const vId = asambleas[0].votaciones[0].id;
+    const activa = asambleas.find((a) =>
+      Array.isArray(a.votaciones) && a.votaciones.some((v) => v.estado !== 'cerrada')
+    );
+    if (activa) {
+      const aId = activa.id;
+      const vId = activa.votaciones.find((v) => v.estado !== 'cerrada').id;
       const res = await request(app)
         .post(`/asambleas/${aId}/votaciones/${vId}/votar`)
-        .send({ opcion: 'si', coeficiente: 1.25 });
+        .send({ opcion: 'si', coeficiente: 1.25, unidadId: `test-unit-${Date.now()}` });
       expect(res.statusCode).toBe(200);
       expect(res.body.totalVotado).toBeGreaterThanOrEqual(1.25);
     }

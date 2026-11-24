@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  UserCheck, Search, Plus, LogOut, Clock, Car, Filter, 
-  RefreshCw, X, Shield, Calendar, User, CheckCircle
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  UserCheck, Search, Plus, LogOut, RefreshCw, X, CheckCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchAccesos, registrarIngreso, registrarSalida, fetchParqueaderos } from '../services/api';
+import { fetchAccesos, registrarIngreso, registrarSalida, fetchParqueaderos, aprobarAccesoPreautorizado } from '../services/api';
 
 export default function AccesosView() {
   const [accesos, setAccesos] = useState([]);
@@ -39,9 +38,9 @@ export default function AccesosView() {
         }),
         fetchParqueaderos()
       ]);
-      setAccesos(aData || []);
-      setParqueaderos(prqData || []);
-    } catch (err) {
+      setAccesos(Array.isArray(aData) ? aData : []);
+      setParqueaderos(Array.isArray(prqData) ? prqData : []);
+    } catch {
       toast.error('Error al cargar accesos');
     } finally {
       setLoading(false);
@@ -290,7 +289,6 @@ export default function AccesosView() {
                         <button
                           onClick={async () => {
                             try {
-                              const { aprobarAccesoPreautorizado } = await import('../services/api');
                               await aprobarAccesoPreautorizado(a.id);
                               toast.success(`Ingreso de ${a.nombre} validado en portería`);
                               loadData();
@@ -378,6 +376,8 @@ export default function AccesosView() {
                     <option value="Torre 1">Torre 1</option>
                     <option value="Torre 2">Torre 2</option>
                     <option value="Torre 3">Torre 3</option>
+                    <option value="Torre 4">Torre 4</option>
+                    <option value="Torre 5">Torre 5</option>
                   </select>
                 </div>
                 <div>
@@ -448,7 +448,7 @@ export default function AccesosView() {
                       className="w-full mt-1 bg-slate-950 border border-slate-700 text-white px-2.5 py-1.5 rounded-lg text-sm"
                     >
                       <option value="">Sin parqueadero</option>
-                      {parqueaderos.filter(p => p.estado === 'disponible').map(p => (
+                      {parqueaderos.filter(p => p.categoria === 'visitantes' && p.estado === 'disponible').map(p => (
                         <option key={p.id} value={p.id}>{p.id} ({p.tipo})</option>
                       ))}
                     </select>

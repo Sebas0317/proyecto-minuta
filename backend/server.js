@@ -136,7 +136,7 @@ app.use(cors({
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PATCH', 'PUT'],
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Protection'],
   exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
   maxAge: 600,
@@ -167,12 +167,17 @@ app.use(sanitizeBody);
 // On Vercel, /api path prefix is NOT stripped by the rewrite; we strip it here
 // so Express internal routes (/v1/*, /auth/*, etc.) match correctly.
 // Must be BEFORE all route registrations.
-if (process.env.VERCEL) {
+if (process.env.VERCEL || process.env.VERCEL_ENV) {
   const PREFIXES = ['/_/backend', '/api'];
   app.use((req, _res, next) => {
     for (const prefix of PREFIXES) {
-      if (req.url.startsWith(prefix)) {
-        req.url = req.url.slice(prefix.length);
+      if (
+        req.url === prefix ||
+        req.url.startsWith(`${prefix}/`) ||
+        req.url.startsWith(`${prefix}?`)
+      ) {
+        const rest = req.url.slice(prefix.length);
+        req.url = !rest || rest.startsWith('?') ? `/${rest}` : rest;
         break;
       }
     }

@@ -26,7 +26,8 @@ function getLongDate(dateStr) {
  * @param {Object} unidad - Unit data (torre, numero, propietario, saldoPendiente, coeficiente, etc.)
  * @param {Object} [options] - Additional metadata (adminName, nit, condominioName)
  */
-export function generarPazYSalvoPDF(unidad, options = {}) {
+export function generarPazYSalvoPDF(unidadInput, options = {}) {
+  const unidad = unidadInput || {};
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -36,7 +37,8 @@ export function generarPazYSalvoPDF(unidad, options = {}) {
   const condominioName = options.condominioName || 'CONDOMINIO RESIDENCIAL ECOBOSQUE';
   const nit = options.nit || 'NIT: 901.458.712-3';
   const adminName = options.adminName || 'ADMINISTRACIÓN GENERAL';
-  const radicado = `PYS-${unidad.torre || 'T1'}${unidad.numero || '101'}-${Date.now().toString().slice(-6)}`;
+  const torreClean = String(unidad.torre || '1').replace(/^Torre\s*/i, '');
+  const radicado = `PYS-T${torreClean}${unidad.numero || '101'}-${Date.now().toString().slice(-6)}`;
   const fechaExpedicion = getLongDate();
   const fechaVencimiento = new Date();
   fechaVencimiento.setDate(fechaVencimiento.getDate() + 30);
@@ -99,12 +101,29 @@ export function generarPazYSalvoPDF(unidad, options = {}) {
   const valX = 85;
   let curY = 92;
 
+  const propietarioNombre =
+    typeof unidad.propietario === 'object' && unidad.propietario !== null
+      ? unidad.propietario.nombre || 'No especificado'
+      : unidad.propietario || 'No especificado';
+  const propietarioDoc =
+    (typeof unidad.propietario === 'object' && unidad.propietario !== null ? unidad.propietario.documento : '') ||
+    unidad.cedula ||
+    unidad.documento ||
+    'Registrado en Base de Datos';
+  const coefNum = Number(unidad.coeficiente);
+  const coefLabel = !isNaN(coefNum) && coefNum > 0
+    ? `${(coefNum < 0.1 ? coefNum * 100 : coefNum).toFixed(3)}%`
+    : '0.850%';
+  const finAdmin = unidad.estadoFinanciero?.administracion;
+  const saldoPend = Number(finAdmin?.saldoPendiente ?? unidad.saldoPendiente ?? 0);
+  const alDia = finAdmin ? finAdmin.alDia !== false && saldoPend <= 0 : saldoPend <= 0;
+
   const rows = [
-    ['Inmueble / Unidad:', `Torre ${unidad.torre || 'N/A'} - Apartamento ${unidad.numero || 'N/A'}`],
-    ['Propietario Registrado:', unidad.propietario || 'No especificado'],
-    ['Cédula / NIT:', unidad.cedula || unidad.documento || 'Registrado en Base de Datos'],
-    ['Coeficiente de Copropiedad:', unidad.coeficiente ? `${(unidad.coeficiente * 100).toFixed(3)}%` : '0.850%'],
-    ['Estado de Cartera a la Fecha:', 'AL DÍA / PAZ Y SALVO ($0 COP)'],
+    ['Inmueble / Unidad:', `Torre ${torreClean} - Apartamento ${unidad.numero || 'N/A'}`],
+    ['Propietario Registrado:', String(propietarioNombre)],
+    ['Cédula / NIT:', String(propietarioDoc)],
+    ['Coeficiente de Copropiedad:', coefLabel],
+    ['Estado de Cartera a la Fecha:', alDia ? 'AL DÍA / PAZ Y SALVO ($0 COP)' : `SALDO PENDIENTE (${formatCOP(saldoPend)} COP)`],
     ['Conceptos Verificados:', 'Cuotas Ordinarias, Extraordinarias y Sanciones'],
   ];
 
@@ -114,7 +133,7 @@ export function generarPazYSalvoPDF(unidad, options = {}) {
     
     if (idx === 4) {
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(22, 101, 52); // Green 800
+      doc.setTextColor(alDia ? 22 : 185, alDia ? 101 : 28, alDia ? 52 : 28);
       doc.text(value, valX, curY);
       doc.setTextColor(30, 41, 59);
     } else {
@@ -290,9 +309,9 @@ export function generarActaAsambleaPDF(asamblea, options = {}) {
       doc.text(splitQ, 24, curY + 6);
 
       // Results line
-      const siVal = vot.si || 0;
-      const noVal = vot.no || 0;
-      const blancoVal = vot.blanco || 0;
+      const siVal = Number(vot.votosSi ?? vot.si ?? 0);
+      const noVal = Number(vot.votosNo ?? vot.no ?? 0);
+      const blancoVal = Number(vot.votosBlanco ?? vot.blanco ?? 0);
       const total = (siVal + noVal + blancoVal) || 1;
       const pctSi = ((siVal / total) * 100).toFixed(1);
       const pctNo = ((noVal / total) * 100).toFixed(1);
@@ -305,10 +324,12 @@ export function generarActaAsambleaPDF(asamblea, options = {}) {
 
       // Decision verdict
       const aprobada = siVal > noVal;
+      const empate = siVal === noVal && total > 0;
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(8.5);
-      doc.setTextColor(aprobada ? 22 : 220, aprobada ? 101 : 38, aprobada ? 52 : 38);
-      doc.text(`DECISIÓN: ${aprobada ? 'APROBADA POR MAYORÍA' : 'NO APROBADA / RECHAZADA'} • ESTADO: ${(vot.estado || 'Cerrada').toUpperCase()}`, 24, curY + 24);
+      doc.setTextColor(aprobada ? 22 : empate ? 180 : 220, aprobada ? 101 : empate ? 83 : 38, aprobada ? 52 : empate ? 9 : 38);
+      const decisionLabel = aprobada ? 'APROBADA POR MAYORÍA' : empate ? 'EMPATE' : 'NO APROBADA / RECHAZADA';
+      doc.text(`DECISIÓN: ${decisionLabel} • ESTADO: ${(vot.estado || 'Cerrada').toUpperCase()}`, 24, curY + 24);
 
       curY += 36;
     });
@@ -362,7 +383,8 @@ export function generarActaAsambleaPDF(asamblea, options = {}) {
  * 
  * @param {Object} pqrs - PQRS ticket data (radicado, categoria, asunto, descripcion, torre, apto, solicitante, fecha, fechaLimiteRespuesta, estado, etc.)
  */
-export function generarTicketPqrsPDF(pqrs) {
+export function generarTicketPqrsPDF(pqrsInput) {
+  const pqrs = pqrsInput || {};
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -395,11 +417,16 @@ export function generarTicketPqrsPDF(pqrs) {
   doc.setFillColor(248, 250, 252);
   doc.roundedRect(12, 33, 124, 78, 2, 2, 'FD');
 
+  const fechaRad = pqrs.fecha || pqrs.fechaRadicado;
+  const fechaLim = pqrs.fechaLimiteRespuesta || pqrs.fechaVencimiento;
+  const torreDisplay = String(pqrs.torre || 'N/D').toLowerCase().startsWith('torre')
+    ? pqrs.torre
+    : `Torre ${pqrs.torre || 'N/D'}`;
   const fields = [
-    ['Fecha Radicación:', pqrs.fecha || getLongDate()],
-    ['Fecha Límite Legal:', pqrs.fechaLimiteRespuesta || '15 días hábiles'],
+    ['Fecha Radicación:', fechaRad ? String(fechaRad).slice(0, 10) : getLongDate()],
+    ['Fecha Límite Legal:', fechaLim ? String(fechaLim).slice(0, 10) : '15 días hábiles'],
     ['Tipo de Solicitud:', (pqrs.categoria || 'Petición').toUpperCase()],
-    ['Inmueble / Unidad:', `Torre ${pqrs.torre || 'N/D'} - Apto ${pqrs.apto || 'N/D'}`],
+    ['Inmueble / Unidad:', `${torreDisplay} - Apto ${pqrs.apto || 'N/D'}`],
     ['Solicitante:', pqrs.solicitante || 'Residente'],
     ['Estado Actual:', (pqrs.estado || 'Radicado').toUpperCase()],
     ['Asunto:', pqrs.asunto || 'Sin asunto'],

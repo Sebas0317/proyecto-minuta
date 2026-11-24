@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  Car, Clock, Plus, LogOut, CheckCircle, AlertTriangle, 
-  RefreshCw, X, Shield, Building2, Phone, ArrowRight, UserCheck, Timer
+import {
+  Car, LogOut, CheckCircle, AlertTriangle,
+  RefreshCw, X, Building2, Phone, ArrowRight, Timer
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { 
-  fetchParqueaderos, ocuparParqueadero, liberarParqueadero, 
-  reportarInvasionParqueadero, reubicarInvasionParqueadero, liberarInvasionParqueadero,
-  fetchUnidades
+import {
+  fetchParqueaderos, ocuparParqueadero, liberarParqueadero,
+  reportarInvasionParqueadero, reubicarInvasionParqueadero, liberarInvasionParqueadero
 } from '../services/api';
 
 export default function ParqueaderoView() {
   const [parqueaderos, setParqueaderos] = useState([]);
-  const [unidades, setUnidades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tabActiva, setTabActiva] = useState('visitantes'); // 'visitantes' | 'privados' | 'invasiones'
   const [filtroTorre, setFiltroTorre] = useState('todas');
@@ -48,7 +46,6 @@ export default function ParqueaderoView() {
   // Modales
   const [showOcuparModal, setShowOcuparModal] = useState(null);
   const [showInvasionModal, setShowInvasionModal] = useState(false);
-  const [showReubicarModal, setShowReubicarModal] = useState(null);
 
   // Form Ocupar Visitante
   const [formOcupar, setFormOcupar] = useState({
@@ -72,13 +69,9 @@ export default function ParqueaderoView() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [pData, uData] = await Promise.all([
-        fetchParqueaderos(),
-        fetchUnidades()
-      ]);
-      setParqueaderos(pData || []);
-      setUnidades(uData || []);
-    } catch (err) {
+      const pData = await fetchParqueaderos();
+      setParqueaderos(Array.isArray(pData) ? pData : []);
+    } catch {
       toast.error('Error al cargar datos de parqueaderos');
     } finally {
       setLoading(false);
@@ -98,7 +91,8 @@ export default function ParqueaderoView() {
   const bahiasPrivadas = useMemo(() => {
     return parqueaderos.filter(p => {
       if (p.categoria !== 'privado') return false;
-      if (filtroTorre !== 'todas' && p.torreAsignada !== filtroTorre) return false;
+      const torreDueño = p.torreAsignada || p.torre || '';
+      if (filtroTorre !== 'todas' && torreDueño !== filtroTorre) return false;
       return true;
     });
   }, [parqueaderos, filtroTorre]);
@@ -173,7 +167,6 @@ export default function ParqueaderoView() {
         bahiaVisitanteDestinoId
       });
       toast.success(res.message || 'Vehículo reubicado con éxito a bahía de visitantes');
-      setShowReubicarModal(null);
       loadData();
     } catch (err) {
       toast.error(err.message || 'Error al reubicar vehículo');
@@ -268,7 +261,7 @@ export default function ParqueaderoView() {
                     </span>
                     <div>
                       <p className="text-xs text-slate-400">Pertenece al:</p>
-                      <p className="text-white font-bold text-sm">{inv.torreAsignada} - Apto {inv.aptoAsignado}</p>
+                      <p className="text-white font-bold text-sm">{inv.torreAsignada || inv.torre || 'Torre'} - Apto {inv.aptoAsignado || inv.apto || 'N/D'}</p>
                     </div>
                   </div>
                   <span className="text-xs font-mono font-black text-white bg-slate-950 px-2.5 py-1 rounded border border-slate-700">
@@ -483,7 +476,7 @@ export default function ParqueaderoView() {
                     </div>
 
                     <div className="pt-2 text-xs space-y-1">
-                      <p><strong className="text-slate-400">Dueño:</strong> {p.torreAsignada} - Apto <strong className="text-white">{p.aptoAsignado}</strong></p>
+                      <p><strong className="text-slate-400">Dueño:</strong> {p.torreAsignada || p.torre || 'Torre'} - Apto <strong className="text-white">{p.aptoAsignado || p.apto || 'N/D'}</strong></p>
                       
                       {isInvadido && (
                         <div className="mt-2 bg-slate-950 p-2 rounded-lg text-[11px] border border-amber-900/60 space-y-0.5">

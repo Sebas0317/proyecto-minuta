@@ -1,7 +1,8 @@
 'use strict';
 
+const crypto = require('node:crypto');
 const bcrypt = require('bcryptjs');
-const { getPaquetes, savePaquetes, getUnidades } = require('../data/jsonStore');
+const { getPaquetes, savePaquetes } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
@@ -9,7 +10,7 @@ const { generateId } = require('../utils/idGenerator');
  * Serializer para paquetería:
  * Oculta estrictamente cualquier PIN o Hash de retiro en listados generales / consultas públicas.
  */
-function serializePaquete(paquete, isStaffOrOwner = false) {
+function serializePaquete(paquete, _isStaffOrOwner = false) {
   if (!paquete || typeof paquete !== 'object') return paquete;
   const safe = { ...paquete };
   delete safe.codigoRetiro;
@@ -19,7 +20,8 @@ function serializePaquete(paquete, isStaffOrOwner = false) {
 
 async function getAllPaquetes(req, res) {
   try {
-    const paquetes = await getPaquetes();
+    const raw = await getPaquetes();
+    const paquetes = Array.isArray(raw) ? raw : [];
     const { estado, torre, apto, search } = req.query;
 
     let filtered = [...paquetes];
@@ -29,27 +31,28 @@ async function getAllPaquetes(req, res) {
     }
 
     if (torre) {
-      filtered = filtered.filter(p => p.torre.toLowerCase() === torre.toLowerCase());
+      filtered = filtered.filter(p => (p.torre || '').toLowerCase() === String(torre).toLowerCase());
     }
 
     if (apto) {
-      filtered = filtered.filter(p => p.apto === apto);
+      filtered = filtered.filter(p => String(p.apto) === String(apto));
     }
 
     if (search) {
-      const q = search.toLowerCase();
+      const q = String(search).toLowerCase();
       filtered = filtered.filter(p =>
-        p.destinatario?.toLowerCase().includes(q) ||
-        p.guia?.toLowerCase().includes(q) ||
-        p.empresa?.toLowerCase().includes(q) ||
-        p.apto?.includes(q)
+        (p.destinatario || '').toLowerCase().includes(q) ||
+        (p.guia || '').toLowerCase().includes(q) ||
+        (p.empresa || '').toLowerCase().includes(q) ||
+        (p.tipoRecibo || '').toLowerCase().includes(q) ||
+        String(p.apto || '').includes(q)
       );
     }
 
     // Sort newest first
-    filtered.sort((a, b) => new Date(b.fechaIngreso) - new Date(a.fechaIngreso));
+    filtered.sort((a, b) => new Date(b.fechaIngreso || 0) - new Date(a.fechaIngreso || 0));
 
-    const isStaff = req.user && ['admin', 'guarda', 'superadmin'].includes(req.user.role);
+    const isStaff = req.user && ['owner', 'admin', 'supervisor', 'guarda', 'superadmin'].includes(req.user.role);
     res.json(filtered.map(p => serializePaquete(p, isStaff)));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener paquetes');
@@ -59,26 +62,48 @@ async function getAllPaquetes(req, res) {
 
 async function createPaquete(req, res) {
   try {
-    const paquetes = await getPaquetes();
-    const { unidadId, torre, apto, destinatario, empresa, guia, descripcion, guardaIngreso } = req.body;
+    const raw = await getPaquetes();
+    const paquetes = Array.isArray(raw) ? [...raw] : [];
+    const {
+      unidadId,
+      torre,
+      apto,
+      destinatario,
+      empresa,
+      guia,
+      descripcion,
+      observacion,
+      guardaIngreso,
+      categoria,
+      tipoRecibo,
+      mesFacturado,
+      valorFactura,
+    } = req.body;
 
-    if (!torre || !apto || !destinatario) {
+    const esRecibo = categoria === 'recibo_publico';
+    if (!torre || !apto || (!destinatario && !esRecibo)) {
       return res.status(400).json({ error: 'Torre, Apartamento y Destinatario son obligatorios' });
     }
 
-    // Generar código de retiro numérico de 4 dígitos
-    const codigoRetiroPlano = Math.floor(1000 + Math.random() * 9000).toString();
+    // Generar código de retiro numérico criptográficamente seguro de 4 dígitos
+    const codigoRetiroPlano = crypto.randomInt(1000, 10000).toString();
     const codigoRetiroHash = await bcrypt.hash(codigoRetiroPlano, 10);
 
     const nuevoPaquete = {
       id: `pkg-${Date.now()}-${generateId(4)}`,
-      unidadId: unidadId || `${torre.toLowerCase().replace(/\s+/g, '')}-${apto}`,
-      torre,
+      unidadId: unidadId || `${String(torre).toLowerCase().replace(/\s+/g, '')}-${apto}`,
+      torre: String(torre),
       apto: String(apto),
-      destinatario,
-      empresa: empresa || 'Mensajería / Domicilio',
-      guia: guia || 'S/N',
-      descripcion: descripcion || 'Paquete recibido en portería',
+      destinatario: destinatario || `Residente Apto ${apto}`,
+      categoria: esRecibo ? 'recibo_publico' : (categoria || 'encomienda'),
+      empresa: empresa || tipoRecibo || 'Mensajería / Domicilio',
+      guia: guia || (esRecibo ? `REC-${mesFacturado || 'MES'}` : 'S/N'),
+      descripcion: descripcion || observacion || (esRecibo ? `Recibo de ${tipoRecibo || 'Servicio Público'}` : 'Paquete recibido en portería'),
+      ...(esRecibo ? {
+        tipoRecibo: tipoRecibo || empresa || 'Servicio Público',
+        mesFacturado: mesFacturado || '',
+        valorFactura: Number(valorFactura) || 0,
+      } : {}),
       estado: 'recibido', // recibido, notificado, entregado
       fechaIngreso: new Date().toISOString(),
       fechaEntrega: null,
@@ -191,7 +216,7 @@ async function getPaquetesByApto(req, res) {
     list.sort((a, b) => new Date(b.fechaIngreso) - new Date(a.fechaIngreso));
 
     // NUNCA devolver el PIN de retiro en consultas públicas/listados de apartamento
-    const isStaff = req.user && ['admin', 'guarda', 'superadmin'].includes(req.user.role);
+    const isStaff = req.user && ['owner', 'admin', 'supervisor', 'guarda', 'superadmin'].includes(req.user.role);
     const sanitized = list.map(p => serializePaquete(p, isStaff));
 
     res.json(sanitized);

@@ -685,10 +685,11 @@ async function verificarCodigoRecuperacion(req, res) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 5 * 60 * 1000,
-      path: '/api/auth/cambiar-contrasena',
+      path: '/',
     });
     return res.json({
       puedeCambiar: true,
+      resetToken,
       mensaje: 'Codigo verificado. Ahora puedes cambiar tu contrasena.',
     });
   } catch (err) {
@@ -700,7 +701,7 @@ async function verificarCodigoRecuperacion(req, res) {
 async function cambiarContrasena(req, res) {
   try {
     const { nuevaContrasena, userId, currentPassword } = req.body;
-    const resetToken = req.cookies?.resetToken;
+    const resetToken = req.cookies?.resetToken || req.body?.resetToken;
     const ip = getClientIp(req);
 
     if (!nuevaContrasena) {
@@ -780,6 +781,9 @@ async function cambiarContrasena(req, res) {
       detail: 'Contrasena propia cambiada exitosamente',
     });
 
+    if (req.cookies?.resetToken) {
+      res.clearCookie('resetToken', { path: '/' });
+    }
     return res.json({ mensaje: 'Contrasena cambiada exitosamente' });
   } catch (err) {
     logger.error({ err }, 'Change password error');
@@ -895,6 +899,9 @@ async function changeOwnPassword(req, res) {
       detail: 'Contrasena propia cambiada exitosamente',
     });
 
+    if (req.cookies?.resetToken) {
+      res.clearCookie('resetToken', { path: '/' });
+    }
     return res.json({ mensaje: 'Contrasena cambiada exitosamente' });
   } catch (err) {
     logger.error({ err }, 'Change own password error');

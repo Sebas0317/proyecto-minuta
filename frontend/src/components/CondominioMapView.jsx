@@ -23,8 +23,8 @@ export default function CondominioMapView() {
     try {
       setLoading(true);
       const data = await fetchUnidades();
-      setUnidades(data || []);
-    } catch (err) {
+      setUnidades(Array.isArray(data) ? data : []);
+    } catch {
       toast.error('Error al cargar censo de apartamentos');
     } finally {
       setLoading(false);
@@ -81,10 +81,10 @@ export default function CondominioMapView() {
       // Búsqueda
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchNum = u.numero.toLowerCase().includes(q);
-        const matchProp = u.propietario?.nombre?.toLowerCase().includes(q);
-        const matchInq = u.contratoArriendo?.inquilinoNombre?.toLowerCase().includes(q);
-        const matchPlaca = u.vehiculos?.some(v => v.placa?.toLowerCase().includes(q));
+        const matchNum = String(u.numero || '').toLowerCase().includes(q);
+        const matchProp = (u.propietario?.nombre || '').toLowerCase().includes(q);
+        const matchInq = (u.contratoArriendo?.inquilinoNombre || '').toLowerCase().includes(q);
+        const matchPlaca = u.vehiculos?.some(v => (v.placa || '').toLowerCase().includes(q));
         if (!matchNum && !matchProp && !matchInq && !matchPlaca) return false;
       }
 
@@ -92,13 +92,21 @@ export default function CondominioMapView() {
     });
   }, [unidades, torreSeleccionada, filtroEstado, filtroMora, filtroParqueadero, searchQuery]);
 
-  // Agrupación por pisos (Piso 5 al 1)
-  const pisosAgrupados = useMemo(() => {
-    const pisos = {};
-    for (let p = 5; p >= 1; p--) {
-      pisos[p] = unidadesFiltradas.filter(u => u.piso === p).sort((a, b) => a.numero.localeCompare(b.numero));
+  // Agrupación dinámica por pisos (de mayor a menor)
+  const pisosOrdenados = useMemo(() => {
+    const map = {};
+    for (const u of unidadesFiltradas) {
+      const p = Number(u.piso) || 1;
+      if (!map[p]) map[p] = [];
+      map[p].push(u);
     }
-    return pisos;
+    return Object.keys(map)
+      .map(Number)
+      .sort((a, b) => b - a)
+      .map((piso) => ({
+        piso,
+        aptos: map[piso].sort((a, b) => String(a.numero || '').localeCompare(String(b.numero || ''), undefined, { numeric: true })),
+      }));
   }, [unidadesFiltradas]);
 
   // Helper para tiempo restante de arriendo
@@ -295,10 +303,12 @@ export default function CondominioMapView() {
 
       {/* PLANO / MATRIZ ARQUITECTÓNICA POR PISOS */}
       <div className="space-y-6">
-        {[5, 4, 3, 2, 1].map((numPiso) => {
-          const aptosPiso = pisosAgrupados[numPiso] || [];
-          if (aptosPiso.length === 0) return null;
-
+        {pisosOrdenados.length === 0 ? (
+          <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-12 text-center text-slate-500">
+            No se encontraron inmuebles con los filtros seleccionados.
+          </div>
+        ) : (
+        pisosOrdenados.map(({ piso: numPiso, aptos: aptosPiso }) => {
           return (
             <div key={numPiso} className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-lg space-y-3">
               <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
@@ -409,7 +419,8 @@ export default function CondominioMapView() {
               </div>
             </div>
           );
-        })}
+        })
+        )}
       </div>
 
       {/* MODAL DETALLADO DE FICHA TÉCNICA DEL APARTAMENTO */}
@@ -426,7 +437,7 @@ export default function CondominioMapView() {
                   <h2 className="text-xl font-black text-white flex items-center gap-2">
                     {selectedUnidad.torre} - Apto {selectedUnidad.numero}
                   </h2>
-                  <p className="text-xs text-slate-400">Piso {selectedUnidad.piso} • PIN Citofonía: <strong className="text-emerald-400 font-mono">{selectedUnidad.pinAcceso}</strong></p>
+                  <p className="text-xs text-slate-400">Piso {selectedUnidad.piso} • PIN Citofonía: <strong className="text-emerald-400 font-mono">{selectedUnidad.pinAcceso || '🔒 Protegido'}</strong></p>
                 </div>
               </div>
 
@@ -584,7 +595,7 @@ export default function CondominioMapView() {
                       </span>
                     ) : (
                       <span className="text-red-400 font-bold bg-red-950 px-2 py-0.5 rounded border border-red-800">
-                        ⚠️ En Mora ({selectedUnidad.estadoFinanciero?.administracion?.mesesMora} meses: ${Number(selectedUnidad.estadoFinanciero?.administracion?.saldoPendiente).toLocaleString('es-CO')})
+                        ⚠️ En Mora ({selectedUnidad.estadoFinanciero?.administracion?.mesesMora || 0} meses: ${Number(selectedUnidad.estadoFinanciero?.administracion?.saldoPendiente || 0).toLocaleString('es-CO')})
                       </span>
                     )}
                   </div>

@@ -19,6 +19,13 @@ export default function PaqueteriaView() {
   const [showPaqueteModal, setShowPaqueteModal] = useState(false);
   const [showReciboModal, setShowReciboModal] = useState(false);
   const [entregaModal, setEntregaModal] = useState(null);
+  const [pinGeneradoModal, setPinGeneradoModal] = useState(null);
+  const [pinCache, setPinCache] = useState({});
+
+  const mesActualLabel = useMemo(() => {
+    const label = new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }, []);
 
   // Form Paquete
   const [formPaquete, setFormPaquete] = useState({
@@ -38,7 +45,7 @@ export default function PaqueteriaView() {
     apto: '',
     tipoRecibo: 'Acueducto y Alcantarillado (Agua)',
     empresa: 'Empresa de Acueducto',
-    mesFacturado: 'Agosto 2026',
+    mesFacturado: mesActualLabel,
     observacion: 'Factura del mes'
   });
 
@@ -57,9 +64,9 @@ export default function PaqueteriaView() {
         }),
         fetchUnidades()
       ]);
-      setPaquetes(pData || []);
-      setUnidades(uData || []);
-    } catch (err) {
+      setPaquetes(Array.isArray(pData) ? pData : []);
+      setUnidades(Array.isArray(uData) ? uData : []);
+    } catch {
       toast.error('Error al cargar correspondencia');
     } finally {
       setLoading(false);
@@ -110,8 +117,12 @@ export default function PaqueteriaView() {
   const handleCreatePaquete = async (e) => {
     e.preventDefault();
     try {
-      await createPaquete({ ...formPaquete, categoria: 'encomienda' });
-      toast.success('Encomienda registrada con PIN de retiro');
+      const created = await createPaquete({ ...formPaquete, categoria: 'encomienda' });
+      if (created?.id && created?.codigoRetiro) {
+        setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
+        setPinGeneradoModal(created);
+      }
+      toast.success(`Encomienda registrada • PIN de retiro: ${created?.codigoRetiro || 'Generado'}`);
       setShowPaqueteModal(false);
       setFormPaquete({
         categoria: 'encomienda',
@@ -131,13 +142,17 @@ export default function PaqueteriaView() {
   const handleCreateRecibo = async (e) => {
     e.preventDefault();
     try {
-      await createPaquete({
+      const created = await createPaquete({
         ...formRecibo,
         categoria: 'recibo_publico',
         descripcion: `Recibo de ${formRecibo.tipoRecibo} (${formRecibo.mesFacturado})`,
         destinatario: `Titular Apto ${formRecibo.apto}`,
         guia: `REC-${formRecibo.apto}`
       });
+      if (created?.id && created?.codigoRetiro) {
+        setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
+        setPinGeneradoModal(created);
+      }
       toast.success(`Recibo de ${formRecibo.tipoRecibo} registrado para Apto ${formRecibo.apto}`);
       setShowReciboModal(false);
       setFormRecibo({
@@ -146,7 +161,7 @@ export default function PaqueteriaView() {
         apto: '',
         tipoRecibo: 'Acueducto y Alcantarillado (Agua)',
         empresa: 'Empresa de Acueducto',
-        mesFacturado: 'Agosto 2026',
+        mesFacturado: mesActualLabel,
         observacion: 'Factura del mes'
       });
       loadData();
@@ -156,15 +171,17 @@ export default function PaqueteriaView() {
   };
 
   const handleNotificar = (paquete) => {
-    const unidad = unidades.find(u => u.torre === paquete.torre && u.numero === paquete.apto);
+    const unidad = unidades.find(u => u.torre === paquete.torre && String(u.numero) === String(paquete.apto));
     const tel = unidad?.residentes?.[0]?.telefono || unidad?.propietario?.telefono;
-    const msg = encodeURIComponent(`Hola, le informamos desde la Portería que tiene correspondencia pendiente (${paquete.empresa || paquete.tipoRecibo}). Código de retiro: ${paquete.codigoRetiro || 'En casillero'}. Por favor pasar a reclamarlo.`);
+    const pin = paquete.codigoRetiro || pinCache[paquete.id];
+    const pinText = pin ? `Código PIN de retiro: ${pin}.` : 'Presente su PIN de retiro en portería.';
+    const msg = encodeURIComponent(`Hola, le informamos desde la Portería que tiene correspondencia pendiente (${paquete.empresa || paquete.tipoRecibo}). ${pinText} Por favor pasar a reclamarlo.`);
     
     if (tel) {
       window.open(`https://wa.me/57${tel.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
-      notificarPaquete(paquete.id).then(() => loadData());
+      notificarPaquete(paquete.id).then(() => loadData()).catch(() => {});
     } else {
-      toast.info(`Código de retiro: ${paquete.codigoRetiro}`);
+      toast.info(pin ? `Código PIN de retiro: ${pin}` : 'Sin teléfono registrado para WhatsApp; el PIN se entrega únicamente al registrar.');
     }
   };
 
@@ -195,8 +212,8 @@ export default function PaqueteriaView() {
       `"${(p.destinatario || '').replace(/"/g, '""')}"`,
       `"${(p.empresa || p.tipoRecibo || '').replace(/"/g, '""')}"`,
       p.guia || '',
-      p.codigoRetiro || '',
-      p.estado.toUpperCase(),
+      p.codigoRetiro || pinCache[p.id] || 'Protegido',
+      (p.estado || 'recibido').toUpperCase(),
       p.fechaIngreso ? new Date(p.fechaIngreso).toLocaleString('es-CO') : '',
       p.fechaEntrega ? new Date(p.fechaEntrega).toLocaleString('es-CO') : ''
     ]);
@@ -376,7 +393,7 @@ export default function PaqueteriaView() {
                       </div>
                     </div>
                     <span className="text-[10px] font-mono font-bold bg-blue-950 text-blue-300 border border-blue-800 px-2 py-0.5 rounded">
-                      PIN: {p.codigoRetiro}
+                      {pinCache[p.id] ? `PIN: ${pinCache[p.id]}` : '🔒 PIN Protegido'}
                     </span>
                   </div>
 
@@ -779,6 +796,46 @@ export default function PaqueteriaView() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL PIN GENERADO (EXHIBICIÓN ÚNICA POR SEGURIDAD) */}
+      {pinGeneradoModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border-2 border-emerald-500/60 w-full max-w-sm rounded-2xl p-6 shadow-2xl text-center space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+              <CheckCircle className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-white">Código PIN Generado</h3>
+              <p className="text-xs text-slate-400 mt-1">
+                {pinGeneradoModal.torre} - Apto {pinGeneradoModal.apto} • {pinGeneradoModal.empresa || pinGeneradoModal.tipoRecibo}
+              </p>
+            </div>
+            <div className="bg-slate-950 border border-amber-500/40 rounded-2xl p-4">
+              <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">PIN Único de Retiro</span>
+              <span className="text-4xl font-black font-mono tracking-[0.35em] text-amber-400">
+                {pinGeneradoModal.codigoRetiro}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400">
+              Por seguridad criptográfica (bcrypt), este PIN se muestra una sola vez. Envíalo por WhatsApp al residente ahora.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleNotificar(pinGeneradoModal)}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" /> Enviar WhatsApp
+              </button>
+              <button
+                onClick={() => setPinGeneradoModal(null)}
+                className="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-semibold"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

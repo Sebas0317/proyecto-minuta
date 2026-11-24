@@ -126,7 +126,7 @@ async function reportarInvasion(req, res) {
         fecha: new Date().toISOString(),
         tipo: 'incidente',
         titulo: `⚠️ Vehículo parqueado en bahía privada ajena (${bahiaId})`,
-        descripcion: `El vehículo placa ${placa.toUpperCase()} se estacionó en la bahía ${bahiaId} (pertenece al Apto ${parqueaderos[index].aptoAsignado}). Responsable: Apto ${aptoResponsable} (${nombreResponsable} - Tel: ${telefonoResponsable}).`,
+        descripcion: `El vehículo placa ${placa.toUpperCase()} se estacionó en la bahía ${bahiaId} (pertenece al Apto ${parqueaderos[index].aptoAsignado || parqueaderos[index].apto || 'Privado'}). Responsable: Apto ${aptoResponsable} (${nombreResponsable || 'Visitante'} - Tel: ${telefonoResponsable || 'N/D'}).`,
         severidad: 'advertencia',
         guarda: req.user?.username || 'Guarda de Turno'
       });

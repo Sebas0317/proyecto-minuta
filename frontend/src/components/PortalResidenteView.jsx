@@ -80,7 +80,6 @@ export default function PortalResidenteView() {
     return localStorage.getItem('residente_unidad_id') || 't1-101';
   });
   const [unidadData, setUnidadData] = useState(null);
-  const [loadingUnidad, setLoadingUnidad] = useState(true);
   const [activeTab, setActiveTab] = useState('resumen');
 
   // Filtros del navegador lateral izquierdo
@@ -93,11 +92,9 @@ export default function PortalResidenteView() {
 
   // Paquetes
   const [paquetes, setPaquetes] = useState([]);
-  const [loadingPaquetes, setLoadingPaquetes] = useState(false);
 
   // Visitas Pre-autorizadas
   const [visitas, setVisitas] = useState([]);
-  const [loadingVisitas, setLoadingVisitas] = useState(false);
   const [showPreautorizarModal, setShowPreautorizarModal] = useState(false);
   const [formVisita, setFormVisita] = useState({
     nombre: '',
@@ -155,7 +152,6 @@ export default function PortalResidenteView() {
 
   // PQRS del Residente
   const [pqrsList, setPqrsList] = useState([]);
-  const [loadingPqrs, setLoadingPqrs] = useState(false);
   const [showPqrsModal, setShowPqrsModal] = useState(false);
   const [formPqrs, setFormPqrs] = useState({
     categoria: 'Petición',
@@ -168,8 +164,8 @@ export default function PortalResidenteView() {
   const loadUnidadesList = async () => {
     try {
       const res = await fetchUnidadesSummary();
-      setUnidadesList(res || []);
-    } catch (e) {
+      setUnidadesList(Array.isArray(res) ? res : []);
+    } catch {
       toast.error('Error al cargar censo de apartamentos');
     }
   };
@@ -181,23 +177,20 @@ export default function PortalResidenteView() {
   // Cargar datos de la unidad seleccionada
   const loadUnidad = async (uId) => {
     try {
-      setLoadingUnidad(true);
       const data = await fetchUnidadPortalData(uId);
       setUnidadData(data);
       localStorage.setItem('residente_unidad_id', uId);
 
       // Cargar paquetes, visitas, reservas, asambleas, mascotas y pqrs del apartamento
       const aptoNum = data?.numero || '101';
-      fetchPaquetesUnidad(aptoNum, { torre: data?.torre }).then(setPaquetes).catch(() => {});
-      fetchPreautorizadosUnidad(data?.id || uId, { apto: aptoNum }).then(setVisitas).catch(() => {});
-      fetchReservasZonas().then(setReservas).catch(() => {});
-      fetchAsambleas().then(setAsambleas).catch(() => {});
-      fetchMascotas({ apto: aptoNum }).then(setMascotas).catch(() => {});
-      fetchPqrs({ apto: aptoNum, torre: data?.torre }).then(setPqrsList).catch(() => {});
-    } catch (e) {
+      fetchPaquetesUnidad(aptoNum, { torre: data?.torre }).then(d => setPaquetes(Array.isArray(d) ? d : [])).catch(() => {});
+      fetchPreautorizadosUnidad(data?.id || uId, { apto: aptoNum }).then(d => setVisitas(Array.isArray(d) ? d : [])).catch(() => {});
+      fetchReservasZonas().then(d => setReservas(Array.isArray(d) ? d : [])).catch(() => {});
+      fetchAsambleas().then(d => setAsambleas(Array.isArray(d) ? d : [])).catch(() => {});
+      fetchMascotas({ apto: aptoNum, torre: data?.torre }).then(d => setMascotas(Array.isArray(d) ? d : [])).catch(() => {});
+      fetchPqrs({ apto: aptoNum, torre: data?.torre }).then(d => setPqrsList(Array.isArray(d) ? d : [])).catch(() => {});
+    } catch {
       toast.error('No se pudo cargar la información del apartamento');
-    } finally {
-      setLoadingUnidad(false);
     }
   };
 
@@ -293,13 +286,17 @@ export default function PortalResidenteView() {
   // Manejar reservas
   const handleCrearReserva = async (e) => {
     e.preventDefault();
+    if (formReserva.horaFin <= formReserva.horaInicio) {
+      toast.error('La hora de fin debe ser posterior a la hora de inicio');
+      return;
+    }
     try {
       const payload = {
         espacio: formReserva.espacio,
         torre: unidadData?.torre || 'Torre 1',
         apto: String(unidadData?.numero || '101'),
         solicitante: unidadData?.propietario?.nombre || 'Residente',
-        telefono: unidadData?.propietario?.telefono || '3000000000',
+        telefono: unidadData?.propietario?.telefono || '',
         fechaReserva: formReserva.fechaReserva,
         horaInicio: formReserva.horaInicio,
         horaFin: formReserva.horaFin,
@@ -309,7 +306,7 @@ export default function PortalResidenteView() {
       await createReservaZona(payload);
       toast.success('Reserva confirmada en el calendario');
       setShowReservaModal(false);
-      fetchReservasZonas().then(setReservas);
+      fetchReservasZonas().then(d => setReservas(Array.isArray(d) ? d : [])).catch(() => {});
     } catch (err) {
       toast.error(err.message || 'Error al solicitar reserva');
     }
@@ -319,9 +316,12 @@ export default function PortalResidenteView() {
   const handleVotar = async (asambleaId, votacionId, opcion) => {
     try {
       const coef = unidadData?.coeficiente || 1.25;
-      await castVote(asambleaId, votacionId, opcion, coef);
+      await castVote(asambleaId, votacionId, opcion, coef, {
+        unidadId: unidadData?.id || selectedUnidadId,
+        apto: unidadData?.numero,
+      });
       toast.success(`Voto por "${opcion.toUpperCase()}" registrado (${coef}%)`);
-      fetchAsambleas().then(setAsambleas);
+      fetchAsambleas().then(d => setAsambleas(Array.isArray(d) ? d : [])).catch(() => {});
     } catch (e) {
       toast.error(e.message || 'Error al registrar voto');
     }
@@ -336,19 +336,32 @@ export default function PortalResidenteView() {
     }
 
     try {
+      const propietario = unidadData?.propietario?.nombre || 'Residente';
+      const telefono = unidadData?.propietario?.telefono || '';
       const payload = {
         ...formMascota,
         torre: unidadData?.torre || 'Torre 1',
         apto: String(unidadData?.numero || '101'),
         unidadId: unidadData?.id || selectedUnidadId,
-        propietarioNombre: unidadData?.propietario?.nombre || 'Residente',
-        telefonoContacto: unidadData?.propietario?.telefono || '3000000000'
+        propietario,
+        propietarioNombre: propietario,
+        telefono,
+        telefonoContacto: telefono,
       };
 
       await createMascota(payload);
       toast.success('Mascota registrada exitosamente con carnet QR');
       setShowMascotaModal(false);
-      fetchMascotas({ apto: unidadData?.numero || '101' }).then(setMascotas);
+      setFormMascota({
+        nombre: '',
+        especie: 'perro',
+        raza: '',
+        color: '',
+        edad: '',
+        vacunaAntirrabica: true,
+        fechaVacuna: new Date().toISOString().split('T')[0]
+      });
+      fetchMascotas({ apto: unidadData?.numero || '101', torre: unidadData?.torre }).then(d => setMascotas(Array.isArray(d) ? d : [])).catch(() => {});
     } catch (err) {
       toast.error(err.message || 'Error al registrar mascota');
     }
@@ -666,7 +679,7 @@ export default function PortalResidenteView() {
                 👤 {unidadData?.propietario?.nombre || (esVacio ? 'Inmueble Vacío / Sin Ocupar' : 'Residente')}
               </p>
               <p className="text-[11px] text-slate-400">
-                📞 {unidadData?.propietario?.telefono || (esVacio ? 'Portería Ext. 100' : '311 100 4567')}
+                📞 {unidadData?.propietario?.telefono || (esVacio ? 'Portería Ext. 100' : 'Registrado en Administración')}
               </p>
             </div>
 
@@ -699,7 +712,7 @@ export default function PortalResidenteView() {
               </div>
               <h3 className="text-xl font-black text-white">
                 {paquetesPendientes.length > 0 ? (
-                  <span className="text-amber-400 font-mono">PIN: {paquetesPendientes[0]?.codigoRetiro || '----'}</span>
+                  <span className="text-amber-400 font-mono text-base">{paquetesPendientes[0]?.codigoRetiro ? `PIN: ${paquetesPendientes[0].codigoRetiro}` : '🔒 PIN vía WhatsApp'}</span>
                 ) : (
                   <span className="text-slate-400">Sin paquetes</span>
                 )}
@@ -819,19 +832,23 @@ export default function PortalResidenteView() {
                   </span>
                 </div>
                 <div className="space-y-2.5">
-                  {(unidadData?.vehiculos || [{ placa: 'KLM107', tipo: 'carro', marca: 'Renault Duster' }]).map((v, i) => (
-                    <div key={i} className="bg-slate-950/60 border border-slate-800 p-3 rounded-xl flex items-center justify-between text-xs font-mono">
-                      <div>
-                        <span className="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded text-xs">
-                          {v.placa}
+                  {Array.isArray(unidadData?.vehiculos) && unidadData.vehiculos.length > 0 ? (
+                    unidadData.vehiculos.map((v, i) => (
+                      <div key={i} className="bg-slate-950/60 border border-slate-800 p-3 rounded-xl flex items-center justify-between text-xs font-mono">
+                        <div>
+                          <span className="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded text-xs">
+                            {v.placa}
+                          </span>
+                          <p className="text-[11px] text-slate-400 font-sans mt-1">{v.marca || 'Vehículo'} ({v.tipo || 'carro'})</p>
+                        </div>
+                        <span className="text-slate-400 text-[11px] font-sans">
+                          Asignado: {v.parqueaderoAsignado || 'Bahía Privada'}
                         </span>
-                        <p className="text-[11px] text-slate-400 font-sans mt-1">{v.marca} ({v.tipo})</p>
                       </div>
-                      <span className="text-slate-400 text-[11px] font-sans">
-                        Asignado: {v.parqueaderoAsignado || 'Bahía Privada'}
-                      </span>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-xs text-slate-500 italic py-2">Sin vehículos registrados en este inmueble.</p>
+                  )}
                 </div>
               </div>
 
@@ -920,12 +937,18 @@ export default function PortalResidenteView() {
                         <p><strong className="text-slate-400">Destinatario:</strong> {p.destinatario || 'Residente'}</p>
                       </div>
 
-                      {/* PIN DE SEGURIDAD EN GRANDE */}
+                      {/* PIN DE SEGURIDAD */}
                       <div className="bg-slate-950 p-3.5 rounded-xl border border-amber-500/30 text-center space-y-1">
                         <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Código PIN de Retiro</span>
-                        <span className="text-3xl font-black font-mono tracking-widest text-amber-400">
-                          {p.codigoRetiro || '1234'}
-                        </span>
+                        {p.codigoRetiro ? (
+                          <span className="text-3xl font-black font-mono tracking-widest text-amber-400">
+                            {p.codigoRetiro}
+                          </span>
+                        ) : (
+                          <span className="text-xs font-bold text-amber-300 block py-1">
+                            🔒 Enviado por WhatsApp / Solicitar en Portería
+                          </span>
+                        )}
                       </div>
 
                       <p className="text-[10px] text-slate-400 text-center italic">
@@ -1007,7 +1030,7 @@ export default function PortalResidenteView() {
                         <span className="text-[11px] text-slate-400">Pase QR listo para portería</span>
                         <button
                           onClick={() => {
-                            navigator.clipboard.writeText(`Pase de Acceso al Condominio Minuta: ${v.nombre} (Pase: ${v.paseQR}) para Apto ${unidadData?.torre} ${unidadData?.numero}`);
+                            navigator.clipboard?.writeText(`Pase de Acceso al Condominio Minuta: ${v.nombre} (Pase: ${v.paseQR}) para Apto ${unidadData?.torre} ${unidadData?.numero}`).catch(() => {});
                             toast.success('Pase copiado para compartir por WhatsApp');
                           }}
                           className="text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1 text-[11px]"
@@ -1103,7 +1126,7 @@ export default function PortalResidenteView() {
                               <span className="text-slate-400 font-normal">{ticket.respuestas[ticket.respuestas.length - 1].fecha}</span>
                             </div>
                             <p className="text-xs text-emerald-100 whitespace-pre-wrap leading-relaxed">
-                              {ticket.respuestas[ticket.respuestas.length - 1].respuesta}
+                              {ticket.respuestas[ticket.respuestas.length - 1].respuesta || ticket.respuestas[ticket.respuestas.length - 1].mensaje}
                             </p>
                           </div>
                         )}
@@ -1111,9 +1134,9 @@ export default function PortalResidenteView() {
                         {/* Fechas y Descarga */}
                         <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]">
                           <div className="text-slate-400">
-                            <span>Radicado: {ticket.fecha ? ticket.fecha.slice(0, 10) : 'Hoy'}</span>
+                            <span>Radicado: {(ticket.fecha || ticket.fechaRadicado) ? String(ticket.fecha || ticket.fechaRadicado).slice(0, 10) : 'Hoy'}</span>
                             <span className="mx-1.5">•</span>
-                            <span className="text-amber-400 font-semibold">Límite: {ticket.fechaLimiteRespuesta || '15 días'}</span>
+                            <span className="text-amber-400 font-semibold">Límite: {(ticket.fechaLimiteRespuesta || ticket.fechaVencimiento) ? String(ticket.fechaLimiteRespuesta || ticket.fechaVencimiento).slice(0, 10) : '15 días'}</span>
                           </div>
 
                           <button
@@ -1211,30 +1234,46 @@ export default function PortalResidenteView() {
                   <div className="space-y-4">
                     {(asm.votaciones || []).map(v => (
                       <div key={v.id} className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-                        <p className="text-sm font-bold text-white">{v.pregunta}</p>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <button
-                            onClick={() => handleVotar(asm.id, v.id, 'si')}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow"
-                          >
-                            👍 Votar SÍ
-                          </button>
-                          <button
-                            onClick={() => handleVotar(asm.id, v.id, 'no')}
-                            className="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow"
-                          >
-                            👎 Votar NO
-                          </button>
-                          <button
-                            onClick={() => handleVotar(asm.id, v.id, 'blanco')}
-                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow"
-                          >
-                            ⚪ Voto en Blanco
-                          </button>
-                          <span className="text-xs text-slate-400 ml-auto">
-                            Votado: <strong className="text-white font-mono">{v.totalVotado || 0}%</strong>
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-bold text-white">{v.pregunta}</p>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase shrink-0 ${
+                            v.estado === 'cerrada' ? 'bg-slate-800 text-slate-400' : 'bg-emerald-500/20 text-emerald-400'
+                          }`}>
+                            {v.estado === 'cerrada' ? `Cerrada (${v.resultado || 'Finalizada'})` : 'Abierta'}
                           </span>
                         </div>
+                        {v.estado === 'cerrada' ? (
+                          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 font-mono">
+                            <span className="text-emerald-400">SÍ: {v.votosSi || 0}%</span>
+                            <span className="text-red-400">NO: {v.votosNo || 0}%</span>
+                            <span className="text-amber-400">BLANCO: {v.votosBlanco || 0}%</span>
+                            <span className="ml-auto font-bold text-white">Resultado: {v.resultado || 'CONSOLIDADO'}</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              onClick={() => handleVotar(asm.id, v.id, 'si')}
+                              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow"
+                            >
+                              👍 Votar SÍ
+                            </button>
+                            <button
+                              onClick={() => handleVotar(asm.id, v.id, 'no')}
+                              className="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow"
+                            >
+                              👎 Votar NO
+                            </button>
+                            <button
+                              onClick={() => handleVotar(asm.id, v.id, 'blanco')}
+                              className="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow"
+                            >
+                              ⚪ Voto en Blanco
+                            </button>
+                            <span className="text-xs text-slate-400 ml-auto">
+                              Votado: <strong className="text-white font-mono">{v.totalVotado || 0}%</strong>
+                            </span>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1317,7 +1356,7 @@ export default function PortalResidenteView() {
                 </p>
                 <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                   <span className="font-bold text-white block">Estado de Autorización de tu Apartamento:</span>
-                  <p className="text-emerald-400 font-semibold">
+                  <p className={alDia ? 'text-emerald-400 font-semibold' : 'text-red-400 font-semibold'}>
                     {alDia ? '✅ Tu inmueble cumple los requisitos para programar mudanza.' : '❌ Debes ponerte al día en administración antes de solicitar mudanza.'}
                   </p>
                 </div>
@@ -1752,6 +1791,7 @@ export default function PortalResidenteView() {
       {/* MODAL DE CERTIFICADOS Y PAZ Y SALVO */}
       {certModalOpen && (
         <CertificadosModal
+          isOpen={true}
           unidad={unidadData}
           tipoInicial={certTipo}
           onClose={() => setCertModalOpen(false)}

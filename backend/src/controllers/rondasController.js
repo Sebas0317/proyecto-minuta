@@ -1,17 +1,15 @@
 'use strict';
 
-const path = require('node:path');
-const { readJsonFile, writeJsonFile } = require('../data/jsonStoreHelper');
+const persistence = require('../data/persistence');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
-const RONDAS_FILE = path.resolve(__dirname, '..', '..', 'rondas.json');
-
 async function getRondasData() {
-  const data = await readJsonFile(RONDAS_FILE);
-  if (!data) {
+  const raw = await persistence.getRondas();
+  if (!raw || typeof raw !== 'object') {
     return { puntosControl: [], registrosRondas: [], historialRondas: [] };
   }
+  const data = { ...raw };
 
   // Asegurar que puntosControl sea array y tenga campos completos
   const rawPuntos = Array.isArray(data.puntosControl) ? data.puntosControl : [];
@@ -26,19 +24,20 @@ async function getRondasData() {
     tag: p.tag || `PT-${idx + 1}`
   }));
 
-  // Asegurar que registrosRondas sea array (con fallback a historialRondas)
-  if (!Array.isArray(data.registrosRondas)) {
-    data.registrosRondas = Array.isArray(data.historialRondas) ? data.historialRondas : [];
-  }
-  if (!Array.isArray(data.historialRondas)) {
-    data.historialRondas = data.registrosRondas;
-  }
+  // Asegurar que registrosRondas e historialRondas sean arrays independientes (sin alias de referencia)
+  const baseRegistros = Array.isArray(data.registrosRondas)
+    ? [...data.registrosRondas]
+    : Array.isArray(data.historialRondas)
+      ? [...data.historialRondas]
+      : [];
+  data.registrosRondas = baseRegistros;
+  data.historialRondas = [...baseRegistros];
 
   return data;
 }
 
 async function saveRondasData(data) {
-  return await writeJsonFile(RONDAS_FILE, data);
+  return await persistence.setRondas(data);
 }
 
 // ── OBTENER PUNTOS DE CONTROL Y REGISTROS ──

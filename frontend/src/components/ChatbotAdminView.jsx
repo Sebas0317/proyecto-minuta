@@ -642,10 +642,19 @@ export default function ChatbotAdminView() {
               </h3>
 
               <div className="space-y-3">
-                {analytics?.categoriasMasConsultadas && Object.keys(analytics.categoriasMasConsultadas).length > 0 ? (
-                  Object.entries(analytics.categoriasMasConsultadas).map(([cat, count]) => {
-                    const total = analytics.totalConsultas || 1;
-                    const pct = ((count / total) * 100).toFixed(1);
+                {(() => {
+                  const cats = analytics?.categoriasMasConsultadas || analytics?.categorias || {};
+                  const entries = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+                  if (entries.length === 0) {
+                    return (
+                      <div className="text-xs text-slate-400 text-center py-6">
+                        Aún no hay suficiente histórico de preguntas. Interactúa con el bot en el simulador para alimentar la analítica.
+                      </div>
+                    );
+                  }
+                  const total = analytics?.totalConsultas || entries.reduce((sum, [, c]) => sum + c, 0) || 1;
+                  return entries.map(([cat, count]) => {
+                    const pct = Math.min(100, (count / total) * 100).toFixed(1);
                     return (
                       <div key={cat} className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold">
@@ -657,12 +666,8 @@ export default function ChatbotAdminView() {
                         </div>
                       </div>
                     );
-                  })
-                ) : (
-                  <div className="text-xs text-slate-400 text-center py-6">
-                    Aún no hay suficiente histórico de preguntas. Interactúa con el bot en el simulador para alimentar la analítica.
-                  </div>
-                )}
+                  });
+                })()}
               </div>
             </div>
 

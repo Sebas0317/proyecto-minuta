@@ -5,22 +5,46 @@ import {
   X,
   Building2,
   QrCode,
-  ShieldCheck,
-  Download,
-  Calendar,
-  User,
-  CheckCircle2
+  ShieldCheck
 } from 'lucide-react';
-import { toast } from 'sonner';
 
-export default function CertificadosModal({ isOpen, onClose, aptoInicial = '101', torreInicial = '1' }) {
-  const [tipo, setTipo] = useState('paz_y_salvo'); // 'paz_y_salvo' | 'trasteo' | 'residencia'
-  const [apto, setApto] = useState(aptoInicial);
-  const [torre, setTorre] = useState(torreInicial);
-  const [nombre, setNombre] = useState('Juan Sebastián Rodríguez');
-  const [cedula, setCedula] = useState('1.020.455.889');
-  const [radicado, setRadicado] = useState(() => 'CERT-' + Math.floor(100000 + Math.random() * 900000));
-  const [fechaExpedicion, setFechaExpedicion] = useState(() => new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }));
+function generateCertCode() {
+  const arr = new Uint32Array(1);
+  if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
+    window.crypto.getRandomValues(arr);
+    return 'CERT-' + (100000 + (arr[0] % 900000));
+  }
+  return 'CERT-' + String(Date.now()).slice(-6);
+}
+
+export default function CertificadosModal({
+  isOpen = true,
+  onClose,
+  unidad = null,
+  tipoInicial = 'paz_y_salvo',
+  aptoInicial,
+  torreInicial
+}) {
+  const defaultApto = unidad?.numero || aptoInicial || '101';
+  const defaultTorre = String(unidad?.torre || torreInicial || '1').replace(/^Torre\s*/i, '');
+  const defaultNombre =
+    (typeof unidad?.propietario === 'object' ? unidad?.propietario?.nombre : unidad?.propietario) ||
+    unidad?.residentes?.[0]?.nombre ||
+    'Propietario Registrado';
+  const defaultCedula =
+    (typeof unidad?.propietario === 'object' ? unidad?.propietario?.documento : '') ||
+    unidad?.documento ||
+    'Registrado en Censo';
+
+  const [tipo, setTipo] = useState(tipoInicial); // 'paz_y_salvo' | 'trasteo' | 'residencia'
+  const [apto, setApto] = useState(defaultApto);
+  const [torre, setTorre] = useState(defaultTorre);
+  const [nombre, setNombre] = useState(defaultNombre);
+  const [cedula, setCedula] = useState(defaultCedula);
+  const [radicado] = useState(generateCertCode);
+  const [fechaExpedicion] = useState(() =>
+    new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
+  );
 
   if (!isOpen) return null;
 

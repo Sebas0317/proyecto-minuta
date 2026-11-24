@@ -18,9 +18,37 @@ function calcular15DiasHabiles(fechaInicio = new Date()) {
   return fecha.toISOString();
 }
 
+function normalizePqrsItem(p) {
+  if (!p || typeof p !== 'object') return p;
+  const fecha = p.fecha || p.fechaRadicado || null;
+  const fechaLimite = p.fechaLimiteRespuesta || p.fechaVencimiento || null;
+  return {
+    ...p,
+    fecha,
+    fechaRadicado: p.fechaRadicado || fecha,
+    fechaLimiteRespuesta: fechaLimite,
+    fechaVencimiento: p.fechaVencimiento || fechaLimite,
+    respuestas: Array.isArray(p.respuestas) ? p.respuestas : [],
+  };
+}
+
+function getNextPqrsRadicado(lista, year = new Date().getFullYear()) {
+  const prefix = `PQR-${year}-`;
+  let maxSeq = 0;
+  for (const item of lista || []) {
+    const rad = String(item?.radicado || '');
+    if (rad.startsWith(prefix)) {
+      const parsed = parseInt(rad.slice(prefix.length), 10);
+      if (!isNaN(parsed) && parsed > maxSeq) maxSeq = parsed;
+    }
+  }
+  return `${prefix}${String(maxSeq + 1).padStart(4, '0')}`;
+}
+
 async function getAllPqrs(req, res) {
   try {
-    const lista = await getPqrs();
+    const raw = await getPqrs();
+    const lista = Array.isArray(raw) ? raw.map(normalizePqrsItem) : [];
     const { estado, tipo, categoria, torre, apto, search } = req.query;
 
     let filtered = [...lista];
@@ -41,7 +69,7 @@ async function getAllPqrs(req, res) {
       filtered = filtered.filter(p => String(p.apto) === String(apto));
     }
     if (search) {
-      const q = search.toLowerCase();
+      const q = String(search).toLowerCase();
       filtered = filtered.filter(p =>
         (p.radicado && p.radicado.toLowerCase().includes(q)) ||
         (p.asunto && p.asunto.toLowerCase().includes(q)) ||
@@ -51,7 +79,7 @@ async function getAllPqrs(req, res) {
       );
     }
 
-    filtered.sort((a, b) => new Date(b.fechaRadicado) - new Date(a.fechaRadicado));
+    filtered.sort((a, b) => new Date(b.fechaRadicado || b.fecha || 0) - new Date(a.fechaRadicado || a.fecha || 0));
     res.json(filtered);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener PQRS');
@@ -61,12 +89,13 @@ async function getAllPqrs(req, res) {
 
 async function getPqrsById(req, res) {
   try {
-    const lista = await getPqrs();
+    const raw = await getPqrs();
+    const lista = Array.isArray(raw) ? raw : [];
     const item = lista.find(p => p.id === req.params.id || p.radicado === req.params.id);
     if (!item) {
       return res.status(404).json({ error: 'PQRS no encontrada' });
     }
-    res.json(item);
+    res.json(normalizePqrsItem(item));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener detalle de PQRS');
     res.status(500).json({ error: 'Error interno' });
@@ -75,16 +104,15 @@ async function getPqrsById(req, res) {
 
 async function createPqrs(req, res) {
   try {
-    const lista = await getPqrs();
+    const raw = await getPqrs();
+    const lista = Array.isArray(raw) ? [...raw] : [];
     const { tipo, categoria, torre, apto, solicitante, telefono, asunto, descripcion, prioridad, email } = req.body;
 
     if (!torre || !apto || !asunto || !descripcion) {
       return res.status(400).json({ error: 'Torre, Apto, Asunto y Descripción son obligatorios' });
     }
 
-    const year = new Date().getFullYear();
-    const num = String(lista.length + 1).padStart(4, '0');
-    const radicado = `PQR-${year}-${num}`;
+    const radicado = getNextPqrsRadicado(lista);
     const fechaActual = new Date().toISOString();
     const fechaLimite = calcular15DiasHabiles(new Date());
 

@@ -8,9 +8,14 @@ import { toast } from 'sonner';
 import { 
   fetchUnidades, fetchAccesos, fetchPaquetes, fetchMinuta, fetchParqueaderos,
   registrarIngreso, registrarSalida, createPaquete, notificarPaquete, entregarPaquete,
-  createMinutaEntry, ocuparParqueadero, liberarParqueadero, aprobarAccesoPreautorizado
+  createMinutaEntry, aprobarAccesoPreautorizado
 } from '../services/api';
 import CertificadosModal from './CertificadosModal';
+
+function getCurrentMonthLabel() {
+  const label = new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
 
 export default function PorteriaDashboard() {
   const [unidades, setUnidades] = useState([]);
@@ -29,6 +34,8 @@ export default function PorteriaDashboard() {
   const [showEntregaModal, setShowEntregaModal] = useState(null);
   const [showReciboModal, setShowReciboModal] = useState(false);
   const [showCertificados, setShowCertificados] = useState(false);
+  const [pinGeneradoModal, setPinGeneradoModal] = useState(null);
+  const [pinCache, setPinCache] = useState({});
   const [tabVisitas, setTabVisitas] = useState('activos');
 
   const [reciboForm, setReciboForm] = useState({
@@ -36,10 +43,10 @@ export default function PorteriaDashboard() {
     apto: '',
     tipoRecibo: 'Acueducto y Alcantarillado (Agua)',
     empresa: 'Empresa de Acueducto',
-    mesFacturado: 'Septiembre 2026',
+    mesFacturado: getCurrentMonthLabel(),
     valorFactura: '',
     destinatario: 'Titular Inmueble'
-  }); // 'activos' | 'salidas'
+  });
 
   const [ingresoForm, setIngresoForm] = useState({
     tipo: 'visitante',
@@ -84,12 +91,12 @@ export default function PorteriaDashboard() {
         fetchMinuta().catch(() => []),
         fetchParqueaderos().catch(() => [])
       ]);
-      setUnidades(uData || []);
-      setAccesos(aData || []);
-      setPaquetes(pData || []);
-      setMinuta(mData || []);
-      setParqueaderos(prqData || []);
-    } catch (err) {
+      setUnidades(Array.isArray(uData) ? uData : []);
+      setAccesos(Array.isArray(aData) ? aData : []);
+      setPaquetes(Array.isArray(pData) ? pData : []);
+      setMinuta(Array.isArray(mData) ? mData : []);
+      setParqueaderos(Array.isArray(prqData) ? prqData : []);
+    } catch {
       toast.error('Error al cargar datos de portería');
     } finally {
       setLoading(false);
@@ -118,7 +125,7 @@ export default function PorteriaDashboard() {
 
   const stats = useMemo(() => {
     const enConjunto = (accesos || []).filter(a => a.estado === 'en_conjunto');
-    const cuposLibres = (parqueaderos || []).filter(p => p.estado === 'disponible').length;
+    const cuposLibres = (parqueaderos || []).filter(p => p.categoria === 'visitantes' && p.estado === 'disponible').length;
     const novedadesHoy = (minuta || []).filter(m => m.fecha && m.fecha.startsWith(new Date().toISOString().slice(0, 10))).length;
     const recibosCriticos = recibosPendientes.filter(r => calcularDiasCasillero(r.fechaIngreso) > 30).length;
 
@@ -135,12 +142,12 @@ export default function PorteriaDashboard() {
   const filteredUnidades = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase().trim();
-    return (unidades || []).filter(u => 
-      u.numero?.toLowerCase().includes(q) ||
-      u.torre?.toLowerCase().includes(q) ||
-      u.propietario?.nombre?.toLowerCase().includes(q) ||
-      u.residentes?.some(r => r.nombre.toLowerCase().includes(q) || r.documento?.includes(q)) ||
-      u.vehiculos?.some(v => v.placa?.toLowerCase().includes(q))
+    return (unidades || []).filter(u =>
+      String(u.numero || '').toLowerCase().includes(q) ||
+      (u.torre || '').toLowerCase().includes(q) ||
+      (u.propietario?.nombre || '').toLowerCase().includes(q) ||
+      u.residentes?.some(r => (r.nombre || '').toLowerCase().includes(q) || String(r.documento || '').includes(q)) ||
+      u.vehiculos?.some(v => (v.placa || '').toLowerCase().includes(q))
     ).slice(0, 8);
   }, [unidades, searchQuery]);
 
@@ -219,15 +226,19 @@ export default function PorteriaDashboard() {
         descripcion: `Factura de ${reciboForm.tipoRecibo} - ${reciboForm.mesFacturado}`,
         codigoRetiro: `REC-${reciboForm.apto}`
       };
-      await createPaquete(payload);
-      toast.success(`Recibo de ${reciboForm.tipoRecibo} para ${reciboForm.torre} Apto ${reciboForm.apto} registrado en casillero`);
+      const created = await createPaquete(payload);
+      if (created?.id && created?.codigoRetiro) {
+        setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
+        setPinGeneradoModal(created);
+      }
+      toast.success(`Recibo de ${reciboForm.tipoRecibo} para ${reciboForm.torre} Apto ${reciboForm.apto} registrado • PIN: ${created?.codigoRetiro || 'Generado'}`);
       setShowReciboModal(false);
       setReciboForm({
         torre: 'Torre 1',
         apto: '',
         tipoRecibo: 'Acueducto y Alcantarillado (Agua)',
         empresa: 'Empresa de Acueducto',
-        mesFacturado: 'Septiembre 2026',
+        mesFacturado: getCurrentMonthLabel(),
         valorFactura: '',
         destinatario: 'Titular Inmueble'
       });
@@ -237,23 +248,23 @@ export default function PorteriaDashboard() {
     }
   };
 
-  const handleEntregarReciboDirecto = async (recibo) => {
-    const quien = window.prompt(`Entregar recibo de ${recibo.tipoRecibo || recibo.empresa} para ${recibo.torre} Apto ${recibo.apto}.\n\n¿Quién retira la factura?:`, 'Residente');
-    if (!quien) return;
-    try {
-      await entregarPaquete(recibo.id, { retiradoPor: quien, codigoRetiro: recibo.codigoRetiro });
-      toast.success(`Recibo entregado a ${quien}`);
-      loadData();
-    } catch (err) {
-      toast.error('Error al entregar recibo');
-    }
+  const handleEntregarReciboDirecto = (recibo) => {
+    setEntregaForm({
+      retiradoPor: recibo.destinatario || 'Residente',
+      codigoRetiro: pinCache[recibo.id] || ''
+    });
+    setShowEntregaModal(recibo);
   };
 
   const handleRegistrarPaquete = async (e) => {
     e.preventDefault();
     try {
-      await createPaquete(paqueteForm);
-      toast.success(`Paquete para ${paqueteForm.torre} - Apto ${paqueteForm.apto} registrado`);
+      const created = await createPaquete(paqueteForm);
+      if (created?.id && created?.codigoRetiro) {
+        setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
+        setPinGeneradoModal(created);
+      }
+      toast.success(`Paquete para ${paqueteForm.torre} - Apto ${paqueteForm.apto} registrado • PIN: ${created?.codigoRetiro || 'Generado'}`);
       setShowPaqueteModal(false);
       setPaqueteForm({
         torre: 'Torre 1',
@@ -270,15 +281,17 @@ export default function PorteriaDashboard() {
   };
 
   const handleNotificarWhatsApp = (paquete) => {
-    const unidad = unidades.find(u => u.torre === paquete.torre && u.numero === paquete.apto);
+    const unidad = unidades.find(u => u.torre === paquete.torre && String(u.numero) === String(paquete.apto));
     const tel = unidad?.residentes?.[0]?.telefono || unidad?.propietario?.telefono;
-    const msg = encodeURIComponent(`Hola, le informamos desde la Portería que ha llegado un paquete a su nombre (${paquete.empresa}, Guía: ${paquete.guia}). Código de retiro: ${paquete.codigoRetiro}. Por favor pasar a reclamarlo.`);
+    const pin = paquete.codigoRetiro || pinCache[paquete.id];
+    const pinText = pin ? `Código PIN de retiro: ${pin}.` : 'Presente su código PIN de retiro en portería.';
+    const msg = encodeURIComponent(`Hola, le informamos desde la Portería que ha llegado correspondencia a su nombre (${paquete.empresa || paquete.tipoRecibo}, Guía: ${paquete.guia || 'S/N'}). ${pinText} Por favor pasar a reclamarlo.`);
     
     if (tel) {
       window.open(`https://wa.me/57${tel.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
-      notificarPaquete(paquete.id).then(() => loadData());
+      notificarPaquete(paquete.id).then(() => loadData()).catch(() => {});
     } else {
-      toast.info(`Código de retiro: ${paquete.codigoRetiro}`);
+      toast.info(pin ? `Código PIN de retiro: ${pin}` : 'Sin teléfono registrado para WhatsApp.');
     }
   };
 
@@ -578,7 +591,7 @@ export default function PorteriaDashboard() {
                     <span className="text-emerald-400 font-bold">✓ Paz y Salvo</span>
                   ) : (
                     <span className="text-red-400 font-bold">
-                      ⚠️ En Mora ({selectedUnidad.estadoFinanciero?.administracion?.mesesMora} meses: ${Number(selectedUnidad.estadoFinanciero?.administracion?.saldoPendiente).toLocaleString('es-CO')})
+                      ⚠️ En Mora ({selectedUnidad.estadoFinanciero?.administracion?.mesesMora || 0} meses: ${Number(selectedUnidad.estadoFinanciero?.administracion?.saldoPendiente || 0).toLocaleString('es-CO')})
                     </span>
                   )}
                 </div>
@@ -850,7 +863,10 @@ export default function PorteriaDashboard() {
                         {p.torre} - Apto {p.apto} • Guía: <strong className="text-slate-300">{p.guia}</strong>
                       </p>
                       <p className="text-[11px] text-amber-400 font-mono font-bold mt-0.5">
-                        PIN Retiro: <strong className="bg-slate-800 px-1.5 py-0.5 rounded text-white border border-slate-700">{p.codigoRetiro}</strong>
+                        PIN Retiro:{' '}
+                        <strong className="bg-slate-800 px-1.5 py-0.5 rounded text-white border border-slate-700">
+                          {pinCache[p.id] || '🔒 Protegido'}
+                        </strong>
                       </p>
                     </div>
                   </div>
@@ -1130,6 +1146,8 @@ export default function PorteriaDashboard() {
                     <option value="Torre 1">Torre 1</option>
                     <option value="Torre 2">Torre 2</option>
                     <option value="Torre 3">Torre 3</option>
+                    <option value="Torre 4">Torre 4</option>
+                    <option value="Torre 5">Torre 5</option>
                   </select>
                 </div>
                 <div>
@@ -1204,7 +1222,7 @@ export default function PorteriaDashboard() {
                       className="w-full mt-1 bg-slate-950 border border-slate-700 text-white px-2.5 py-1.5 rounded-lg text-sm"
                     >
                       <option value="">Sin parqueadero</option>
-                      {parqueaderos.filter(p => p.estado === 'disponible').map(p => (
+                      {parqueaderos.filter(p => p.categoria === 'visitantes' && p.estado === 'disponible').map(p => (
                         <option key={p.id} value={p.id}>{p.id} ({p.tipo})</option>
                       ))}
                     </select>
@@ -1257,6 +1275,8 @@ export default function PorteriaDashboard() {
                     <option value="Torre 1">Torre 1</option>
                     <option value="Torre 2">Torre 2</option>
                     <option value="Torre 3">Torre 3</option>
+                    <option value="Torre 4">Torre 4</option>
+                    <option value="Torre 5">Torre 5</option>
                   </select>
                 </div>
                 <div>
@@ -1369,7 +1389,7 @@ export default function PorteriaDashboard() {
                 <div className="flex items-center justify-between text-xs font-medium text-slate-300 mb-1">
                   <span>Código PIN de Retiro</span>
                   <span className="text-[10px] text-amber-400 font-mono">
-                    {showEntregaModal.codigoRetiro ? `PIN Asignado: ${showEntregaModal.codigoRetiro}` : 'Opcional'}
+                    {pinCache[showEntregaModal.id] ? `PIN Asignado: ${pinCache[showEntregaModal.id]}` : 'Solicitar al residente'}
                   </span>
                 </div>
                 <input
@@ -1523,13 +1543,48 @@ export default function PorteriaDashboard() {
         </div>
       )}
 
+      {/* MODAL PIN GENERADO */}
+      {pinGeneradoModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border-2 border-emerald-500/60 w-full max-w-sm rounded-2xl p-6 shadow-2xl text-center space-y-4">
+            <h3 className="text-base font-black text-white">Código PIN Generado</h3>
+            <p className="text-xs text-slate-400">
+              {pinGeneradoModal.torre} - Apto {pinGeneradoModal.apto} • {pinGeneradoModal.empresa || pinGeneradoModal.tipoRecibo}
+            </p>
+            <div className="bg-slate-950 border border-amber-500/40 rounded-2xl p-4">
+              <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">PIN Único de Retiro</span>
+              <span className="text-4xl font-black font-mono tracking-[0.35em] text-amber-400">
+                {pinGeneradoModal.codigoRetiro}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleNotificarWhatsApp(pinGeneradoModal)}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" /> WhatsApp
+              </button>
+              <button
+                onClick={() => setPinGeneradoModal(null)}
+                className="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-semibold"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL GENERADOR DE PAZ Y SALVO & CERTIFICADOS */}
-      <CertificadosModal
-        isOpen={showCertificados}
-        onClose={() => setShowCertificados(false)}
-        aptoInicial={selectedUnidad?.numero || '101'}
-        torreInicial={selectedUnidad?.torre || '1'}
-      />
+      {showCertificados && (
+        <CertificadosModal
+          isOpen={true}
+          unidad={selectedUnidad}
+          onClose={() => setShowCertificados(false)}
+          aptoInicial={selectedUnidad?.numero || '101'}
+          torreInicial={selectedUnidad?.torre || '1'}
+        />
+      )}
     </div>
   );
 }

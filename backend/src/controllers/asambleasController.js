@@ -131,8 +131,13 @@ async function castVote(req, res) {
       return res.status(400).json({ error: "La opción de voto debe ser 'si', 'no' o 'blanco'" });
     }
 
-    // Identificador único del votante (ID de usuario autenticado, unidadId, apto o fallback de sesión)
-    const votanteId = req.user?.id || req.body.unidadId || req.body.apto || req.body.solicitante || 'unidad-residente';
+    // Identificador único del votante: staff o consultas de unidad explícita pueden indicar unidadId/apto; usuarios regulares quedan ligados a su cuenta
+    const isStaff = req.user && ['owner', 'admin', 'supervisor', 'guarda'].includes(req.user.role);
+    const votanteId =
+      ((!req.user || isStaff) && (unidadId || apto)) ||
+      req.user?.id ||
+      req.body.solicitante ||
+      'unidad-residente';
 
     const list = await getAsambleas();
     const asambleas = Array.isArray(list) ? list : (list.asambleas || []);
@@ -208,10 +213,14 @@ async function closeVotacion(req, res) {
     }
 
     vot.estado = 'cerrada';
+    const si = Number(vot.votosSi) || 0;
+    const no = Number(vot.votosNo) || 0;
+    vot.resultado = si > no ? 'APROBADA' : no > si ? 'RECHAZADA' : 'EMPATE';
     await setAsambleas(asambleas);
 
     logger.info({ asambleaId: id, votacionId: votId }, 'Votación cerrada exitosamente');
     res.json({
+      ...vot,
       message: 'Votación cerrada satisfactoriamente',
       votacion: vot
     });

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  Building2, Search, Plus, User, Phone, Car, 
-  RefreshCw, X, Shield, Users, Edit3, Trash2, Home, AlertTriangle, Clock
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Building2, Search, Plus, User, Car,
+  RefreshCw, X, Edit3, Trash2, Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchUnidades, createUnidad, updateUnidad, deleteUnidad } from '../services/api';
@@ -46,8 +46,8 @@ export default function UnidadesView() {
         torre: filtroTorre || undefined,
         search: searchQuery || undefined
       });
-      setUnidades(data || []);
-    } catch (err) {
+      setUnidades(Array.isArray(data) ? data : []);
+    } catch {
       toast.error('Error al cargar censo');
     } finally {
       setLoading(false);
@@ -166,6 +166,17 @@ export default function UnidadesView() {
     setShowModal(true);
   };
 
+  const handleDelete = async (u) => {
+    if (!window.confirm(`¿Seguro que deseas eliminar la unidad ${u.torre} - Apto ${u.numero}?`)) return;
+    try {
+      await deleteUnidad(u.id);
+      toast.success('Unidad eliminada del censo');
+      loadData();
+    } catch (err) {
+      toast.error(err.message || 'Error al eliminar unidad');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-6 space-y-6">
       {/* HEADER */}
@@ -176,7 +187,7 @@ export default function UnidadesView() {
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
-              Censo Oficial de Inmuebles <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">100 Apartamentos</span>
+              Censo Oficial de Inmuebles <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">{unidades.length} Apartamentos</span>
             </h1>
             <p className="text-slate-400 text-sm">Directorio maestro de propietarios, contratos de arriendo, bahías privadas y administración</p>
           </div>
@@ -279,7 +290,7 @@ export default function UnidadesView() {
                     u.estadoComercial === 'vacio' ? 'bg-slate-700 text-slate-300' :
                     'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                   }`}>
-                    {u.tipoOcupacion === 'arrendatario' ? 'Arrendado' : u.estadoComercial.replace('_', ' ')}
+                    {u.tipoOcupacion === 'arrendatario' ? 'Arrendado' : (u.estadoComercial || u.estado || 'habitado').replace(/_/g, ' ')}
                   </span>
                 </div>
 
@@ -324,7 +335,7 @@ export default function UnidadesView() {
                     <span className="text-slate-400">Administración:</span>
                     {tieneMora ? (
                       <span className="text-red-400 font-bold bg-red-950/60 px-2 py-0.5 rounded border border-red-800 text-[11px]">
-                        ⚠️ Mora: ${Number(u.estadoFinanciero?.administracion?.saldoPendiente).toLocaleString('es-CO')}
+                        ⚠️ Mora: ${Number(u.estadoFinanciero?.administracion?.saldoPendiente || 0).toLocaleString('es-CO')}
                       </span>
                     ) : (
                       <span className="text-emerald-400 font-bold text-[11px]">✓ Paz y Salvo</span>
@@ -334,7 +345,14 @@ export default function UnidadesView() {
               </div>
 
               {/* FOOTER ACCIÓN */}
-              <div className="pt-3 border-t border-slate-700/60 flex justify-end">
+              <div className="pt-3 border-t border-slate-700/60 flex justify-between items-center gap-2">
+                <button
+                  onClick={() => handleDelete(u)}
+                  className="bg-red-950/40 hover:bg-red-600 text-red-400 hover:text-white border border-red-800/60 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1"
+                  title="Eliminar inmueble"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
                 <button
                   onClick={() => handleEdit(u)}
                   className="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5"

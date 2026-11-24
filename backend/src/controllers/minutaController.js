@@ -4,9 +4,21 @@ const { getMinuta, saveMinuta } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
+function normalizeMinutaEntry(m) {
+  if (!m || typeof m !== 'object') return m;
+  return {
+    ...m,
+    titulo: m.titulo || (m.tipo === 'emergencia' ? `Alerta SOS ${m.radicado || ''}`.trim() : m.tipo === 'cambio_turno' ? 'Cambio de Turno' : 'Registro de Novedad'),
+    guarda: m.guarda || m.guardaTurno || 'Guarda de Turno',
+    descripcion: m.descripcion || '',
+    severidad: m.severidad || 'info',
+  };
+}
+
 async function getAllMinuta(req, res) {
   try {
-    const minuta = await getMinuta();
+    const raw = await getMinuta();
+    const minuta = Array.isArray(raw) ? raw.map(normalizeMinutaEntry) : [];
     const { tipo, severidad, search, fecha } = req.query;
 
     let filtered = [...minuta];
@@ -20,20 +32,21 @@ async function getAllMinuta(req, res) {
     }
 
     if (fecha) {
-      filtered = filtered.filter(m => m.fecha.startsWith(fecha));
+      filtered = filtered.filter(m => typeof m.fecha === 'string' && m.fecha.startsWith(fecha));
     }
 
     if (search) {
-      const q = search.toLowerCase();
-      filtered = filtered.filter(m => 
-        m.titulo.toLowerCase().includes(q) ||
-        m.descripcion.toLowerCase().includes(q) ||
-        m.guarda.toLowerCase().includes(q)
+      const q = String(search).toLowerCase();
+      filtered = filtered.filter(m =>
+        (m.titulo || '').toLowerCase().includes(q) ||
+        (m.descripcion || '').toLowerCase().includes(q) ||
+        (m.guarda || m.guardaTurno || '').toLowerCase().includes(q) ||
+        (m.radicado || '').toLowerCase().includes(q)
       );
     }
 
     // Sort newest first
-    filtered.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    filtered.sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
 
     res.json(filtered);
   } catch (err) {
@@ -44,23 +57,27 @@ async function getAllMinuta(req, res) {
 
 async function createMinutaEntry(req, res) {
   try {
-    const minuta = await getMinuta();
-    const { tipo, titulo, descripcion, severidad, unidadId, evidencia, guarda } = req.body;
+    const raw = await getMinuta();
+    const minuta = Array.isArray(raw) ? [...raw] : [];
+    const { tipo, titulo, descripcion, severidad, unidadId, evidencia, guarda, radicado } = req.body;
 
     if (!tipo || !descripcion) {
       return res.status(400).json({ error: 'Tipo y descripción son obligatorios' });
     }
 
+    const guardaName = guarda || req.user?.username || req.user?.firstName || 'Guarda de Turno';
     const nuevaEntrada = {
       id: `min-${Date.now()}-${generateId(4)}`,
       fecha: new Date().toISOString(),
       tipo: tipo || 'general',
       titulo: titulo || (tipo === 'cambio_turno' ? 'Cambio de Turno' : 'Registro de Novedad'),
       descripcion,
-      guarda: guarda || req.user?.username || req.user?.firstName || 'Guarda de Turno',
+      guarda: guardaName,
+      guardaTurno: guardaName,
       severidad: severidad || 'info', // info, advertencia, peligro
       unidadId: unidadId || null,
-      evidencia: evidencia || null
+      evidencia: evidencia || null,
+      ...(radicado ? { radicado } : {})
     };
 
     minuta.unshift(nuevaEntrada);
@@ -76,9 +93,10 @@ async function createMinutaEntry(req, res) {
 
 async function getMinutaStats(req, res) {
   try {
-    const minuta = await getMinuta();
+    const raw = await getMinuta();
+    const minuta = Array.isArray(raw) ? raw : [];
     const hoy = new Date().toISOString().slice(0, 10);
-    const hoyEntradas = minuta.filter(m => m.fecha.startsWith(hoy));
+    const hoyEntradas = minuta.filter(m => typeof m.fecha === 'string' && m.fecha.startsWith(hoy));
 
     const stats = {
       totalHoy: hoyEntradas.length,

@@ -1,18 +1,18 @@
 'use strict';
 
-const path = require('node:path');
-const { readJsonFile, writeJsonFile } = require('../data/jsonStoreHelper');
+const persistence = require('../data/persistence');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
-const RESERVAS_FILE = path.resolve(__dirname, '..', '..', 'reservas_zonas.json');
-
 async function getReservas() {
-  return (await readJsonFile(RESERVAS_FILE)) || [];
+  const raw = await persistence.getReservasZonas();
+  if (Array.isArray(raw)) return [...raw];
+  if (raw && Array.isArray(raw.reservas)) return [...raw.reservas];
+  return [];
 }
 
 async function saveReservas(data) {
-  return await writeJsonFile(RESERVAS_FILE, data);
+  return await persistence.setReservasZonas(data);
 }
 
 // ── OBTENER TODAS LAS RESERVAS ──
@@ -33,6 +33,10 @@ async function createReserva(req, res) {
 
     if (!espacio || !apto || !fechaReserva || !horaInicio || !horaFin) {
       return res.status(400).json({ error: 'Todos los campos de la reserva son obligatorios' });
+    }
+
+    if (horaFin <= horaInicio) {
+      return res.status(400).json({ error: 'La hora de fin debe ser posterior a la hora de inicio' });
     }
 
     const list = await getReservas();

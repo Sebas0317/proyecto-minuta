@@ -75,6 +75,7 @@ export default function MinutaBotWidget() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const recognitionRef = useRef(null);
+  const handleSendRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -100,7 +101,7 @@ export default function MinutaBotWidget() {
         const transcript = event.results[0][0].transcript;
         if (transcript) {
           setInput(transcript);
-          handleSend(transcript);
+          handleSendRef.current?.(transcript);
         }
         setIsListening(false);
       };
@@ -141,7 +142,7 @@ export default function MinutaBotWidget() {
   };
 
   const handleCopy = (id, text) => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard?.writeText(text).catch(() => {});
     setCopiedId(id);
     toast.success('Copiado al portapapeles');
     setTimeout(() => setCopiedId(null), 2000);
@@ -183,7 +184,7 @@ export default function MinutaBotWidget() {
       if (soundEnabled) {
         playChime();
       }
-    } catch (err) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
@@ -197,6 +198,10 @@ export default function MinutaBotWidget() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    handleSendRef.current = handleSend;
+  });
 
   const handleSuggestionClick = (sug) => {
     const clean = sug.replace(/^[\u{1F300}-\u{1FAFF}\s]+/gu, '').trim();
@@ -215,12 +220,22 @@ export default function MinutaBotWidget() {
     ]);
   };
 
+  const escapeHtml = (str) =>
+    String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
   const formatBotText = (txt) => {
-    return txt.split('\n').map((line, idx) => {
-      const formatted = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                            .replace(/```(.*?)```/g, '<code class="bg-slate-900 px-1 py-0.5 rounded text-emerald-400 font-mono text-[11px]">$1</code>')
-                            .replace(/`(.*?)`/g, '<code class="bg-slate-900 px-1 py-0.5 rounded text-emerald-400 font-mono text-[11px]">$1</code>');
+    return String(txt || '').split('\n').map((line, idx) => {
+      const safe = escapeHtml(line);
+      const formatted = safe
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/```(.*?)```/g, '<code class="bg-slate-900 px-1 py-0.5 rounded text-emerald-400 font-mono text-[11px]">$1</code>')
+        .replace(/`(.*?)`/g, '<code class="bg-slate-900 px-1 py-0.5 rounded text-emerald-400 font-mono text-[11px]">$1</code>');
 
       return (
         <p

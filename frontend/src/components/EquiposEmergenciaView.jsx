@@ -29,8 +29,8 @@ export default function EquiposEmergenciaView() {
     try {
       setLoading(true);
       const data = await fetchEquipos();
-      setEquipos(data || []);
-    } catch (e) {
+      setEquipos(Array.isArray(data) ? data : []);
+    } catch {
       toast.error('Error al cargar inventario de equipos');
     } finally {
       setLoading(false);
@@ -50,9 +50,13 @@ export default function EquiposEmergenciaView() {
   const filteredEquipos = useMemo(() => {
     return equipos.filter((e) => {
       const matchTipo = !filtroTipo || e.tipo === filtroTipo;
-      const matchTorre = !filtroTorre || String(e.torre) === String(filtroTorre);
+      const matchTorre = !filtroTorre || String(e.torre || '') === String(filtroTorre);
       const q = searchQuery.toLowerCase();
-      const matchSearch = !q || e.nombre.toLowerCase().includes(q) || e.ubicacion.toLowerCase().includes(q) || (e.agente || '').toLowerCase().includes(q);
+      const matchSearch =
+        !q ||
+        (e.nombre || '').toLowerCase().includes(q) ||
+        (e.ubicacion || '').toLowerCase().includes(q) ||
+        (e.agente || '').toLowerCase().includes(q);
       return matchTipo && matchTorre && matchSearch;
     });
   }, [equipos, filtroTipo, filtroTorre, searchQuery]);
@@ -65,26 +69,39 @@ export default function EquiposEmergenciaView() {
       await createEquipo(form);
       toast.success('Equipo de emergencia registrado en inventario');
       setShowModal(false);
+      setForm({
+        tipo: 'extintor',
+        nombre: '',
+        ubicacion: '',
+        torre: '1',
+        piso: 1,
+        capacidad: '20 Lbs',
+        agente: 'Polvo Químico Seco (PQS)',
+        fechaRecarga: new Date().toISOString().split('T')[0],
+        fechaVencimiento: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().split('T')[0],
+        observaciones: ''
+      });
       loadData();
     } catch (err) {
-      toast.error('Error al registrar equipo');
+      toast.error(err.message || 'Error al registrar equipo');
     }
   };
 
   const handleExportCSV = () => {
     if (!equipos.length) return toast.info('No hay equipos para exportar');
+    const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const headers = ['ID', 'Tipo', 'Nombre', 'Ubicación', 'Torre', 'Piso', 'Capacidad', 'Agente', 'Última Recarga', 'Vencimiento', 'Días Restantes'];
     const rows = equipos.map(e => [
       e.id,
       e.tipo,
-      '"' + e.nombre + '"',
-      '"' + e.ubicacion + '"',
-      e.torre,
+      esc(e.nombre),
+      esc(e.ubicacion),
+      esc(e.torre),
       e.piso,
-      e.capacidad,
-      '"' + (e.agente || '') + '"',
-      e.fechaRecarga,
-      e.fechaVencimiento,
+      esc(e.capacidad),
+      esc(e.agente),
+      e.fechaRecarga || '',
+      e.fechaVencimiento || '',
       calcularDias(e.fechaVencimiento)
     ]);
     const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
@@ -195,7 +212,7 @@ export default function EquiposEmergenciaView() {
             <thead className="bg-slate-900/90 text-[11px] uppercase text-slate-400 font-bold border-b border-slate-700">
               <tr>
                 <th className="p-4">Equipo / Tipo</th>
-                <th className="p-4">Ubicación Fisiológica</th>
+                <th className="p-4">Ubicación Física</th>
                 <th className="p-4">Agente & Capacidad</th>
                 <th className="p-4">Última Recarga</th>
                 <th className="p-4">Vencimiento</th>
@@ -203,7 +220,14 @@ export default function EquiposEmergenciaView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/60">
-              {filteredEquipos.map((eq) => {
+              {filteredEquipos.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-10 text-center text-slate-500">
+                    No se encontraron equipos con los filtros seleccionados.
+                  </td>
+                </tr>
+              ) : (
+              filteredEquipos.map((eq) => {
                 const dias = calcularDias(eq.fechaVencimiento);
                 const esVencido = dias <= 0;
                 const esPorVencer = dias > 0 && dias <= 30;
@@ -245,7 +269,8 @@ export default function EquiposEmergenciaView() {
                     </td>
                   </tr>
                 );
-              })}
+              })
+              )}
             </tbody>
           </table>
         </div>

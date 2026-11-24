@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion as Motion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowLeft,
@@ -27,7 +27,7 @@ import BrandTitle from './BrandTitle';
 function AnimatedBackground() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
-      <motion.div
+      <Motion.div
         className="absolute inset-0 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900"
         animate={{
           background: [
@@ -42,7 +42,7 @@ function AnimatedBackground() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(16,185,129,0.15)_0%,_transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(52,211,153,0.1)_0%,_transparent_50%)]" />
       {[...Array(3)].map((_, i) => (
-        <motion.div
+        <Motion.div
           key={i}
           className="absolute rounded-full blur-3xl opacity-20"
           style={{
@@ -71,7 +71,7 @@ function AnimatedBackground() {
 
 function GlassCard({ children, className = '' }) {
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 30, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
@@ -81,7 +81,7 @@ function GlassCard({ children, className = '' }) {
       <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-400/5 rounded-full blur-3xl pointer-events-none" />
       {children}
-    </motion.div>
+    </Motion.div>
   );
 }
 
@@ -101,13 +101,13 @@ function AnimatedInput({
   return (
     <div>
       {label && (
-        <motion.label
+        <Motion.label
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           className="block text-xs font-medium text-white/50 mb-1.5 tracking-wide"
         >
           {label}
-        </motion.label>
+        </Motion.label>
       )}
       <div className="relative group">
         {Icon && (
@@ -143,7 +143,7 @@ function AnimatedInput({
 
 function AnimatedButton({ onClick, disabled, loading, icon: Icon, children }) {
   return (
-    <motion.button
+    <Motion.button
       onClick={onClick}
       disabled={disabled}
       whileHover={
@@ -174,7 +174,7 @@ function AnimatedButton({ onClick, disabled, loading, icon: Icon, children }) {
           <span className="relative z-10">{children}</span>
         </>
       )}
-    </motion.button>
+    </Motion.button>
   );
 }
 
@@ -182,7 +182,7 @@ function AnimatedButton({ onClick, disabled, loading, icon: Icon, children }) {
 
 function AnimatedLink({ onClick, icon: Icon, children, color = 'white/50' }) {
   return (
-    <motion.button
+    <Motion.button
       onClick={onClick}
       whileHover={{ x: 3 }}
       className={`relative text-sm hover:text-white/80 transition-colors duration-200 flex items-center gap-1 group ${color === 'emerald-400' ? 'text-emerald-400' : 'text-white/50'}`}
@@ -190,7 +190,7 @@ function AnimatedLink({ onClick, icon: Icon, children, color = 'white/50' }) {
       {Icon && <Icon className="w-3.5 h-3.5" />}
       <span>{children}</span>
       <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-emerald-400/50 transition-all duration-300 group-hover:w-full" />
-    </motion.button>
+    </Motion.button>
   );
 }
 
@@ -198,7 +198,7 @@ function AnimatedLink({ onClick, icon: Icon, children, color = 'white/50' }) {
 
 function ErrorBanner({ message }) {
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: -10, height: 0 }}
       animate={{ opacity: 1, y: 0, height: 'auto' }}
       exit={{ opacity: 0, y: -10, height: 0 }}
@@ -206,7 +206,7 @@ function ErrorBanner({ message }) {
     >
       <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-300" />
       <span>{message}</span>
-    </motion.div>
+    </Motion.div>
   );
 }
 
@@ -235,7 +235,7 @@ function RoleCards({ onSelectAdmin, onSelectUser }) {
     <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
       <AnimatedBackground />
 
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
@@ -245,21 +245,21 @@ function RoleCards({ onSelectAdmin, onSelectUser }) {
           <div className="text-center mb-8">
             <BrandTitle variant="login" />
           </div>
-          <motion.p
+          <Motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
             className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40 mb-6 text-center"
           >
             Sistema de Gestion
-          </motion.p>
-          <motion.div
+          </Motion.p>
+          <Motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
             className="flex flex-col gap-3"
           >
-            <motion.button
+            <Motion.button
               variants={itemVariants}
               whileHover={{ scale: 1.01, y: -2 }}
               whileTap={{ scale: 0.99 }}
@@ -276,8 +276,8 @@ function RoleCards({ onSelectAdmin, onSelectUser }) {
               <span className="relative block text-xs sm:text-sm text-white/50 group-hover:text-white/70 transition-colors leading-relaxed">
                 Supervisión & Guardia de Seguridad — Minuta digital, control de accesos, paquetería, bahías de parqueadero, rondas y auditoría
               </span>
-            </motion.button>
-            <motion.button
+            </Motion.button>
+            <Motion.button
               variants={itemVariants}
               whileHover={{ scale: 1.01, y: -2 }}
               whileTap={{ scale: 0.99 }}
@@ -294,18 +294,18 @@ function RoleCards({ onSelectAdmin, onSelectUser }) {
               <span className="relative block text-xs sm:text-sm text-purple-200/60 group-hover:text-purple-200/80 transition-colors leading-relaxed">
                 Autogestión de Inmuebles — Paquetes con PIN, pre-autorizar visitas con Pase QR, reservas de zonas, MinutaBot IA, asambleas y paz y salvo
               </span>
-            </motion.button>
-          </motion.div>
-          <motion.p
+            </Motion.button>
+          </Motion.div>
+          <Motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
             className="text-xs text-white/30 text-center mt-6"
           >
             Sistema Integral de Portería y Vigilancia Residencial
-          </motion.p>
+          </Motion.p>
         </GlassCard>
-      </motion.div>
+      </Motion.div>
     </div>
   );
 }
@@ -354,6 +354,15 @@ function AdminLogin({ onBack, onRole }) {
     if (!password.trim()) return setError('Ingresa una contrasena');
     if (password.length < 8)
       return setError('La contrasena debe tener al menos 8 caracteres');
+    if (
+      !/[A-Z]/.test(password) ||
+      !/[a-z]/.test(password) ||
+      !/[0-9]/.test(password) ||
+      !/[^A-Za-z0-9]/.test(password)
+    )
+      return setError(
+        'La contrasena debe incluir mayuscula, minuscula, numero y caracter especial'
+      );
     if (password !== confirmPassword)
       return setError('Las contrasenas no coinciden');
 
@@ -379,21 +388,21 @@ function AdminLogin({ onBack, onRole }) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <AnimatedBackground />
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-[520px] w-full"
         >
           <GlassCard className="p-8 sm:p-10 text-center">
-            <motion.div
+            <Motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 200, damping: 15 }}
               className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4"
             >
               <CheckCircle className="w-8 h-8 text-emerald-400" />
-            </motion.div>
+            </Motion.div>
             <h2 className="text-xl font-bold text-white mb-2">
               Registro exitoso
             </h2>
@@ -412,7 +421,7 @@ function AdminLogin({ onBack, onRole }) {
               Ir a iniciar sesion
             </AnimatedButton>
           </GlassCard>
-        </motion.div>
+        </Motion.div>
       </div>
     );
   }
@@ -420,7 +429,7 @@ function AdminLogin({ onBack, onRole }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <AnimatedBackground />
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
@@ -433,21 +442,21 @@ function AdminLogin({ onBack, onRole }) {
 
           <AnimatePresence mode="wait">
             {mode === 'login' ? (
-              <motion.div
+              <Motion.div
                 key="login"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
                 exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
               >
-                <motion.p
+                <Motion.p
                   variants={itemVariants}
                   className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40 mb-6 text-center"
                 >
                   Inicio de sesion
-                </motion.p>
+                </Motion.p>
 
-                <motion.div variants={itemVariants} className="space-y-4">
+                <Motion.div variants={itemVariants} className="space-y-4">
                   <AnimatedInput
                     icon={Mail}
                     value={identifier}
@@ -484,21 +493,21 @@ function AdminLogin({ onBack, onRole }) {
                       </button>
                     }
                   />
-                </motion.div>
+                </Motion.div>
 
                 <AnimatePresence>
                   {error && (
-                    <motion.div
+                    <Motion.div
                       initial={{ opacity: 0, y: -10, height: 0 }}
                       animate={{ opacity: 1, y: 0, height: 'auto' }}
                       exit={{ opacity: 0, y: -10, height: 0 }}
                     >
                       <ErrorBanner message={error} />
-                    </motion.div>
+                    </Motion.div>
                   )}
                 </AnimatePresence>
 
-                <motion.div variants={itemVariants} className="mt-6">
+                <Motion.div variants={itemVariants} className="mt-6">
                   <AnimatedButton
                     onClick={handleLogin}
                     disabled={loading}
@@ -507,9 +516,9 @@ function AdminLogin({ onBack, onRole }) {
                   >
                     {loading ? 'Autenticando...' : 'Iniciar sesion'}
                   </AnimatedButton>
-                </motion.div>
+                </Motion.div>
 
-                <motion.div
+                <Motion.div
                   variants={itemVariants}
                   className="mt-4 flex flex-col items-center gap-3"
                 >
@@ -525,24 +534,24 @@ function AdminLogin({ onBack, onRole }) {
                   >
                     Crear nueva cuenta
                   </AnimatedLink>
-                </motion.div>
-              </motion.div>
+                </Motion.div>
+              </Motion.div>
             ) : (
-              <motion.div
+              <Motion.div
                 key="register"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
                 exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
               >
-                <motion.p
+                <Motion.p
                   variants={itemVariants}
                   className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40 mb-6 text-center"
                 >
                   Crear cuenta nueva
-                </motion.p>
+                </Motion.p>
 
-                <motion.div variants={itemVariants} className="space-y-3">
+                <Motion.div variants={itemVariants} className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <AnimatedInput
                       value={firstName}
@@ -613,21 +622,21 @@ function AdminLogin({ onBack, onRole }) {
                     placeholder="Repite la contrasena"
                     label="Confirmar contrasena"
                   />
-                </motion.div>
+                </Motion.div>
 
                 <AnimatePresence>
                   {error && (
-                    <motion.div
+                    <Motion.div
                       initial={{ opacity: 0, y: -10, height: 0 }}
                       animate={{ opacity: 1, y: 0, height: 'auto' }}
                       exit={{ opacity: 0, y: -10, height: 0 }}
                     >
                       <ErrorBanner message={error} />
-                    </motion.div>
+                    </Motion.div>
                   )}
                 </AnimatePresence>
 
-                <motion.div variants={itemVariants} className="mt-6">
+                <Motion.div variants={itemVariants} className="mt-6">
                   <AnimatedButton
                     onClick={handleRegister}
                     disabled={loading}
@@ -636,37 +645,37 @@ function AdminLogin({ onBack, onRole }) {
                   >
                     {loading ? 'Creando cuenta...' : 'Crear cuenta'}
                   </AnimatedButton>
-                </motion.div>
+                </Motion.div>
 
-                <motion.div
+                <Motion.div
                   variants={itemVariants}
                   className="mt-4 text-center"
                 >
                   <AnimatedLink onClick={switchMode} icon={ArrowLeft}>
                     Ya tengo cuenta
                   </AnimatedLink>
-                </motion.div>
-              </motion.div>
+                </Motion.div>
+              </Motion.div>
             )}
           </AnimatePresence>
 
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
             className="mt-6 pt-4 border-t border-white/5"
           >
-            <motion.button
+            <Motion.button
               onClick={onBack}
               whileHover={{ x: -3 }}
               className="w-full py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 text-white/30 hover:text-white/60 hover:bg-white/[0.03] transition-all duration-300"
             >
               <ArrowLeft className="w-4 h-4" />
               Volver a seleccion de rol
-            </motion.button>
-          </motion.div>
+            </Motion.button>
+          </Motion.div>
         </GlassCard>
-      </motion.div>
+      </Motion.div>
     </div>
   );
 }

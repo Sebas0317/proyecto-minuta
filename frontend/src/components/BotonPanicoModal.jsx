@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
-import { AlertOctagon, Phone, ShieldAlert, Siren, Flame, HeartPulse, UserX, X, CheckCircle } from 'lucide-react';
+import { AlertOctagon, ShieldAlert, Siren, Flame, HeartPulse, X, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { createMinutaEntry } from '../services/api';
+
+function generateSosCode() {
+  const arr = new Uint32Array(1);
+  if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
+    window.crypto.getRandomValues(arr);
+    return 'SOS-' + (1000 + (arr[0] % 9000));
+  }
+  return 'SOS-' + String(Date.now()).slice(-4);
+}
 
 export default function BotonPanicoModal({ isOpen, onClose }) {
   const [activando, setActivando] = useState(false);
@@ -12,11 +21,17 @@ export default function BotonPanicoModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  const handleClose = () => {
+    setAlertaEnviada(null);
+    setDetalles('');
+    onClose?.();
+  };
+
   const handleActivarSOS = async (e) => {
     e.preventDefault();
     setActivando(true);
     try {
-      const radicado = 'SOS-' + Math.floor(1000 + Math.random() * 9000);
+      const radicado = generateSosCode();
       await createMinutaEntry({
         tipo: 'emergencia',
         titulo: '🚨 ALERTA SOS ACTIVADA: ' + tipoEmergencia.toUpperCase(),
@@ -26,7 +41,7 @@ export default function BotonPanicoModal({ isOpen, onClose }) {
       });
       setAlertaEnviada(radicado);
       toast.error('🚨 ¡ALERTA DE EMERGENCIA ASENTADA EN MINUTA OFICIAL!');
-    } catch (err) {
+    } catch {
       toast.error('Error al emitir alerta');
     } finally {
       setActivando(false);
@@ -48,7 +63,7 @@ export default function BotonPanicoModal({ isOpen, onClose }) {
               <p className="text-xs text-red-300">Protocolo de Asistencia Rápida y Notificación Inmediata</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1 rounded-lg">
+          <button onClick={handleClose} className="text-slate-400 hover:text-white p-1 rounded-lg">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -84,7 +99,7 @@ export default function BotonPanicoModal({ isOpen, onClose }) {
               Radicado de Emergencia: <strong className="font-mono text-white">#{alertaEnviada}</strong>.
             </p>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all"
             >
               Entendido / Cerrar
@@ -132,7 +147,7 @@ export default function BotonPanicoModal({ isOpen, onClose }) {
             <div className="flex gap-2 pt-2">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={handleClose}
                 className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl text-xs font-bold"
               >
                 Cancelar

@@ -70,7 +70,7 @@ async function getAllUnidades(req, res) {
     let filtered = [...unidades];
 
     if (torre) {
-      filtered = filtered.filter(u => u.torre.toLowerCase() === torre.toLowerCase());
+      filtered = filtered.filter(u => (u.torre || '').toLowerCase() === String(torre).toLowerCase());
     }
 
     if (estado) {
@@ -88,7 +88,7 @@ async function getAllUnidades(req, res) {
       );
     }
 
-    const isStaff = req.user && ['admin', 'guarda', 'superadmin', 'auditor'].includes(req.user.role);
+    const isStaff = req.user && ['owner', 'admin', 'supervisor', 'guarda', 'superadmin', 'auditor'].includes(req.user.role);
     const sanitized = filtered.map(u => serializeUnidad(u, isStaff));
 
     res.json(sanitized);
@@ -108,7 +108,7 @@ async function getUnidadById(req, res) {
       return res.status(404).json({ error: 'Unidad no encontrada' });
     }
 
-    const isStaff = req.user && ['admin', 'guarda', 'superadmin', 'auditor'].includes(req.user.role);
+    const isStaff = req.user && ['owner', 'admin', 'supervisor', 'guarda', 'superadmin', 'auditor'].includes(req.user.role);
     res.json(serializeUnidad(unidad, isStaff));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener unidad');
@@ -254,7 +254,7 @@ async function getUnidadPortalData(req, res) {
       return res.status(404).json({ error: 'Inmueble no encontrado en el condominio' });
     }
 
-    const isStaff = req.user && ['admin', 'guarda', 'superadmin', 'auditor'].includes(req.user.role);
+    const isStaff = req.user && ['owner', 'admin', 'supervisor', 'guarda', 'superadmin', 'auditor'].includes(req.user.role);
     res.json(serializeUnidad(unidad, isStaff));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al consultar portal de unidad');

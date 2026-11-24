@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  AlertTriangle, Shield, Clock, Plus, Filter, Search, 
-  CheckCircle, FileText, Download, User, Calendar, RefreshCw, X
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Clock, Plus, Search, FileText, Download, User, RefreshCw, X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchMinuta, createMinutaEntry } from '../services/api';
@@ -30,8 +29,8 @@ export default function MinutaView() {
         severidad: filtroSeveridad || undefined,
         search: searchQuery || undefined
       });
-      setMinuta(data || []);
-    } catch (err) {
+      setMinuta(Array.isArray(data) ? data : []);
+    } catch {
       toast.error('Error al cargar minuta de novedades');
     } finally {
       setLoading(false);
@@ -76,11 +75,16 @@ export default function MinutaView() {
     const tipos = {
       cambio_turno: '🔄 Cambio de Turno',
       ronda: '🚶 Ronda de Seguridad',
+      recorrido: '🚶 Recorrido Perimetral',
       incidente: '🚨 Incidente / Alarma',
+      emergencia: '🚨 Emergencia / SOS',
+      urgente: '🔴 Novedad Urgente',
+      acceso: '🪪 Control de Acceso',
       mantenimiento: '🔧 Mantenimiento / Daño',
+      novedad: '📝 Novedad',
       general: '📝 Novedad General'
     };
-    return tipos[tipo] || tipo;
+    return tipos[tipo] || tipo || '📝 Novedad';
   };
   const handleExportCSV = () => {
     if (!minuta.length) {
@@ -90,11 +94,11 @@ export default function MinutaView() {
     const headers = ['ID', 'Fecha y Hora', 'Tipo', 'Título', 'Severidad', 'Guardia', 'Descripción'];
     const rows = minuta.map(m => [
       m.id,
-      new Date(m.fecha || m.timestamp).toLocaleString('es-CO'),
+      m.fecha || m.timestamp ? new Date(m.fecha || m.timestamp).toLocaleString('es-CO') : '',
       `"${getTipoLabel(m.tipo)}"`,
-      `"${(m.titulo || '').replace(/"/g, '""')}"`,
+      `"${(m.titulo || getTipoLabel(m.tipo)).replace(/"/g, '""')}"`,
       m.severidad || 'info',
-      `"${m.guarda || m.guardiaNombre || 'Guardia'}"`,
+      `"${m.guarda || m.guardaTurno || m.guardiaNombre || 'Guarda de Turno'}"`,
       `"${(m.descripcion || '').replace(/"/g, '""')}"`
     ]);
     const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
@@ -170,7 +174,9 @@ export default function MinutaView() {
             <option value="">Todos los Tipos</option>
             <option value="cambio_turno">Cambio de Turno</option>
             <option value="ronda">Rondas</option>
+            <option value="acceso">Control de Accesos</option>
             <option value="incidente">Incidentes</option>
+            <option value="emergencia">Emergencia / SOS</option>
             <option value="mantenimiento">Mantenimiento</option>
             <option value="general">General</option>
           </select>
@@ -210,13 +216,13 @@ export default function MinutaView() {
                       <span className="text-xs font-bold text-slate-300 bg-slate-800 px-2.5 py-1 rounded-lg">
                         {getTipoLabel(item.tipo)}
                       </span>
-                      <h3 className="font-bold text-white text-base">{item.titulo}</h3>
+                      <h3 className="font-bold text-white text-base">{item.titulo || getTipoLabel(item.tipo)}</h3>
                     </div>
                     <div className="flex items-center gap-3">
                       {getSeveridadBadge(item.severidad)}
                       <span className="text-xs text-slate-400 flex items-center gap-1 font-mono">
                         <Clock className="w-3.5 h-3.5" />
-                        {new Date(item.fecha).toLocaleString('es-CO')}
+                        {item.fecha ? new Date(item.fecha).toLocaleString('es-CO') : 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -227,7 +233,7 @@ export default function MinutaView() {
 
                   <div className="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800/60">
                     <span className="flex items-center gap-1.5 text-slate-400">
-                      <User className="w-3.5 h-3.5 text-amber-400" /> Guarda Responsable: <strong className="text-slate-200">{item.guarda}</strong>
+                      <User className="w-3.5 h-3.5 text-amber-400" /> Guarda Responsable: <strong className="text-slate-200">{item.guarda || item.guardaTurno || 'Guarda de Turno'}</strong>
                     </span>
                     <span className="font-mono text-[11px]">ID: {item.id}</span>
                   </div>

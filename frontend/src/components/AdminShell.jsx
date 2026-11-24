@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Shield,
@@ -33,7 +33,6 @@ import {
 } from 'lucide-react';
 import {
   downloadLoginLogsCSV,
-  fetchLastLogin,
   fetchLoginLogs,
 } from '../services/api';
 import BotonPanicoModal from './BotonPanicoModal';
@@ -160,7 +159,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
     if (opening && logs.length === 0) {
       setLogsLoading(true);
       fetchLoginLogs(50)
-        .then((data) => setLogs(data || []))
+        .then((data) => setLogs(Array.isArray(data) ? data : []))
         .catch(() => {})
         .finally(() => setLogsLoading(false));
     }
@@ -333,6 +332,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
                  activeView === 'trasteos' ? 'Mudanzas' :
                  activeView === 'reservas' ? 'Reserva de Zonas' :
                  activeView === 'asambleas' ? 'Asambleas & Votaciones' :
+                 activeView === 'pqrs' ? 'PQRS & Radicados' :
                  activeView === 'equipos' ? 'Extintores & Equipos' :
                  activeView === 'mascotas' ? 'Censo de Mascotas' :
                  activeView === 'unidades' ? 'Censo Inmuebles' :

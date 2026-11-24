@@ -1,12 +1,14 @@
 'use strict';
 
+const crypto = require('node:crypto');
 const { getAccesos, saveAccesos, getParqueaderos, saveParqueaderos, getMinuta, saveMinuta } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
 async function getAllAccesos(req, res) {
   try {
-    const accesos = await getAccesos();
+    const raw = await getAccesos();
+    const accesos = Array.isArray(raw) ? raw : [];
     const { estado, tipo, search, torre, apto } = req.query;
 
     let filtered = [...accesos];
@@ -20,25 +22,25 @@ async function getAllAccesos(req, res) {
     }
 
     if (torre) {
-      filtered = filtered.filter(a => a.torre?.toLowerCase() === torre.toLowerCase());
+      filtered = filtered.filter(a => (a.torre || '').toLowerCase() === String(torre).toLowerCase());
     }
 
     if (apto) {
-      filtered = filtered.filter(a => a.apto === apto);
+      filtered = filtered.filter(a => String(a.apto) === String(apto));
     }
 
     if (search) {
-      const q = search.toLowerCase();
+      const q = String(search).toLowerCase();
       filtered = filtered.filter(a =>
-        a.nombre.toLowerCase().includes(q) ||
-        a.documento?.includes(q) ||
-        a.vehiculo?.placa?.toLowerCase().includes(q) ||
-        a.autorizadoPor?.toLowerCase().includes(q) ||
-        a.motivo?.toLowerCase().includes(q)
+        (a.nombre || '').toLowerCase().includes(q) ||
+        String(a.documento || '').includes(q) ||
+        (a.vehiculo?.placa || '').toLowerCase().includes(q) ||
+        (a.autorizadoPor || '').toLowerCase().includes(q) ||
+        (a.motivo || '').toLowerCase().includes(q)
       );
     }
 
-    filtered.sort((a, b) => new Date(b.fechaIngreso) - new Date(a.fechaIngreso));
+    filtered.sort((a, b) => new Date(b.fechaIngreso || b.fechaCreacion || 0) - new Date(a.fechaIngreso || a.fechaCreacion || 0));
     res.json(filtered);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener accesos');
@@ -196,16 +198,16 @@ async function preautorizarIngreso(req, res) {
       return res.status(400).json({ error: 'Nombre de la visita, Torre y Apartamento son obligatorios' });
     }
 
-    const paseQR = 'PASS-' + Math.floor(1000 + Math.random() * 9000);
+    const paseQR = 'PASS-' + crypto.randomInt(1000, 10000);
 
     const nuevaPreautorizacion = {
       id: `acc-pre-${Date.now()}-${generateId(4)}`,
       tipo: tipo || 'visitante', // visitante, familiar, domicilio, contratista, tecnico
       nombre,
       documento: documento || 'Por verificar en portería',
-      unidadId: unidadId || `${torre.toLowerCase().replace(/\s+/g, '')}-${apto}`,
+      unidadId: unidadId || `${String(torre).toLowerCase().replace(/\s+/g, '')}-${apto}`,
       torre,
-      apto,
+      apto: String(apto),
       motivo: motivo || 'Visita autorizada por residente',
       vehiculo: vehiculo || { tipo: 'peatonal', placa: null },
       autorizadoPor: `Residente Apto ${apto}`,
@@ -256,7 +258,10 @@ async function getPreautorizadosByUnidad(req, res) {
     const { apto } = req.query;
 
     const list = (accesos || []).filter(a => {
-      const matchUnidad = a.unidadId === unidadId || a.apto === unidadId || (apto && a.apto === apto);
+      const matchUnidad =
+        a.unidadId === unidadId ||
+        String(a.apto) === String(unidadId) ||
+        (apto && String(a.apto) === String(apto));
       return matchUnidad;
     });
 

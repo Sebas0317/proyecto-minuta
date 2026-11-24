@@ -5,7 +5,7 @@ const crypto = require('node:crypto');
 const persistence = require('./persistence');
 const logger = require('../utils/logger');
 
-const ROLES = ['owner', 'admin', 'operator', 'analyst', 'cliente'];
+const ROLES = ['owner', 'admin', 'supervisor', 'guarda', 'operator', 'analyst', 'cliente'];
 
 // Write lock to serialize read-modify-write cycles (C27, C28)
 const userWriteLocks = new Map();
@@ -56,6 +56,11 @@ async function createUser({
   lastName,
   role = 'cliente',
   isActive = true,
+  documento = '',
+  telefono = '',
+  turno = '',
+  puesto = '',
+  diasLaborales = '',
 }) {
   return withUserLock('_create', async () => {
     const users = await getUsers();
@@ -82,6 +87,11 @@ async function createUser({
       passwordHash,
       firstName: firstName || '',
       lastName: lastName || '',
+      documento: documento || '',
+      telefono: telefono || '',
+      turno: turno || '',
+      puesto: puesto || '',
+      diasLaborales: diasLaborales || '',
       avatar: null,
       role,
       isActive,
@@ -110,6 +120,11 @@ async function updateUser(id, updates) {
     const allowed = [
       'firstName',
       'lastName',
+      'documento',
+      'telefono',
+      'turno',
+      'puesto',
+      'diasLaborales',
       'avatar',
       'role',
       'isActive',

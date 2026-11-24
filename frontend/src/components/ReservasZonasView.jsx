@@ -3,30 +3,21 @@ import {
   Calendar as CalendarIcon,
   Clock,
   Plus,
-  Search,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
   RefreshCw,
-  Building2,
   Phone,
   User,
-  DollarSign,
-  ShieldAlert,
-  ChevronLeft,
-  ChevronRight,
   X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchReservasZonas, createReservaZona, updateEstadoReservaZona } from '../services/api';
 
 const ESPACIOS = [
-  { id: 'todos', nombre: 'Todas las Zonas' },
-  { id: 'cancha_f5', nombre: '⚽ Cancha Sintética Fútbol 5', capacidad: '10 jugadores', deposito: 0, horario: '08:00 AM - 10:00 PM' },
-  { id: 'cancha_mult', nombre: '🏀 Cancha Múltiple', capacidad: '15 personas', deposito: 0, horario: '08:00 AM - 09:00 PM' },
-  { id: 'salon_social', nombre: '🎉 Salón Social de Eventos', capacidad: '120 personas', deposito: 200000, horario: '10:00 AM - 02:00 AM' },
-  { id: 'bbq_1', nombre: '🍖 Zona BBQ & Asador 1', capacidad: '20 personas', deposito: 50000, horario: '11:00 AM - 09:00 PM' },
-  { id: 'bbq_2', nombre: '🍖 Zona BBQ & Asador 2', capacidad: '20 personas', deposito: 50000, horario: '11:00 AM - 09:00 PM' },
+  { id: 'todos', nombre: 'Todas las Zonas', keywords: [] },
+  { id: 'cancha_f5', nombre: '⚽ Cancha Sintética Fútbol 5', keywords: ['fútbol 5', 'futbol 5', 'f5', 'sintética', 'sintetica'], capacidad: '10 jugadores', deposito: 0, horario: '08:00 AM - 10:00 PM' },
+  { id: 'cancha_mult', nombre: '🏀 Cancha Múltiple', keywords: ['múltiple', 'multiple'], capacidad: '15 personas', deposito: 0, horario: '08:00 AM - 09:00 PM' },
+  { id: 'salon_social', nombre: '🎉 Salón Social de Eventos', keywords: ['salón social', 'salon social'], capacidad: '120 personas', deposito: 200000, horario: '10:00 AM - 02:00 AM' },
+  { id: 'bbq_1', nombre: '🍖 Zona BBQ & Asador 1', keywords: ['asador 1', 'bbq #1', 'bbq 1'], capacidad: '20 personas', deposito: 50000, horario: '11:00 AM - 09:00 PM' },
+  { id: 'bbq_2', nombre: '🍖 Zona BBQ & Asador 2', keywords: ['asador 2', 'bbq #2', 'bbq 2'], capacidad: '20 personas', deposito: 50000, horario: '11:00 AM - 09:00 PM' },
 ];
 
 export default function ReservasZonasView() {
@@ -54,8 +45,8 @@ export default function ReservasZonasView() {
     try {
       setLoading(true);
       const res = await fetchReservasZonas();
-      setReservas(res || []);
-    } catch (e) {
+      setReservas(Array.isArray(res) ? res : []);
+    } catch {
       toast.error('Error al cargar reservas de zonas comunes');
     } finally {
       setLoading(false);
@@ -70,6 +61,10 @@ export default function ReservasZonasView() {
     e.preventDefault();
     if (!form.apto || !form.fechaReserva || !form.horaInicio || !form.horaFin) {
       toast.error('Por favor completa los campos obligatorios');
+      return;
+    }
+    if (form.horaFin <= form.horaInicio) {
+      toast.error('La hora de fin debe ser posterior a la hora de inicio');
       return;
     }
 
@@ -108,9 +103,14 @@ export default function ReservasZonasView() {
   };
 
   const reservasFiltradas = useMemo(() => {
+    const selectedObj = ESPACIOS.find((e) => e.id === selectedEspacio);
     return reservas.filter((r) => {
       const matchFecha = !selectedFecha || r.fechaReserva === selectedFecha;
-      const matchEspacio = selectedEspacio === 'todos' || r.espacio.includes(selectedEspacio) || selectedEspacio.includes(r.espacio);
+      if (selectedEspacio === 'todos' || !selectedObj) return matchFecha;
+      const espacioText = String(r.espacio || r.nombreEspacio || '').toLowerCase();
+      const matchEspacio =
+        espacioText === selectedObj.nombre.toLowerCase() ||
+        selectedObj.keywords.some((kw) => espacioText.includes(kw));
       return matchFecha && matchEspacio;
     });
   }, [reservas, selectedFecha, selectedEspacio]);
@@ -194,6 +194,16 @@ export default function ReservasZonasView() {
             className="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-2 rounded-xl text-xs font-semibold"
           >
             Hoy
+          </button>
+          <button
+            onClick={() => setSelectedFecha('')}
+            className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+              !selectedFecha
+                ? 'bg-emerald-600 text-white'
+                : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+            }`}
+          >
+            Todas
           </button>
         </div>
 

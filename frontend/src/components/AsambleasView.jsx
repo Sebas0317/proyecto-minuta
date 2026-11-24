@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Vote, Plus, Clock, RefreshCw, BarChart3, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchAsambleas, createAsamblea, updateQuorum, addVotacion, castVote, closeVotacion } from '../services/api';
@@ -21,48 +21,58 @@ export default function AsambleasView() {
 
   const [formVot, setFormVot] = useState({ pregunta: '' });
   const [coeficienteVoto, setCoeficienteVoto] = useState(1.25);
+  const [unidadVotante, setUnidadVotante] = useState('Apto 101');
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const data = await fetchAsambleas();
-      setAsambleas(data || []);
-      if (data && data.length > 0 && !selectedAsambleaId) {
-        setSelectedAsambleaId(data[0].id);
+      const list = Array.isArray(data) ? data : [];
+      setAsambleas(list);
+      if (list.length > 0) {
+        setSelectedAsambleaId((prev) => (prev && list.some((a) => a.id === prev) ? prev : list[0].id));
       }
-    } catch (e) {
+    } catch {
       toast.error('Error al cargar asambleas');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const activeAsamblea = asambleas.find(a => a.id === selectedAsambleaId) || asambleas[0];
 
   const handleCreateAsamblea = async (e) => {
     e.preventDefault();
     try {
-      await createAsamblea(formAsamblea);
+      const created = await createAsamblea(formAsamblea);
       toast.success('Asamblea convocada exitosamente');
       setShowAsambleaModal(false);
+      setFormAsamblea({
+        titulo: '',
+        fecha: new Date().toISOString().split('T')[0],
+        horaInicio: '08:00 AM',
+        totalCoeficiente: 100
+      });
+      if (created?.id) setSelectedAsambleaId(created.id);
       loadData();
     } catch (e) {
-      toast.error('Error al convocar asamblea');
+      toast.error(e.message || 'Error al convocar asamblea');
     }
   };
 
   const handleUpdateQuorum = async (nuevoQuorum) => {
     if (!activeAsamblea) return;
+    const clamped = Math.min(100, Math.max(0, Number(Number(nuevoQuorum).toFixed(2))));
     try {
-      await updateQuorum(activeAsamblea.id, nuevoQuorum);
-      toast.success('Quórum actualizado: ' + nuevoQuorum + '%');
+      await updateQuorum(activeAsamblea.id, clamped);
+      toast.success('Quórum actualizado: ' + clamped + '%');
       loadData();
     } catch (e) {
-      toast.error('Error al actualizar quórum');
+      toast.error(e.message || 'Error al actualizar quórum');
     }
   };
 
@@ -76,18 +86,20 @@ export default function AsambleasView() {
       setFormVot({ pregunta: '' });
       loadData();
     } catch (e) {
-      toast.error('Error al añadir votación');
+      toast.error(e.message || 'Error al añadir votación');
     }
   };
 
   const handleCastVote = async (votId, opcion) => {
     if (!activeAsamblea) return;
     try {
-      await castVote(activeAsamblea.id, votId, opcion, coeficienteVoto);
-      toast.success('Voto registrado (' + opcion.toUpperCase() + ' - Coef: ' + coeficienteVoto + '%)');
+      await castVote(activeAsamblea.id, votId, opcion, coeficienteVoto, {
+        unidadId: unidadVotante.trim() || undefined,
+      });
+      toast.success(`Voto registrado (${opcion.toUpperCase()} - ${unidadVotante || 'Unidad'} - Coef: ${coeficienteVoto}%)`);
       loadData();
     } catch (e) {
-      toast.error('Error al registrar voto');
+      toast.error(e.message || 'Error al registrar voto');
     }
   };
 
@@ -98,7 +110,7 @@ export default function AsambleasView() {
       toast.success('Votación cerrada');
       loadData();
     } catch (e) {
-      toast.error('Error al cerrar votación');
+      toast.error(e.message || 'Error al cerrar votación');
     }
   };
 
@@ -171,14 +183,16 @@ export default function AsambleasView() {
             </div>
             <div className="flex gap-2 pt-1">
               <button
-                onClick={() => handleUpdateQuorum(Number((activeAsamblea.quorumRegistrado + 5.25).toFixed(2)))}
-                className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold py-1.5 rounded-lg"
+                onClick={() => handleUpdateQuorum(Math.min(100, Number(((activeAsamblea.quorumRegistrado || 0) + 5.25).toFixed(2))))}
+                disabled={(activeAsamblea.quorumRegistrado || 0) >= 100}
+                className="flex-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-slate-200 text-[11px] font-bold py-1.5 rounded-lg"
               >
                 + Registrar +5.25%
               </button>
               <button
-                onClick={() => handleUpdateQuorum(Number((activeAsamblea.quorumRegistrado + 1.15).toFixed(2)))}
-                className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold py-1.5 rounded-lg"
+                onClick={() => handleUpdateQuorum(Math.min(100, Number(((activeAsamblea.quorumRegistrado || 0) + 1.15).toFixed(2))))}
+                disabled={(activeAsamblea.quorumRegistrado || 0) >= 100}
+                className="flex-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-slate-200 text-[11px] font-bold py-1.5 rounded-lg"
               >
                 + Apto (+1.15%)
               </button>
@@ -187,14 +201,27 @@ export default function AsambleasView() {
 
           <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-lg flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold text-slate-400 uppercase">Asamblea Activa</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-slate-400 uppercase">Asamblea Activa</span>
+                {asambleas.length > 1 && (
+                  <select
+                    value={activeAsamblea.id}
+                    onChange={(e) => setSelectedAsambleaId(e.target.value)}
+                    className="bg-slate-900 border border-slate-700 text-indigo-300 text-[11px] font-semibold px-2 py-1 rounded-lg outline-none max-w-[170px]"
+                  >
+                    {asambleas.map((a) => (
+                      <option key={a.id} value={a.id}>{a.titulo}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
               <h3 className="text-lg font-bold text-white mt-1">{activeAsamblea.titulo}</h3>
               <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5 text-indigo-400" /> Fecha: {activeAsamblea.fecha} • {activeAsamblea.horaInicio}
               </p>
             </div>
             <div className="pt-3 border-t border-slate-700/80 flex items-center justify-between text-xs text-slate-300">
-              <span>Estado: <strong className="text-emerald-400 uppercase">En Curso</strong></span>
+              <span>Estado: <strong className="text-emerald-400 uppercase">{activeAsamblea.estado || 'En Curso'}</strong></span>
               <span>{(activeAsamblea.votaciones || []).length} Preguntas creadas</span>
             </div>
           </div>
@@ -202,14 +229,30 @@ export default function AsambleasView() {
           <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl shadow-lg flex flex-col justify-between">
             <div>
               <span className="text-xs font-bold text-slate-400 uppercase">Simulador de Votación</span>
-              <p className="text-xs text-slate-300 mt-1">Coeficiente del votante actual (%):</p>
-              <input
-                type="number"
-                step="0.05"
-                value={coeficienteVoto}
-                onChange={(e) => setCoeficienteVoto(Number(e.target.value))}
-                className="w-full mt-2 bg-slate-900 border border-slate-700 text-white px-3 py-1.5 rounded-xl text-sm font-mono font-bold outline-none focus:border-indigo-500"
-              />
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div>
+                  <label className="text-[11px] text-slate-400 block">Unidad / Apto:</label>
+                  <input
+                    type="text"
+                    value={unidadVotante}
+                    onChange={(e) => setUnidadVotante(e.target.value)}
+                    placeholder="Ej: Apto 101"
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold outline-none focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-400 block">Coeficiente (%):</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    min="0.05"
+                    max="100"
+                    value={coeficienteVoto}
+                    onChange={(e) => setCoeficienteVoto(Number(e.target.value))}
+                    className="w-full mt-1 bg-slate-900 border border-slate-700 text-white px-2.5 py-1.5 rounded-xl text-xs font-mono font-bold outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
             </div>
             <button
               onClick={() => setShowVotModal(true)}
@@ -302,6 +345,12 @@ export default function AsambleasView() {
                         ✗ Votar NO
                       </button>
                       <button
+                        onClick={() => handleCastVote(vot.id, 'blanco')}
+                        className="bg-amber-600/80 hover:bg-amber-500 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all"
+                      >
+                        Blanco
+                      </button>
+                      <button
                         onClick={() => handleCloseVot(vot.id)}
                         className="bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold text-xs px-3 py-2 rounded-xl transition-all"
                       >
@@ -310,7 +359,16 @@ export default function AsambleasView() {
                     </div>
                   ) : (
                     <div className="text-center py-1.5 bg-slate-900 rounded-xl text-xs font-bold text-slate-300">
-                      Resultado Final: <strong className={vot.resultado === 'APROBADA' ? 'text-emerald-400' : 'text-red-400'}>{vot.resultado}</strong>
+                      Resultado Final:{' '}
+                      <strong className={
+                        vot.resultado === 'APROBADA'
+                          ? 'text-emerald-400'
+                          : vot.resultado === 'EMPATE'
+                            ? 'text-amber-400'
+                            : 'text-red-400'
+                      }>
+                        {vot.resultado || ((vot.votosSi || 0) > (vot.votosNo || 0) ? 'APROBADA' : (vot.votosNo || 0) > (vot.votosSi || 0) ? 'RECHAZADA' : 'EMPATE')}
+                      </strong>
                     </div>
                   )}
                 </div>

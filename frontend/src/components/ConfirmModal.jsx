@@ -70,6 +70,7 @@ export const ConfirmModal = memo(function ConfirmModal({
   );
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useConfirm() {
   const [confirmConfig, setConfirmConfig] = useState(null);
 

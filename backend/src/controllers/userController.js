@@ -14,10 +14,12 @@ async function listUsers(req, res) {
       const q = search.toLowerCase();
       users = users.filter(
         (u) =>
-          u.username.toLowerCase().includes(q) ||
-          u.email.toLowerCase().includes(q) ||
-          u.firstName?.toLowerCase().includes(q) ||
-          u.lastName?.toLowerCase().includes(q)
+          (u.username || '').toLowerCase().includes(q) ||
+          (u.email || '').toLowerCase().includes(q) ||
+          (u.firstName || '').toLowerCase().includes(q) ||
+          (u.lastName || '').toLowerCase().includes(q) ||
+          (u.documento || '').toLowerCase().includes(q) ||
+          (u.puesto || '').toLowerCase().includes(q)
       );
     }
 
@@ -56,7 +58,19 @@ async function getUser(req, res) {
 
 async function createUser(req, res) {
   try {
-    const { username, email, password, firstName, lastName, role } = req.body;
+    const {
+      username,
+      email,
+      password,
+      firstName,
+      lastName,
+      role,
+      documento,
+      telefono,
+      turno,
+      puesto,
+      diasLaborales,
+    } = req.body;
     const meta = auditor.reqMeta(req);
 
     if (!username || !email || !password) {
@@ -103,6 +117,11 @@ async function createUser(req, res) {
       password,
       firstName: firstName || '',
       lastName: lastName || '',
+      documento: documento || '',
+      telefono: telefono || '',
+      turno: turno || '',
+      puesto: puesto || '',
+      diasLaborales: diasLaborales || '',
       role: validRole,
       isActive: true,
     });
@@ -132,6 +151,11 @@ async function updateUser(req, res) {
     const {
       firstName,
       lastName,
+      documento,
+      telefono,
+      turno,
+      puesto,
+      diasLaborales,
       avatar,
       role,
       isActive,
@@ -139,7 +163,16 @@ async function updateUser(req, res) {
       twoFactorEnabled,
     } = req.body;
     const meta = auditor.reqMeta(req);
-    const updates = { firstName, lastName, avatar };
+    const updates = {
+      firstName,
+      lastName,
+      documento,
+      telefono,
+      turno,
+      puesto,
+      diasLaborales,
+      avatar,
+    };
     const changes = {};
 
     const currentUser = await userStore.findUserById(req.params.id);

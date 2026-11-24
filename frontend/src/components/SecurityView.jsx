@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { useOutletContext } from 'react-router-dom';
 import { queryKeys } from '../hooks/useQueryKeys';
 import { fetchSecurityEvents, fetchUsers } from '../services/api';
 import SecurityDashboard from './SecurityDashboard';
@@ -19,8 +18,8 @@ export default function SecurityView() {
 
   return (
     <SecurityDashboard
-      events={secEvents || []}
-      users={secUsers || []}
+      events={Array.isArray(secEvents) ? secEvents : []}
+      users={Array.isArray(secUsers) ? secUsers : []}
     />
   );
 }

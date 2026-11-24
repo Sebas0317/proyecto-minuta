@@ -73,6 +73,17 @@ export default function ForgotPasswordScreen({ onBack }) {
       setError('La contrasena debe tener al menos 8 caracteres');
       return;
     }
+    if (
+      !/[A-Z]/.test(nuevaContrasena) ||
+      !/[a-z]/.test(nuevaContrasena) ||
+      !/[0-9]/.test(nuevaContrasena) ||
+      !/[^A-Za-z0-9]/.test(nuevaContrasena)
+    ) {
+      setError(
+        'La contrasena debe incluir mayuscula, minuscula, numero y caracter especial'
+      );
+      return;
+    }
     if (nuevaContrasena !== confirmarContrasena) {
       setError('Las contrasenas no coinciden');
       return;

@@ -1,14 +1,27 @@
+'use strict';
+
 const path = require('node:path');
-const { readJsonFile, writeJsonFile } = require('../data/jsonStoreHelper');
+const crypto = require('node:crypto');
+const { readJsonFile } = require('../data/jsonStoreHelper');
+const persistence = require('../data/persistence');
 const { getPaquetes, getParqueaderos, getMinuta, saveMinuta, getUnidades, getPqrs, savePqrs } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
-const KB_FILE = path.resolve(__dirname, '..', '..', 'chatbot_knowledge.json');
-const UNANSWERED_FILE = path.resolve(__dirname, '..', '..', 'unanswered_questions.json');
 const MANUAL_FILE = path.resolve(__dirname, '..', '..', 'manual_convivencia.json');
-const ANALYTICS_FILE = path.resolve(__dirname, '..', '..', 'consultas_analytics.json');
-const RESERVAS_FILE = path.resolve(__dirname, '..', '..', 'reservas_zonas.json');
+
+function getNextPqrsRadicado(lista, year = new Date().getFullYear()) {
+  const prefix = `PQR-${year}-`;
+  let maxSeq = 0;
+  for (const item of lista || []) {
+    const rad = String(item?.radicado || '');
+    if (rad.startsWith(prefix)) {
+      const parsed = parseInt(rad.slice(prefix.length), 10);
+      if (!isNaN(parsed) && parsed > maxSeq) maxSeq = parsed;
+    }
+  }
+  return `${prefix}${String(maxSeq + 1).padStart(4, '0')}`;
+}
 
 function calcular15DiasHabiles(fechaInicio = new Date()) {
   const fecha = new Date(fechaInicio);
@@ -63,41 +76,57 @@ function levenshteinDistance(a, b) {
 }
 
 async function getKnowledge() {
-  return (await readJsonFile(KB_FILE)) || [];
+  const raw = await persistence.getChatbotKnowledge();
+  return Array.isArray(raw) ? [...raw] : [];
 }
 
 async function saveKnowledge(data) {
-  return await writeJsonFile(KB_FILE, data);
+  return await persistence.setChatbotKnowledge(data);
 }
 
 async function getUnanswered() {
-  return (await readJsonFile(UNANSWERED_FILE)) || [];
+  const raw = await persistence.getUnansweredQuestions();
+  return Array.isArray(raw) ? [...raw] : [];
 }
 
 async function saveUnanswered(data) {
-  return await writeJsonFile(UNANSWERED_FILE, data);
+  return await persistence.setUnansweredQuestions(data);
 }
 
 async function getManual() {
-  return (await readJsonFile(MANUAL_FILE)) || [];
+  const raw = await readJsonFile(MANUAL_FILE, []);
+  return Array.isArray(raw) ? raw : [];
 }
 
-async function logAnalytics(pregunta, categoria = 'general') {
+async function logAnalytics(pregunta, categoria = 'general', respondida = true) {
   try {
-    const analytics = (await readJsonFile(ANALYTICS_FILE)) || { totalConsultas: 0, categorias: {}, historico: [] };
-    analytics.totalConsultas = (analytics.totalConsultas || 0) + 1;
+    const raw = await persistence.getConsultasAnalytics();
+    const analytics = (raw && typeof raw === 'object')
+      ? {
+          totalConsultas: Number(raw.totalConsultas) || 0,
+          consultasConRespuesta: Number(raw.consultasConRespuesta ?? raw.totalConsultas) || 0,
+          categorias: { ...(raw.categorias || {}) },
+          historico: Array.isArray(raw.historico) ? [...raw.historico] : [],
+        }
+      : { totalConsultas: 0, consultasConRespuesta: 0, categorias: {}, historico: [] };
+
+    analytics.totalConsultas += 1;
+    if (respondida) {
+      analytics.consultasConRespuesta += 1;
+    }
     analytics.categorias[categoria] = (analytics.categorias[categoria] || 0) + 1;
     analytics.historico.unshift({
       pregunta,
       categoria,
+      respondida,
       fecha: new Date().toISOString()
     });
     if (analytics.historico.length > 300) {
       analytics.historico = analytics.historico.slice(0, 300);
     }
-    await writeJsonFile(ANALYTICS_FILE, analytics);
+    await persistence.setConsultasAnalytics(analytics);
   } catch (e) {
-    // Non-critical
+    logger.debug({ error: e.message }, 'Analytics logging skipped');
   }
 }
 
@@ -111,13 +140,15 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
   const esAmenaza = /auxilio|fuego|incendio|humo|ladron|intruso|robo|asalto|arma|herido|ambulancia|fuga de gas|atraco|violencia|pelea fuerte|colapso/i.test(textoNormalizado);
   if (esAmenaza) {
     const minuta = (await getMinuta()) || [];
-    const radicadoSOS = 'SOS-' + Math.floor(1000 + Math.random() * 9000);
+    const radicadoSOS = 'SOS-' + crypto.randomInt(1000, 10000);
     minuta.unshift({
       id: 'min-sos-' + Date.now(),
       fecha: new Date().toISOString(),
       tipo: 'emergencia',
+      titulo: `🚨 ALERTA SOS (${radicadoSOS}) - ${aptoNumero ? 'Apto ' + aptoNumero : 'Zonas Comunes'}`,
       radicado: radicadoSOS,
       aptoAfectado: aptoNumero || 'Zonas Comunes',
+      guarda: 'MinutaBot (Alerta Automática SOS)',
       guardaTurno: 'MinutaBot (Alerta Automática SOS)',
       descripcion: `🚨 [ALERTA SOS EMITIDA POR CHATBOT]: "${textoOriginal}"`,
       severidad: 'peligro',
@@ -189,41 +220,71 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
   // 4. ⚡ ACCIÓN DIRECTA: RESERVAR CANCHA O ZONA COMÚN POR CHAT
   if (/reserva|apartar|separar/i.test(textoNormalizado) && /cancha|futbol|sintetica|bbq|salon/i.test(textoNormalizado) && aptoNumero) {
     try {
-      const reservasData = (await readJsonFile(RESERVAS_FILE)) || { reservas: [] };
+      const rawReservas = await persistence.getReservasZonas();
+      const reservasList = Array.isArray(rawReservas)
+        ? [...rawReservas]
+        : Array.isArray(rawReservas?.reservas)
+          ? [...rawReservas.reservas]
+          : [];
       const esFutbol = /cancha|futbol|sintetica/i.test(textoNormalizado);
       const esBBQ = /bbq|asador/i.test(textoNormalizado);
-      const espacioId = esFutbol ? 'esp-cancha-f5' : (esBBQ ? 'esp-bbq-1' : 'esp-salon-social');
-      const nombreEspacio = esFutbol ? 'Cancha Sintética F5' : (esBBQ ? 'Zona BBQ #1' : 'Salón Social');
+      const espacio = esFutbol
+        ? '⚽ Cancha Sintética Fútbol 5'
+        : (esBBQ ? '🍖 Zona BBQ & Asador 1' : '🎉 Salón Social de Eventos');
       const fechaHoy = new Date().toISOString().split('T')[0];
+      const horaInicio = '18:00';
+      const horaFin = '19:30';
+
+      const traslape = reservasList.find(r =>
+        r.espacio === espacio &&
+        r.fechaReserva === fechaHoy &&
+        r.estado === 'confirmada' &&
+        ((horaInicio >= r.horaInicio && horaInicio < r.horaFin) ||
+         (horaFin > r.horaInicio && horaFin <= r.horaFin) ||
+         (horaInicio <= r.horaInicio && horaFin >= r.horaFin))
+      );
+
+      if (traslape) {
+        await logAnalytics(textoOriginal, 'recreacion');
+        return {
+          tipo: 'reserva_conflicto',
+          titulo: `Horario Ocupado: ${espacio}`,
+          respuesta: `⚠️ **${espacio}** ya se encuentra reservada hoy (${fechaHoy}) de ${traslape.horaInicio} a ${traslape.horaFin}.\n\nPuedes seleccionar otro horario disponible en el calendario interactivo de zonas comunes.`,
+          accionRapida: { tipo: 'link', label: 'Elegir otro horario', ruta: '/admin/reservas' },
+          updatedContext: { ...context, apto: aptoNumero }
+        };
+      }
 
       const nuevaReserva = {
-        id: 'res-' + Date.now(),
-        espacioId,
-        nombreEspacio,
-        torre: '1',
+        id: 'res-' + Date.now() + '-' + generateId(4),
+        espacio,
+        torre: 'Torre 1',
         apto: String(aptoNumero),
         solicitante: `Residente Apto ${aptoNumero}`,
-        telefono: '300 000 0000',
-        fecha: fechaHoy,
-        horaInicio: '18:00',
-        horaFin: '19:30',
+        telefono: '',
+        fechaReserva: fechaHoy,
+        horaInicio,
+        horaFin,
         deposito: esFutbol ? 0 : (esBBQ ? 50000 : 200000),
         estado: 'confirmada',
-        observaciones: 'Reserva creada automáticamente por MinutaBot mediante comando de chat.'
+        observaciones: 'Reserva creada automáticamente por MinutaBot mediante comando de chat.',
+        fechaCreacion: new Date().toISOString()
       };
 
-      reservasData.reservas.unshift(nuevaReserva);
-      await writeJsonFile(RESERVAS_FILE, reservasData);
+      reservasList.unshift(nuevaReserva);
+      await persistence.setReservasZonas(reservasList);
       await logAnalytics(textoOriginal, 'recreacion');
 
       return {
         tipo: 'reserva_automatica',
-        titulo: `Reserva Confirmada: ${nombreEspacio}`,
-        respuesta: `🎉 **¡Reserva Creada Exitosamente por MinutaBot!**\n\n• **Espacio:** ${nombreEspacio}\n• **Inmueble:** Apto ${aptoNumero}\n• **Fecha:** Hoy (${fechaHoy})\n• **Horario:** 06:00 PM a 07:30 PM\n• **Estado:** ✅ Confirmada en Calendario\n\nPuedes verla reflejada en vivo en el calendario de zonas comunes.`,
+        titulo: `Reserva Confirmada: ${espacio}`,
+        respuesta: `🎉 **¡Reserva Creada Exitosamente por MinutaBot!**\n\n• **Espacio:** ${espacio}\n• **Inmueble:** Apto ${aptoNumero}\n• **Fecha:** Hoy (${fechaHoy})\n• **Horario:** 06:00 PM a 07:30 PM\n• **Estado:** ✅ Confirmada en Calendario\n\nPuedes verla reflejada en vivo en el calendario de zonas comunes.`,
         accionRapida: { tipo: 'link', label: 'Ver Calendario de Reservas', ruta: '/admin/reservas' },
         updatedContext: { ...context, apto: aptoNumero }
       };
-    } catch (e) {}
+    } catch (e) {
+      logger.error({ error: e.message }, 'Error al crear reserva automática desde MinutaBot');
+    }
   }
 
   // 5. GENERADOR ASISTIDO DE NOVEDADES PARA LA MINUTA DIGITAL POR VOZ / TEXTO
@@ -231,14 +292,16 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
   if (esComandoMinuta) {
     const minuta = (await getMinuta()) || [];
     const esUrgente = /urgente|pelea|robo|emergencia|alarma|fuga|accidente/i.test(textoNormalizado);
-    const radicado = 'NOV-' + Math.floor(1000 + Math.random() * 9000);
+    const radicado = 'NOV-' + crypto.randomInt(1000, 10000);
     const nuevaNovedad = {
       id: 'min-' + Date.now() + '-' + generateId(4),
       fecha: new Date().toISOString(),
       tipo: esUrgente ? 'urgente' : 'novedad',
+      titulo: `${esUrgente ? 'Novedad Urgente' : 'Novedad MinutaBot'} (${radicado})`,
       radicado,
       aptoAfectado: aptoNumero || 'Zonas Comunes',
-      guardaTurno: 'Carlos Rodríguez (MinutaBot AI)',
+      guarda: 'MinutaBot AI (Asistente)',
+      guardaTurno: 'MinutaBot AI (Asistente)',
       descripcion: `[Generado Asistido por MinutaBot]: ${textoOriginal}`,
       severidad: esUrgente ? 'advertencia' : 'info',
       estado: 'abierta'
@@ -263,16 +326,20 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
   if (esConsultaSaldo) {
     const unidades = (await getUnidades()) || [];
     const unidad = unidades.find(u => String(u.numero) === String(aptoNumero));
+    const fin = unidad?.estadoFinanciero?.administracion || {};
 
-    const expensaBase = 280000;
-    const prontoPago = expensaBase * 0.90; // 10% descuento
-    const estaEnMora = unidad ? (unidad.estadoPago === 'mora' || unidad.saldoPendiente > 0) : false;
-    const saldoTotal = estaEnMora ? expensaBase * 2 : expensaBase;
+    const expensaBase = Number(fin.cuotaMensual) || 280000;
+    const prontoPago = Math.round(expensaBase * 0.90); // 10% descuento
+    const saldoPendiente = Number(fin.saldoPendiente) || 0;
+    const mesesMora = Number(fin.mesesMora) || 0;
+    const estaEnMora = unidad ? (fin.alDia === false || saldoPendiente > 0 || mesesMora > 0) : false;
+    const saldoTotal = saldoPendiente > 0 ? saldoPendiente : (mesesMora > 0 ? expensaBase * mesesMora : 0);
 
+    await logAnalytics(textoOriginal, 'pagos');
     return {
       tipo: 'consulta_saldo',
       titulo: `Estado de Cuenta - Apto ${aptoNumero}`,
-      respuesta: `💳 **Estado de Cuenta & Administración - Apto ${aptoNumero}**\n\n• **Cuota Mensual Plena:** $${expensaBase.toLocaleString('es-CO')} COP\n• **🌟 Con Pronto Pago (1-10 de cada mes):** **$${prontoPago.toLocaleString('es-CO')} COP** (Ahorro del 10%)\n• **Estado Actual:** ${estaEnMora ? '⚠️ Presenta saldo en mora ($' + saldoTotal.toLocaleString('es-CO') + ' COP)' : '✅ Al Día en Expensas Comunes'}\n\n**Canales de Pago Oficiales:**\n• Cuenta de Ahorros Bancolombia / Davivienda: \`458-992145-02\`\n• NIT: 901.458.772-1 • Titular: CONDOMINIO MINUTA P.H.`,
+      respuesta: `💳 **Estado de Cuenta & Administración - Apto ${aptoNumero}**\n\n• **Cuota Mensual Plena:** $${expensaBase.toLocaleString('es-CO')} COP\n• **🌟 Con Pronto Pago (1-10 de cada mes):** **$${prontoPago.toLocaleString('es-CO')} COP** (Ahorro del 10%)\n• **Estado Actual:** ${estaEnMora ? `⚠️ Presenta saldo en mora ($${saldoTotal.toLocaleString('es-CO')} COP${mesesMora ? ` • ${mesesMora} mes(es)` : ''})` : '✅ Al Día en Expensas Comunes'}\n\n**Canales de Pago Oficiales:**\n• Cuenta de Ahorros Bancolombia / Davivienda: \`458-992145-02\`\n• NIT: 901.458.772-1 • Titular: CONDOMINIO MINUTA P.H.`,
       accionRapida: { tipo: 'link', label: 'Ver Censo de Inmuebles', ruta: '/admin/unidades' },
       updatedContext: { ...context, apto: aptoNumero }
     };
@@ -309,16 +376,18 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
     }
 
     const lista = pendientes.map(p => {
+      const estadoTxt = p.estado === 'notificado' ? 'Notificado' : 'Recibido en portería';
       if (p.categoria === 'recibo_publico') {
-        return `• 📬 **${p.tipoRecibo || p.empresa}** (${p.mesFacturado || 'Mes en curso'}) - Código: \`${p.codigoRetiro}\``;
+        return `• 📬 **${p.tipoRecibo || p.empresa}** (${p.mesFacturado || 'Mes en curso'}) — *${estadoTxt}*`;
       }
-      return `• 📦 **${p.empresa}** (Guía: ${p.guia}) - PIN Retiro: \`${p.codigoRetiro}\``;
+      return `• 📦 **${p.empresa || 'Encomienda'}** (Guía: ${p.guia || 'S/N'}) — *${estadoTxt}*`;
     }).join('\n');
 
+    await logAnalytics(textoOriginal, 'paquetes');
     return {
       tipo: 'dinamico_paquetes',
       titulo: `Paquetería en Portería - Apto ${aptoNumero}`,
-      respuesta: `¡Tienes **${pendientes.length}** entrega(s) en portería para el **Apto ${aptoNumero}**!\n\n${lista}\n\nPresenta tu código PIN al guarda en la recepción para realizar el retiro.`,
+      respuesta: `¡Tienes **${pendientes.length}** entrega(s) en portería para el **Apto ${aptoNumero}**!\n\n${lista}\n\n🔒 Por seguridad, presenta el **código PIN de 4 dígitos** enviado a tu WhatsApp al guarda de recepción para autorizar el retiro.`,
       accionRapida: { tipo: 'link', label: 'Gestionar en Paquetería', ruta: '/admin/paquetes' },
       updatedContext: { ...context, apto: aptoNumero }
     };
@@ -347,14 +416,18 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
   // 6. CONSULTA DE PARQUEADEROS LIBRES
   if (/parqueadero|parquear|cupo|bahia|estacionamiento/i.test(textoNormalizado) && /libre|disponible|cuanto|hay|vacio/i.test(textoNormalizado)) {
     const parqueaderos = await getParqueaderos();
-    const libres = (parqueaderos || []).filter(p => p.estado === 'disponible');
-    const visitantes = (parqueaderos || []).filter(p => p.tipo === 'visitante');
-    const visitantesLibres = visitantes.filter(p => p.estado === 'disponible');
+    const allBays = Array.isArray(parqueaderos) ? parqueaderos : [];
+    const libres = allBays.filter(p => p.estado === 'disponible' || p.estado === 'libre');
+    const visitantes = allBays.filter(p => p.categoria === 'visitantes' || p.tipo === 'visitante');
+    const visitantesLibres = visitantes.filter(p => p.estado === 'disponible' || p.estado === 'libre');
+    const carrosLibres = visitantesLibres.filter(p => p.tipo === 'carro').length;
+    const motosLibres = visitantesLibres.filter(p => p.tipo === 'moto').length;
 
+    await logAnalytics(textoOriginal, 'parqueaderos');
     return {
       tipo: 'dinamico_parqueaderos',
       titulo: 'Disponibilidad de Parqueaderos',
-      respuesta: `🚗 **Disponibilidad de Bahías en Vivo:**\n\n• **Bahías de Visitantes Libres:** ${visitantesLibres.length} de ${visitantes.length} cupos.\n• **Total Parqueaderos Libres:** ${libres.length} bahías.\n\n*El tiempo de cortesía para visitantes es de 4 horas continuas y la velocidad máxima en sótanos es de 10 km/h.*`,
+      respuesta: `🚗 **Disponibilidad de Bahías en Vivo:**\n\n• **Bahías de Visitantes Libres:** ${visitantesLibres.length} de ${visitantes.length} cupos (${carrosLibres} carros, ${motosLibres} motos).\n• **Total Parqueaderos Libres:** ${libres.length} bahías.\n\n*El tiempo de cortesía para visitantes es de 4 horas continuas y la velocidad máxima en sótanos es de 10 km/h.*`,
       accionRapida: { tipo: 'link', label: 'Ver Mapa de Parqueaderos', ruta: '/admin/parqueadero' }
     };
   }
@@ -388,7 +461,9 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
         ? '⚪ Cerrado'
         : '🔵 Radicado (En cola de atención)';
 
-      let respuestaTxt = `📋 **Consulta de Estado PQRS - Radicado \`${pqrEncontrada.radicado}\`**\n\n• **Tipo / Categoría:** ${pqrEncontrada.categoria || pqrEncontrada.tipo || 'Petición'}\n• **Inmueble:** ${pqrEncontrada.torre || 'Torre 1'} - Apto ${pqrEncontrada.apto}\n• **Asunto:** ${pqrEncontrada.asunto}\n• **Estado Actual:** ${estadoLabel}\n• **Fecha Radicación:** ${pqrEncontrada.fecha ? pqrEncontrada.fecha.slice(0, 10) : 'Reciente'}\n• **Plazo Límite Legal (15 días hábiles):** ${pqrEncontrada.fechaLimiteRespuesta ? pqrEncontrada.fechaLimiteRespuesta.slice(0, 10) : 'En término legal'}`;
+      const fechaRad = pqrEncontrada.fecha || pqrEncontrada.fechaRadicado;
+      const fechaLim = pqrEncontrada.fechaLimiteRespuesta || pqrEncontrada.fechaVencimiento;
+      let respuestaTxt = `📋 **Consulta de Estado PQRS - Radicado \`${pqrEncontrada.radicado}\`**\n\n• **Tipo / Categoría:** ${pqrEncontrada.categoria || pqrEncontrada.tipo || 'Petición'}\n• **Inmueble:** ${pqrEncontrada.torre || 'Torre 1'} - Apto ${pqrEncontrada.apto}\n• **Asunto:** ${pqrEncontrada.asunto}\n• **Estado Actual:** ${estadoLabel}\n• **Fecha Radicación:** ${fechaRad ? String(fechaRad).slice(0, 10) : 'Reciente'}\n• **Plazo Límite Legal (15 días hábiles):** ${fechaLim ? String(fechaLim).slice(0, 10) : 'En término legal'}`;
 
       if (ultResp) {
         respuestaTxt += `\n\n✅ **Última Respuesta Oficial de la Administración:**\n*"${ultResp.respuesta || ultResp.mensaje}"*\n*(Fecha: ${ultResp.fecha})*`;
@@ -426,9 +501,7 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
           categoriaDetectada = 'Reclamo';
         }
 
-        const year = new Date().getFullYear();
-        const num = String(listaPqrs.length + 1).padStart(4, '0');
-        const radicado = `PQR-${year}-${num}`;
+        const radicado = getNextPqrsRadicado(listaPqrs);
         const fechaActual = new Date().toISOString();
         const fechaLimite = calcular15DiasHabiles(new Date());
 
@@ -492,7 +565,12 @@ async function queryChatbot(req, res) {
     if (typeof body === 'string') {
       try { body = JSON.parse(body); } catch { body = { message: body }; }
     }
-    const message = (typeof body === 'object' && body !== null) ? (body.message || body.question) : (typeof body === 'string' ? body : '');
+    const message =
+      typeof body === 'object' && body !== null
+        ? body.message || body.question || body.query || body.pregunta
+        : typeof body === 'string'
+          ? body
+          : '';
     const context = (typeof body === 'object' && body !== null && body.context) ? body.context : {};
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'El mensaje es requerido' });
@@ -564,6 +642,7 @@ async function queryChatbot(req, res) {
     }
 
     if (mejorCoincidencia && maxPuntaje >= 3) {
+      await logAnalytics(textoOriginal, mejorCoincidencia.categoria || 'general', true);
       return res.json({
         success: true,
         source: 'knowledge_base',
@@ -575,6 +654,7 @@ async function queryChatbot(req, res) {
     }
 
     // 3. Fallback: Registrar pregunta no respondida para entrenar al bot
+    await logAnalytics(textoOriginal, 'sin_respuesta', false);
     const unanswered = await getUnanswered();
     const yaExiste = unanswered.find(u => normalizarTexto(u.pregunta) === textoNorm);
     if (yaExiste) {
@@ -658,7 +738,9 @@ async function updateKnowledgeItem(req, res) {
       ...kb[index],
       categoria: categoria || kb[index].categoria,
       titulo: titulo || kb[index].titulo,
-      keywords: Array.isArray(keywords) ? keywords : (keywords || '').split(',').map(s => s.trim()),
+      keywords: keywords !== undefined
+        ? (Array.isArray(keywords) ? keywords : String(keywords).split(',').map(s => s.trim()).filter(Boolean))
+        : kb[index].keywords,
       preguntasFrecuentes: Array.isArray(preguntasFrecuentes) ? preguntasFrecuentes : kb[index].preguntasFrecuentes,
       respuesta: respuesta || kb[index].respuesta,
       accionRapida: accionRapida !== undefined ? accionRapida : kb[index].accionRapida,
@@ -706,19 +788,29 @@ async function deleteUnanswered(req, res) {
 }
 async function getAnalytics(req, res) {
   try {
-    const analytics = (await readJsonFile(ANALYTICS_FILE)) || {
-      totalConsultas: 58,
-      categorias: {
-        recreacion: 22,
-        pagos: 15,
-        convivencia: 11,
-        paquetes: 5,
-        parqueaderos: 4,
-        emergencias: 1
-      },
-      historico: []
-    };
-    res.json(analytics);
+    const raw = await persistence.getConsultasAnalytics();
+    const unanswered = await getUnanswered();
+    const analytics = (raw && typeof raw === 'object')
+      ? raw
+      : {
+          totalConsultas: 0,
+          categorias: {},
+          historico: []
+        };
+    const categorias = analytics.categorias || analytics.categoriasMasConsultadas || {};
+    const totalConsultas = Number(analytics.totalConsultas) || 0;
+    const consultasConRespuesta = analytics.consultasConRespuesta !== undefined
+      ? Number(analytics.consultasConRespuesta)
+      : Math.max(0, totalConsultas - (Array.isArray(unanswered) ? unanswered.length : 0));
+
+    res.json({
+      ...analytics,
+      totalConsultas,
+      consultasConRespuesta,
+      categorias,
+      categoriasMasConsultadas: categorias,
+      historico: Array.isArray(analytics.historico) ? analytics.historico : []
+    });
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener analítica del chatbot' });
   }

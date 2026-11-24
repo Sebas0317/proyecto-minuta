@@ -1217,10 +1217,10 @@ export async function addVotacion(id, pregunta) {
   });
 }
 
-export async function castVote(id, votId, opcion, coeficiente) {
+export async function castVote(id, votId, opcion, coeficiente, extra = {}) {
   return apiFetch(`/asambleas/${id}/votaciones/${votId}/votar`, {
     method: 'POST',
-    body: JSON.stringify({ opcion, coeficiente }),
+    body: JSON.stringify({ opcion, coeficiente, ...extra }),
   });
 }
 

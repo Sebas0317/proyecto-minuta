@@ -91,8 +91,8 @@ function UserFormModal({ isOpen, onClose, onSuccess }) {
     if (!username.trim() || !email.trim() || !password.trim()) {
       return setError('Completa los campos requeridos');
     }
-    if (password.length < 4)
-      return setError('La contraseña debe tener al menos 4 caracteres');
+    if (password.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password))
+      return setError('La contraseña debe tener al menos 8 caracteres, incluyendo mayúscula, minúscula y número');
     setLoading(true);
     setError('');
     try {
@@ -212,7 +212,7 @@ function UserFormModal({ isOpen, onClose, onSuccess }) {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Min. 4 caracteres"
+              placeholder="Min. 8 caracteres (Mayúscula, minúscula y número)"
               className="w-full bg-slate-900 border border-slate-700 text-white p-2 rounded-xl text-sm outline-none"
             />
           </div>
@@ -514,6 +514,35 @@ export default function PantallaUsuarios() {
     sonnerToast.info('Roster de vigilancia actualizado');
   };
 
+  const handleDeleteUser = async (u) => {
+    if (!window.confirm(`¿Eliminar la cuenta de ${u.firstName || u.username} (@${u.username})?`)) return;
+    try {
+      await deleteUser(u.id);
+      sonnerToast.success('Cuenta eliminada');
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+    } catch (err) {
+      sonnerToast.error(err.message || 'No se pudo eliminar la cuenta');
+    }
+  };
+
+  const handleResetPassword = async (u) => {
+    const newPassword = window.prompt(
+      `Nueva contraseña para @${u.username} (mín. 8 caracteres, mayúscula, minúscula y número):`
+    );
+    if (!newPassword) return;
+    if (newPassword.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+      sonnerToast.error('La contraseña debe tener al menos 8 caracteres, mayúscula, minúscula y número');
+      return;
+    }
+    try {
+      await resetUserPassword(u.id, newPassword);
+      sonnerToast.success(`Contraseña restablecida para @${u.username}`);
+    } catch (err) {
+      sonnerToast.error(err.message || 'No se pudo restablecer la contraseña');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* HEADER */}
@@ -552,7 +581,10 @@ export default function PantallaUsuarios() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-slate-800/60 border border-slate-700 p-3.5 rounded-xl">
           <span className="text-[11px] font-semibold text-slate-400 uppercase">Total Personal</span>
-          <p className="text-2xl font-black text-white">{users.length}</p>
+          <p className="text-2xl font-black text-white">{stats?.total ?? users.length}</p>
+          {stats && (
+            <span className="text-[10px] text-emerald-400">{stats.activos ?? 0} activos • {stats.inactivos ?? 0} inactivos</span>
+          )}
         </div>
         <div className="bg-emerald-950/40 border border-emerald-800/50 p-3.5 rounded-xl">
           <span className="text-[11px] font-semibold text-emerald-400 uppercase">Turno Mañana (06:00-14:00)</span>
@@ -652,17 +684,41 @@ export default function PantallaUsuarios() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-700/60 flex items-center justify-between">
-                <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Activo en Sistema
-                </span>
+              <div className="pt-3 border-t border-slate-700/60 flex items-center justify-between gap-2">
+                {u.isActive !== false ? (
+                  <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Activo en Sistema
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-red-400 font-bold flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-red-400" /> Cuenta Inactiva
+                  </span>
+                )}
 
-                <button
-                  onClick={() => setEditUser(u)}
-                  className="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1"
-                >
-                  <Edit3 className="w-3.5 h-3.5" /> Editar Turno
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleResetPassword(u)}
+                    className="bg-slate-700 hover:bg-amber-600 text-slate-300 hover:text-white p-1.5 rounded-lg text-xs transition-all"
+                    title="Restablecer contraseña"
+                  >
+                    <Key className="w-3.5 h-3.5" />
+                  </button>
+                  {u.role !== 'owner' && (
+                    <button
+                      onClick={() => handleDeleteUser(u)}
+                      className="bg-slate-700 hover:bg-red-600 text-slate-300 hover:text-white p-1.5 rounded-lg text-xs transition-all"
+                      title="Eliminar usuario"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setEditUser(u)}
+                    className="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" /> Editar Turno
+                  </button>
+                </div>
               </div>
             </div>
           );
@@ -677,6 +733,7 @@ export default function PantallaUsuarios() {
 
       {editUser && (
         <EditUserModal
+          key={editUser.id}
           isOpen={Boolean(editUser)}
           user={editUser}
           onClose={() => setEditUser(null)}

@@ -50,6 +50,13 @@ const TRASTEOS_KEY = 'data:trasteos';
 const PARQUEADEROS_KEY = 'data:parqueaderos';
 const ASAMBLEAS_KEY = 'data:asambleas';
 const PQRS_KEY = 'data:pqrs';
+const RONDAS_KEY = 'data:rondas';
+const RESERVAS_ZONAS_KEY = 'data:reservas_zonas';
+const EQUIPOS_KEY = 'data:equipos_emergencia';
+const MASCOTAS_KEY = 'data:mascotas';
+const CHATBOT_KNOWLEDGE_KEY = 'data:chatbot_knowledge';
+const UNANSWERED_QUESTIONS_KEY = 'data:unanswered_questions';
+const CONSULTAS_ANALYTICS_KEY = 'data:consultas_analytics';
 const ROOMS_KEY = 'data:rooms';
 const CONSUMOS_KEY = 'data:consumos';
 const USERS_KEY = 'data:users';
@@ -64,6 +71,7 @@ const STATE_KEY = 'data:state';
 
 // ── In-memory fallback (for serverless where Redis is unavailable) ──
 const memoryStore = new Map();
+const initializedKeys = new Set();
 
 // Track which keys have been lazily bootstrapped from files
 const bootstrapped = new Map();
@@ -86,7 +94,7 @@ async function getData(key, defaultVal = null) {
     try {
       const val = await r.get(key);
       if (val !== null && val !== undefined) {
-        if (!Array.isArray(val) || val.length > 0) {
+        if (!Array.isArray(val) || val.length > 0 || initializedKeys.has(key)) {
           return val;
         }
       }
@@ -98,7 +106,7 @@ async function getData(key, defaultVal = null) {
   // Check in-memory fallback
   if (memoryStore.has(key)) {
     const mem = memoryStore.get(key);
-    if (!Array.isArray(mem) || mem.length > 0) {
+    if (!Array.isArray(mem) || mem.length > 0 || initializedKeys.has(key)) {
       return mem;
     }
   }
@@ -114,6 +122,7 @@ async function getData(key, defaultVal = null) {
             const data = await readJsonFile(file, null);
             if (data !== null) {
               memoryStore.set(key, data);
+              initializedKeys.add(key);
               if (r) {
                 await r.set(key, data).catch(() => {});
               }
@@ -159,6 +168,7 @@ async function _setData(key, data) {
   // Only update in-memory if at least one persistent store succeeded
   if (redisOk || fileOk || (!r && file)) {
     memoryStore.set(key, data);
+    initializedKeys.add(key);
   } else if (memoryStore.has(key)) {
     logger.warn(
       { key },
@@ -194,6 +204,13 @@ function fileForKey(key) {
     [PARQUEADEROS_KEY]: 'parqueaderos.json',
     [ASAMBLEAS_KEY]: 'asambleas.json',
     [PQRS_KEY]: 'pqrs.json',
+    [RONDAS_KEY]: 'rondas.json',
+    [RESERVAS_ZONAS_KEY]: 'reservas_zonas.json',
+    [EQUIPOS_KEY]: 'equipos_emergencia.json',
+    [MASCOTAS_KEY]: 'mascotas.json',
+    [CHATBOT_KNOWLEDGE_KEY]: 'chatbot_knowledge.json',
+    [UNANSWERED_QUESTIONS_KEY]: 'unanswered_questions.json',
+    [CONSULTAS_ANALYTICS_KEY]: 'consultas_analytics.json',
     [ROOMS_KEY]: 'rooms.json',
     [CONSUMOS_KEY]: 'consumos.json',
     [USERS_KEY]: 'users.json',
@@ -267,6 +284,55 @@ async function getPqrs() {
 }
 async function setPqrs(data) {
   return setData(PQRS_KEY, data);
+}
+
+async function getRondas() {
+  return getData(RONDAS_KEY, { puntosControl: [], rondas: [] });
+}
+async function setRondas(data) {
+  return setData(RONDAS_KEY, data);
+}
+
+async function getReservasZonas() {
+  return getData(RESERVAS_ZONAS_KEY, []);
+}
+async function setReservasZonas(data) {
+  return setData(RESERVAS_ZONAS_KEY, data);
+}
+
+async function getEquipos() {
+  return getData(EQUIPOS_KEY, []);
+}
+async function setEquipos(data) {
+  return setData(EQUIPOS_KEY, data);
+}
+
+async function getMascotas() {
+  return getData(MASCOTAS_KEY, []);
+}
+async function setMascotas(data) {
+  return setData(MASCOTAS_KEY, data);
+}
+
+async function getChatbotKnowledge() {
+  return getData(CHATBOT_KNOWLEDGE_KEY, []);
+}
+async function setChatbotKnowledge(data) {
+  return setData(CHATBOT_KNOWLEDGE_KEY, data);
+}
+
+async function getUnansweredQuestions() {
+  return getData(UNANSWERED_QUESTIONS_KEY, []);
+}
+async function setUnansweredQuestions(data) {
+  return setData(UNANSWERED_QUESTIONS_KEY, data);
+}
+
+async function getConsultasAnalytics() {
+  return getData(CONSULTAS_ANALYTICS_KEY, { totalConsultas: 0, categorias: {}, historico: [] });
+}
+async function setConsultasAnalytics(data) {
+  return setData(CONSULTAS_ANALYTICS_KEY, data);
 }
 
 async function getRooms() {
@@ -359,13 +425,18 @@ async function bootstrapFromFiles() {
     { file: path.join(DATA_DIR, 'accesos.json'), key: ACCESOS_KEY },
     { file: path.join(DATA_DIR, 'trasteos.json'), key: TRASTEOS_KEY },
     { file: path.join(DATA_DIR, 'parqueaderos.json'), key: PARQUEADEROS_KEY },
-    { file: path.join(DATA_DIR, 'rooms.json'), key: ROOMS_KEY },
-    { file: path.join(DATA_DIR, 'consumos.json'), key: CONSUMOS_KEY },
+    { file: path.join(DATA_DIR, 'asambleas.json'), key: ASAMBLEAS_KEY },
+    { file: path.join(DATA_DIR, 'pqrs.json'), key: PQRS_KEY },
+    { file: path.join(DATA_DIR, 'rondas.json'), key: RONDAS_KEY },
+    { file: path.join(DATA_DIR, 'reservas_zonas.json'), key: RESERVAS_ZONAS_KEY },
+    { file: path.join(DATA_DIR, 'equipos_emergencia.json'), key: EQUIPOS_KEY },
+    { file: path.join(DATA_DIR, 'mascotas.json'), key: MASCOTAS_KEY },
+    { file: path.join(DATA_DIR, 'chatbot_knowledge.json'), key: CHATBOT_KNOWLEDGE_KEY },
+    { file: path.join(DATA_DIR, 'unanswered_questions.json'), key: UNANSWERED_QUESTIONS_KEY },
+    { file: path.join(DATA_DIR, 'consultas_analytics.json'), key: CONSULTAS_ANALYTICS_KEY },
     { file: path.join(DATA_DIR, 'users.json'), key: USERS_KEY },
     { file: path.join(DATA_DIR, 'history.json'), key: HISTORY_KEY },
     { file: path.join(DATA_DIR, 'stateHistory.json'), key: STATE_HISTORY_KEY },
-    { file: path.join(DATA_DIR, 'prices.json'), key: PRICES_KEY },
-    { file: path.join(DATA_DIR, 'reservas.json'), key: RESERVAS_KEY },
     { file: path.join(DATA_DIR, 'codes.json'), key: CODES_KEY },
   ];
 
@@ -402,6 +473,20 @@ module.exports = {
   setAsambleas,
   getPqrs,
   setPqrs,
+  getRondas,
+  setRondas,
+  getReservasZonas,
+  setReservasZonas,
+  getEquipos,
+  setEquipos,
+  getMascotas,
+  setMascotas,
+  getChatbotKnowledge,
+  setChatbotKnowledge,
+  getUnansweredQuestions,
+  setUnansweredQuestions,
+  getConsultasAnalytics,
+  setConsultasAnalytics,
   isRedisAvailable,
   bootstrapFromFiles,
   getRooms,

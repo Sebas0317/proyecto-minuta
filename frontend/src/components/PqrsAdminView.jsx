@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
-  MessageSquareQuote, Search, Filter, Plus, CheckCircle, Clock,
-  AlertTriangle, RefreshCw, X, Send, FileText, Download, User,
-  Building2, Calendar, ShieldAlert, CheckCircle2, ChevronRight, Tag
+  MessageSquareQuote, Search, Plus, Clock,
+  AlertTriangle, RefreshCw, X, Send, Download, User,
+  Building2, Calendar, CheckCircle2, ChevronRight, Tag, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchPqrs, createPqrs, responderPqrs, updatePqrsEstado, deletePqrs } from '../services/api';
@@ -60,8 +60,8 @@ export default function PqrsAdminView() {
     try {
       setLoading(true);
       const data = await fetchPqrs();
-      setPqrsList(data || []);
-    } catch (err) {
+      setPqrsList(Array.isArray(data) ? data : []);
+    } catch {
       toast.error('Error al sincronizar módulo de PQRS');
     } finally {
       setLoading(false);
@@ -98,12 +98,13 @@ export default function PqrsAdminView() {
     const enTramite = pqrsList.filter(p => p.estado === 'en_tramite').length;
     const resueltas = pqrsList.filter(p => p.estado === 'respondido' || p.estado === 'cerrado').length;
     
-    // Check overdue (>15 business days or fechaLimiteRespuesta in past)
+    // Check overdue (>15 business days or fechaLimiteRespuesta/fechaVencimiento in past)
     const now = new Date();
     const vencidas = pqrsList.filter(p => {
       if (p.estado === 'respondido' || p.estado === 'cerrado') return false;
-      if (!p.fechaLimiteRespuesta) return false;
-      return new Date(p.fechaLimiteRespuesta) < now;
+      const limite = p.fechaLimiteRespuesta || p.fechaVencimiento;
+      if (!limite) return false;
+      return new Date(limite) < now;
     }).length;
 
     return { total, radicadas, enTramite, resueltas, vencidas };
@@ -175,6 +176,19 @@ export default function PqrsAdminView() {
     }
   };
 
+  const handleDeleteTicket = async (ticketId) => {
+    if (!window.confirm('¿Seguro que deseas eliminar/archivar esta PQRS?')) return;
+    try {
+      await deletePqrs(ticketId);
+      toast.success('PQRS eliminada correctamente');
+      setShowDetailModal(false);
+      setSelectedTicket(null);
+      loadData();
+    } catch (err) {
+      toast.error(err.message || 'Error al eliminar PQRS');
+    }
+  };
+
   const exportCSV = () => {
     if (filteredTickets.length === 0) {
       toast.error('No hay registros para exportar');
@@ -183,8 +197,8 @@ export default function PqrsAdminView() {
     const headers = ['Radicado', 'Fecha', 'Fecha Limite', 'Categoria', 'Prioridad', 'Torre', 'Apto', 'Solicitante', 'Estado', 'Asunto'];
     const rows = filteredTickets.map(t => [
       t.radicado || '',
-      t.fecha || '',
-      t.fechaLimiteRespuesta || '',
+      (t.fecha || t.fechaRadicado || '').slice(0, 10),
+      (t.fechaLimiteRespuesta || t.fechaVencimiento || '').slice(0, 10),
       t.categoria || '',
       t.prioridad || '',
       t.torre || '',
@@ -344,6 +358,7 @@ export default function PqrsAdminView() {
               <option value="Torre 2">Torre 2</option>
               <option value="Torre 3">Torre 3</option>
               <option value="Torre 4">Torre 4</option>
+              <option value="Torre 5">Torre 5</option>
             </select>
           </div>
         </div>
@@ -364,7 +379,9 @@ export default function PqrsAdminView() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredTickets.map((ticket) => {
-            const isVencida = ticket.estado !== 'respondido' && ticket.estado !== 'cerrado' && ticket.fechaLimiteRespuesta && new Date(ticket.fechaLimiteRespuesta) < new Date();
+            const fechaRad = ticket.fecha || ticket.fechaRadicado || '';
+            const fechaLim = ticket.fechaLimiteRespuesta || ticket.fechaVencimiento || '';
+            const isVencida = ticket.estado !== 'respondido' && ticket.estado !== 'cerrado' && fechaLim && new Date(fechaLim) < new Date();
             const estadoObj = ESTADOS.find(e => e.id === ticket.estado) || ESTADOS[0];
 
             return (
@@ -426,7 +443,7 @@ export default function PqrsAdminView() {
                 <div className="pt-3 border-t border-slate-700/60 space-y-3">
                   <div className="flex items-center justify-between text-[11px]">
                     <span className="text-slate-500 flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" /> Radicado: {ticket.fecha ? ticket.fecha.slice(0, 10) : ''}
+                      <Calendar className="w-3.5 h-3.5" /> Radicado: {fechaRad ? String(fechaRad).slice(0, 10) : 'Reciente'}
                     </span>
                     {isVencida ? (
                       <span className="text-rose-400 font-bold flex items-center gap-1 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/30">
@@ -434,7 +451,7 @@ export default function PqrsAdminView() {
                       </span>
                     ) : (
                       <span className="text-slate-400 text-[10px]">
-                        Límite: {ticket.fechaLimiteRespuesta || '15 días'}
+                        Límite: {fechaLim ? String(fechaLim).slice(0, 10) : '15 días'}
                       </span>
                     )}
                   </div>
@@ -510,11 +527,11 @@ export default function PqrsAdminView() {
                 </div>
                 <div>
                   <span className="text-slate-500 block mb-1">Fecha Radicación</span>
-                  <span className="font-semibold text-white">{selectedTicket.fecha}</span>
+                  <span className="font-semibold text-white">{(selectedTicket.fecha || selectedTicket.fechaRadicado || '').slice(0, 10) || 'N/D'}</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block mb-1">Fecha Límite Legal</span>
-                  <span className="font-semibold text-amber-400">{selectedTicket.fechaLimiteRespuesta || '15 días hábiles'}</span>
+                  <span className="font-semibold text-amber-400">{(selectedTicket.fechaLimiteRespuesta || selectedTicket.fechaVencimiento || '').slice(0, 10) || '15 días hábiles'}</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block mb-1">Teléfono / Contacto</span>
@@ -557,12 +574,12 @@ export default function PqrsAdminView() {
                 {selectedTicket.respuestas && selectedTicket.respuestas.length > 0 ? (
                   <div className="space-y-3">
                     {selectedTicket.respuestas.map((resp, i) => (
-                      <div key={i} className="bg-cyan-950/30 border border-cyan-800/40 p-4 rounded-2xl space-y-2">
+                      <div key={resp.id || i} className="bg-cyan-950/30 border border-cyan-800/40 p-4 rounded-2xl space-y-2">
                         <div className="flex items-center justify-between text-xs text-cyan-400 font-medium">
-                          <span>{resp.respondidoPor || 'Administración EcoBosque'}</span>
+                          <span>{resp.respondidoPor || resp.autor || 'Administración EcoBosque'}</span>
                           <span className="text-slate-400 text-[11px]">{resp.fecha}</span>
                         </div>
-                        <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{resp.respuesta}</p>
+                        <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{resp.respuesta || resp.mensaje}</p>
                       </div>
                     ))}
                   </div>
@@ -614,18 +631,29 @@ export default function PqrsAdminView() {
             </div>
 
             {/* Modal Footer */}
-            <div className="bg-slate-900 p-4 border-t border-slate-700 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => {
-                  generarTicketPqrsPDF(selectedTicket);
-                  toast.success('Radicado oficial descargado');
-                }}
-                className="flex items-center gap-2 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl border border-slate-700 transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                <span>Descargar Acta / Radicado PDF</span>
-              </button>
+            <div className="bg-slate-900 p-4 border-t border-slate-700 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    generarTicketPqrsPDF(selectedTicket);
+                    toast.success('Radicado oficial descargado');
+                  }}
+                  className="flex items-center gap-2 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl border border-slate-700 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Descargar Acta / Radicado PDF</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteTicket(selectedTicket.id)}
+                  className="flex items-center gap-1.5 text-xs font-medium text-rose-400 hover:text-white bg-rose-950/40 hover:bg-rose-600 px-3 py-2 rounded-xl border border-rose-800/60 transition-colors"
+                  title="Eliminar PQRS"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Eliminar</span>
+                </button>
+              </div>
 
               <button
                 onClick={() => setShowDetailModal(false)}

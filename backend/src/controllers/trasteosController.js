@@ -6,7 +6,8 @@ const { generateId } = require('../utils/idGenerator');
 
 async function getAllTrasteos(req, res) {
   try {
-    const trasteos = await getTrasteos();
+    const raw = await getTrasteos();
+    const trasteos = Array.isArray(raw) ? raw : [];
     const { estado, tipo, torre, apto } = req.query;
 
     let filtered = [...trasteos];
@@ -20,11 +21,11 @@ async function getAllTrasteos(req, res) {
     }
 
     if (torre) {
-      filtered = filtered.filter(t => t.torre?.toLowerCase() === torre.toLowerCase());
+      filtered = filtered.filter(t => (t.torre || '').toLowerCase() === String(torre).toLowerCase());
     }
 
     if (apto) {
-      filtered = filtered.filter(t => t.apto === apto);
+      filtered = filtered.filter(t => String(t.apto) === String(apto));
     }
 
     filtered.sort((a, b) => new Date(a.fechaProgramada) - new Date(b.fechaProgramada));

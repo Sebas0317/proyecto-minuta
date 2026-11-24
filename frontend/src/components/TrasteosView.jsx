@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  Truck, Calendar, Plus, CheckCircle, XCircle, Clock, 
-  RefreshCw, X, Shield, Building2, User, Phone, AlertTriangle
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Truck, Plus, CheckCircle, XCircle, RefreshCw, X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchTrasteos, createTrasteo, updateTrasteoEstado } from '../services/api';
@@ -30,8 +29,8 @@ export default function TrasteosView() {
     try {
       setLoading(true);
       const data = await fetchTrasteos();
-      setTrasteos(data || []);
-    } catch (err) {
+      setTrasteos(Array.isArray(data) ? data : []);
+    } catch {
       toast.error('Error al cargar mudanzas');
     } finally {
       setLoading(false);
@@ -132,7 +131,7 @@ export default function TrasteosView() {
                     t.estado === 'rechazado' ? 'bg-red-500/20 text-red-400 border border-red-500/40' :
                     'bg-amber-500/20 text-amber-400 border border-amber-500/40'
                   }`}>
-                    {t.estado.replace('_', ' ')}
+                    {(t.estado || 'pendiente_aprobacion').replace(/_/g, ' ')}
                   </span>
                 </div>
 
@@ -223,6 +222,8 @@ export default function TrasteosView() {
                     <option value="Torre 1">Torre 1</option>
                     <option value="Torre 2">Torre 2</option>
                     <option value="Torre 3">Torre 3</option>
+                    <option value="Torre 4">Torre 4</option>
+                    <option value="Torre 5">Torre 5</option>
                   </select>
                 </div>
                 <div>

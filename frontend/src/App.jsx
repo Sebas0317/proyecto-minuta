@@ -4,11 +4,10 @@ import {
   Suspense,
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { Toaster, toast } from 'sonner';
+import { Toaster } from 'sonner';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSession } from './hooks/useSession';
 import {
@@ -79,7 +78,9 @@ class ErrorBoundary extends Component {
     try {
       localStorage.clear();
       sessionStorage.clear();
-    } catch (e) {}
+    } catch {
+      // Storage may be unavailable in restricted contexts
+    }
     this.setState({ hasError: false, error: null, errorInfo: null });
     window.location.href = '/';
   };
@@ -178,7 +179,7 @@ export default function App() {
 
   useEffect(() => {
     if (!rol) return;
-    const guestRoutes = ['/', '/login/admin', '/login/forgot', '/forgot'];
+    const guestRoutes = ['/', '/login', '/login/admin', '/login/forgot', '/forgot'];
     if (!guestRoutes.includes(location.pathname)) return;
     if (rol === 'user' || rol === 'cliente' || rol === 'residente') {
       navigate('/residente', { replace: true });
@@ -197,7 +198,7 @@ export default function App() {
     navigate('/', { replace: true });
   }, [navigate]);
 
-  const { isWarning, reset: resetSession } = useSession({
+  const { reset: resetSession } = useSession({
     timeout: 30 * 60 * 1000, // 30 min para puesto de vigilancia
     onExpire: () => setShowSessionModal(true),
     enabled: !!rol,
@@ -297,7 +298,31 @@ export default function App() {
               }
             />
             <Route
+              path="/login"
+              element={
+                <ProtectedRoute rol={rol} allowed="guest">
+                  <LoginScreen onRole={handleRol} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/login/admin"
+              element={
+                <ProtectedRoute rol={rol} allowed="guest">
+                  <LoginScreen onRole={handleRol} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/forgot"
+              element={
+                <ProtectedRoute rol={rol} allowed="guest">
+                  <LoginScreen onRole={handleRol} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/login/forgot"
               element={
                 <ProtectedRoute rol={rol} allowed="guest">
                   <LoginScreen onRole={handleRol} />
