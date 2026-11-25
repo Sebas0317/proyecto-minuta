@@ -49,30 +49,40 @@ function normalizarTexto(str) {
     .trim();
 }
 
-// Algoritmo de distancia de Levenshtein para tolerancia ultra alta a errores
+// Algoritmo de distancia de Levenshtein O(min(N,M)) en memoria con corte temprano anti-DoS
 function levenshteinDistance(a, b) {
+  if (a === b) return 0;
   if (a.length === 0) return b.length;
   if (b.length === 0) return a.length;
-  const matrix = [];
-  for (let i = 0; i <= b.length; i++) {
-    matrix[i] = [i];
+  if (Math.abs(a.length - b.length) > 3) return Math.abs(a.length - b.length);
+
+  if (a.length > b.length) {
+    const tmp = a;
+    a = b;
+    b = tmp;
   }
-  for (let j = 0; j <= a.length; j++) {
-    matrix[0][j] = j;
-  }
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
-        );
-      }
+
+  const aLen = a.length;
+  const bLen = b.length;
+  const prev = new Uint16Array(aLen + 1);
+  const curr = new Uint16Array(aLen + 1);
+
+  for (let i = 0; i <= aLen; i++) prev[i] = i;
+
+  for (let j = 1; j <= bLen; j++) {
+    curr[0] = j;
+    const bChar = b.charCodeAt(j - 1);
+    let rowMin = curr[0];
+    for (let i = 1; i <= aLen; i++) {
+      const cost = a.charCodeAt(i - 1) === bChar ? 0 : 1;
+      const val = Math.min(prev[i] + 1, curr[i - 1] + 1, prev[i - 1] + cost);
+      curr[i] = val;
+      if (val < rowMin) rowMin = val;
     }
+    if (rowMin > 3) return 4;
+    prev.set(curr);
   }
-  return matrix[b.length][a.length];
+  return prev[aLen];
 }
 
 async function getKnowledge() {
@@ -575,6 +585,9 @@ async function queryChatbot(req, res) {
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'El mensaje es requerido' });
     }
+    if (message.length > 1500) {
+      return res.status(400).json({ error: 'El mensaje excede el límite máximo de 1500 caracteres' });
+    }
 
     const textoOriginal = message.trim();
     const textoNorm = normalizarTexto(textoOriginal);
@@ -601,9 +614,12 @@ async function queryChatbot(req, res) {
       });
     }
 
-    // 2. Búsqueda con Algoritmo Levenshtein y TF-IDF en la Base de Conocimiento
+    // 2. Búsqueda con Algoritmo Levenshtein y TF-IDF en la Base de Conocimiento (acotada contra DoS)
     const kb = await getKnowledge();
-    const palabrasUsuario = textoNorm.split(' ').filter(p => p.length > 2);
+    const palabrasUsuario = textoNorm
+      .split(' ')
+      .filter((p) => p.length > 2 && p.length <= 35)
+      .slice(0, 25);
 
     let mejorCoincidencia = null;
     let maxPuntaje = 0;

@@ -490,7 +490,24 @@ async function bootstrapFromFiles() {
   );
 }
 
+// Per-key transaction lock for multi-step read-modify-write callers
+const txLocks = new Map();
+function withKeyLock(key, fn) {
+  const prev = txLocks.get(key) || Promise.resolve();
+  const next = prev.then(fn, fn);
+  txLocks.set(key, next);
+  next
+    .finally(() => {
+      if (txLocks.get(key) === next) {
+        txLocks.delete(key);
+      }
+    })
+    .catch(() => {});
+  return next;
+}
+
 module.exports = {
+  withKeyLock,
   getUnidades,
   setUnidades,
   getMinuta,

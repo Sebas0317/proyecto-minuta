@@ -18,7 +18,7 @@ function createLimiter(opts) {
 
 const globalRateLimiter = createLimiter({
   windowMs: 60 * 1000,
-  max: 100,
+  max: 600,
   store: makeStore('rl:global:'),
   message: {
     error: 'Demasiadas solicitudes. Intenta nuevamente en un minuto.',
@@ -36,7 +36,7 @@ const authRateLimiter = createLimiter({
 
 const readRateLimiter = createLimiter({
   windowMs: 60 * 1000,
-  max: 60,
+  max: 300,
   store: makeStore('rl:read:'),
   message: {
     error: 'Demasiadas solicitudes. Intenta nuevamente en un minuto.',
@@ -45,7 +45,7 @@ const readRateLimiter = createLimiter({
 
 const writeRateLimiter = createLimiter({
   windowMs: 60 * 1000,
-  max: 30,
+  max: 120,
   store: makeStore('rl:write:'),
   message: {
     error: 'Demasiadas solicitudes. Intenta nuevamente en un minuto.',

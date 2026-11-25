@@ -3,6 +3,7 @@
 const crypto = require('node:crypto');
 const bcrypt = require('bcryptjs');
 const { getPaquetes, savePaquetes } = require('../data/jsonStore');
+const { withKeyLock } = require('../data/persistence');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 
@@ -83,13 +84,9 @@ async function createPaquete(req, res) {
       return res.status(400).json({ error: 'Torre, Apartamento y Destinatario son obligatorios' });
     }
 
-    // Generar código de retiro numérico criptográficamente seguro de 4 dígitos en paralelo con lectura de BD
+    // Generar y hashear PIN fuera del lock para paralelizar bcrypt en múltiples hilos CPU
     const codigoRetiroPlano = crypto.randomInt(1000, 10000).toString();
-    const [raw, codigoRetiroHash] = await Promise.all([
-      getPaquetes(),
-      bcrypt.hash(codigoRetiroPlano, 8),
-    ]);
-    const paquetes = Array.isArray(raw) ? [...raw] : [];
+    const codigoRetiroHash = await bcrypt.hash(codigoRetiroPlano, 8);
 
     const nuevoPaquete = {
       id: `pkg-${Date.now()}-${generateId(4)}`,
@@ -115,8 +112,12 @@ async function createPaquete(req, res) {
       retiradoPor: null
     };
 
-    paquetes.unshift(nuevoPaquete);
-    await savePaquetes(paquetes);
+    await withKeyLock('data:paquetes', async () => {
+      const raw = await getPaquetes();
+      const paquetes = Array.isArray(raw) ? [...raw] : [];
+      paquetes.unshift(nuevoPaquete);
+      await savePaquetes(paquetes);
+    });
 
     logger.info({ id: nuevoPaquete.id, torre, apto }, 'Paquete registrado exitosamente');
     // El PIN plano se retorna ÚNICAMENTE en este payload 201 para notificación inmediata por WhatsApp
@@ -133,19 +134,22 @@ async function createPaquete(req, res) {
 
 async function notificarPaquete(req, res) {
   try {
-    const paquetes = await getPaquetes();
     const { id } = req.params;
-    const paquete = paquetes.find(p => p.id === id);
+    const updated = await withKeyLock('data:paquetes', async () => {
+      const paquetes = await getPaquetes();
+      const paquete = paquetes.find(p => p.id === id);
+      if (!paquete) return null;
+      paquete.estado = 'notificado';
+      await savePaquetes(paquetes);
+      return paquete;
+    });
 
-    if (!paquete) {
+    if (!updated) {
       return res.status(404).json({ error: 'Paquete no encontrado' });
     }
 
-    paquete.estado = 'notificado';
-    await savePaquetes(paquetes);
-
     logger.info({ id }, 'Paquete marcado como notificado');
-    res.json(serializePaquete(paquete, true));
+    res.json(serializePaquete(updated, true));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al notificar paquete');
     res.status(500).json({ error: 'Error interno al notificar paquete' });
@@ -154,29 +158,29 @@ async function notificarPaquete(req, res) {
 
 async function entregarPaquete(req, res) {
   try {
-    const paquetes = await getPaquetes();
+    const initialList = await getPaquetes();
     const { id } = req.params;
     const { retiradoPor, guardaEntrega, codigoRetiro } = req.body;
 
-    const paquete = paquetes.find(p => p.id === id);
-    if (!paquete) {
+    const candidate = initialList.find(p => p.id === id);
+    if (!candidate) {
       return res.status(404).json({ error: 'Paquete no encontrado' });
     }
 
-    if (paquete.estado === 'entregado') {
+    if (candidate.estado === 'entregado') {
       return res.status(400).json({ error: 'Este paquete ya fue entregado previamente' });
     }
 
-    // ── VALIDACIÓN ESTRICTA Y OBLIGATORIA DEL PIN DE RETIRO ──
+    // ── VALIDACIÓN ESTRICTA Y OBLIGATORIA DEL PIN DE RETIRO (fuera del lock de escritura) ──
     if (!codigoRetiro || String(codigoRetiro).trim() === '') {
       return res.status(400).json({ error: 'El código PIN de retiro es obligatorio para autorizar la entrega' });
     }
 
     let isValid = false;
-    if (paquete.codigoRetiroHash) {
-      isValid = await bcrypt.compare(String(codigoRetiro).trim(), paquete.codigoRetiroHash);
-    } else if (paquete.codigoRetiro) {
-      isValid = (String(codigoRetiro).trim() === String(paquete.codigoRetiro).trim());
+    if (candidate.codigoRetiroHash) {
+      isValid = await bcrypt.compare(String(codigoRetiro).trim(), candidate.codigoRetiroHash);
+    } else if (candidate.codigoRetiro) {
+      isValid = (String(codigoRetiro).trim() === String(candidate.codigoRetiro).trim());
     }
 
     if (!isValid) {
@@ -187,15 +191,24 @@ async function entregarPaquete(req, res) {
       await req.onPinSuccess();
     }
 
-    paquete.estado = 'entregado';
-    paquete.fechaEntrega = new Date().toISOString();
-    paquete.guardaEntrega = guardaEntrega || req.user?.username || req.user?.firstName || 'Guarda de Turno';
-    paquete.retiradoPor = (retiradoPor && String(retiradoPor).trim()) || 'Residente titular';
+    const result = await withKeyLock('data:paquetes', async () => {
+      const paquetes = await getPaquetes();
+      const paquete = paquetes.find(p => p.id === id);
+      if (!paquete) return { status: 404 };
+      if (paquete.estado === 'entregado') return { status: 400 };
+      paquete.estado = 'entregado';
+      paquete.fechaEntrega = new Date().toISOString();
+      paquete.guardaEntrega = guardaEntrega || req.user?.username || req.user?.firstName || 'Guarda de Turno';
+      paquete.retiradoPor = (retiradoPor && String(retiradoPor).trim()) || 'Residente titular';
+      await savePaquetes(paquetes);
+      return { status: 200, paquete };
+    });
 
-    await savePaquetes(paquetes);
+    if (result.status === 404) return res.status(404).json({ error: 'Paquete no encontrado' });
+    if (result.status === 400) return res.status(400).json({ error: 'Este paquete ya fue entregado previamente' });
 
-    logger.info({ id, retiradoPor: paquete.retiradoPor }, 'Paquete entregado exitosamente');
-    res.json(serializePaquete(paquete, true));
+    logger.info({ id, retiradoPor: result.paquete.retiradoPor }, 'Paquete entregado exitosamente');
+    res.json(serializePaquete(result.paquete, true));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al entregar paquete');
     res.status(500).json({ error: 'Error interno al entregar paquete' });

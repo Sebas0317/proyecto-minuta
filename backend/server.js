@@ -39,6 +39,7 @@ const { requestTimeout } = require('./src/middleware/requestTimeout');
 const cookieParser = require('cookie-parser');
 const { blockSensitiveFiles } = require('./src/middleware/blockSensitiveFiles');
 const { securityHeaders } = require('./src/middleware/securityHeaders');
+const { mutationLock } = require('./src/middleware/mutationLock');
 const {
   globalRateLimiter,
   authRateLimiter,
@@ -225,37 +226,37 @@ app.get('/', (_req, res) => res.json({
 
 // ── ROUTES (v1 + unversioned for backward compatibility) ──
 
-app.use('/v1/users', authRateLimiter, usersRoutes);
-app.use('/users', authRateLimiter, usersRoutes);
+app.use('/v1/users', authRateLimiter, mutationLock('users'), usersRoutes);
+app.use('/users', authRateLimiter, mutationLock('users'), usersRoutes);
 
-// ── RUTAS MINUTA Y PORTERÍA ──
-app.use('/v1/unidades', unidadesRoutes);
-app.use('/unidades', unidadesRoutes);
-app.use('/v1/minuta', minutaRoutes);
-app.use('/minuta', minutaRoutes);
+// ── RUTAS MINUTA Y PORTERÍA (con serialización atómica en escrituras concurrentes) ──
+app.use('/v1/unidades', mutationLock('unidades'), unidadesRoutes);
+app.use('/unidades', mutationLock('unidades'), unidadesRoutes);
+app.use('/v1/minuta', mutationLock('porteria'), minutaRoutes);
+app.use('/minuta', mutationLock('porteria'), minutaRoutes);
 app.use('/v1/paquetes', paquetesRoutes);
 app.use('/paquetes', paquetesRoutes);
-app.use('/v1/accesos', accesosRoutes);
-app.use('/accesos', accesosRoutes);
-app.use('/v1/trasteos', trasteosRoutes);
-app.use('/trasteos', trasteosRoutes);
-app.use('/v1/parqueaderos', parqueaderosRoutes);
-app.use('/parqueaderos', parqueaderosRoutes);
+app.use('/v1/accesos', mutationLock('porteria'), accesosRoutes);
+app.use('/accesos', mutationLock('porteria'), accesosRoutes);
+app.use('/v1/trasteos', mutationLock('trasteos'), trasteosRoutes);
+app.use('/trasteos', mutationLock('trasteos'), trasteosRoutes);
+app.use('/v1/parqueaderos', mutationLock('porteria'), parqueaderosRoutes);
+app.use('/parqueaderos', mutationLock('porteria'), parqueaderosRoutes);
 app.use('/v1/chatbot', chatbotRoutes);
 app.use('/chatbot', chatbotRoutes);
 app.use('/api/chatbot', chatbotRoutes);
-app.use('/v1/rondas', rondasRoutes);
-app.use('/rondas', rondasRoutes);
-app.use('/v1/reservas-zonas', reservasZonasRoutes);
-app.use('/reservas-zonas', reservasZonasRoutes);
-app.use('/v1/asambleas', asambleasRoutes);
-app.use('/asambleas', asambleasRoutes);
-app.use('/v1/equipos', equiposRoutes);
-app.use('/equipos', equiposRoutes);
-app.use('/v1/mascotas', mascotasRoutes);
-app.use('/mascotas', mascotasRoutes);
-app.use('/v1/pqrs', pqrsRoutes);
-app.use('/pqrs', pqrsRoutes);
+app.use('/v1/rondas', mutationLock('rondas'), rondasRoutes);
+app.use('/rondas', mutationLock('rondas'), rondasRoutes);
+app.use('/v1/reservas-zonas', mutationLock('reservas-zonas'), reservasZonasRoutes);
+app.use('/reservas-zonas', mutationLock('reservas-zonas'), reservasZonasRoutes);
+app.use('/v1/asambleas', mutationLock('asambleas'), asambleasRoutes);
+app.use('/asambleas', mutationLock('asambleas'), asambleasRoutes);
+app.use('/v1/equipos', mutationLock('equipos'), equiposRoutes);
+app.use('/equipos', mutationLock('equipos'), equiposRoutes);
+app.use('/v1/mascotas', mutationLock('mascotas'), mascotasRoutes);
+app.use('/mascotas', mutationLock('mascotas'), mascotasRoutes);
+app.use('/v1/pqrs', mutationLock('pqrs'), pqrsRoutes);
+app.use('/pqrs', mutationLock('pqrs'), pqrsRoutes);
 
 // ── BACKUP MANAGEMENT (admin only) ──
 function requireAdminRole(req, res, next) {
