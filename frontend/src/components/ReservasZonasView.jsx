@@ -9,7 +9,7 @@ import {
   X
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchReservasZonas, createReservaZona, updateEstadoReservaZona } from '../services/api';
+import { fetchReservasZonas, createReservaZona, updateEstadoReservaZona, getLocalDateISO } from '../services/api';
 
 const ESPACIOS = [
   { id: 'todos', nombre: 'Todas las Zonas', keywords: [] },
@@ -24,7 +24,7 @@ export default function ReservasZonasView() {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedEspacio, setSelectedEspacio] = useState('todos');
-  const [selectedFecha, setSelectedFecha] = useState(() => new Date().toISOString().split('T')[0]);
+  const [selectedFecha, setSelectedFecha] = useState('');
 
   // Modal Crear Reserva
   const [showModal, setShowModal] = useState(false);
@@ -35,7 +35,7 @@ export default function ReservasZonasView() {
     torre: '1',
     solicitante: '',
     telefono: '',
-    fechaReserva: new Date().toISOString().split('T')[0],
+    fechaReserva: getLocalDateISO(),
     horaInicio: '18:00',
     horaFin: '19:30',
     observaciones: ''
@@ -70,7 +70,16 @@ export default function ReservasZonasView() {
 
     try {
       setSubmitting(true);
-      await createReservaZona(form);
+      const created = await createReservaZona(form);
+      if (created?.id) {
+        setReservas((prev) => [created, ...prev.filter((r) => r.id !== created.id)]);
+      } else {
+        await loadData();
+      }
+      if (selectedFecha && created?.fechaReserva && selectedFecha !== created.fechaReserva) {
+        setSelectedFecha(created.fechaReserva);
+      }
+      setSelectedEspacio('todos');
       toast.success('Reserva confirmada exitosamente');
       setShowModal(false);
       setForm({
@@ -79,12 +88,11 @@ export default function ReservasZonasView() {
         torre: '1',
         solicitante: '',
         telefono: '',
-        fechaReserva: new Date().toISOString().split('T')[0],
+        fechaReserva: getLocalDateISO(),
         horaInicio: '18:00',
         horaFin: '19:30',
         observaciones: ''
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al procesar reserva');
     } finally {
@@ -94,10 +102,12 @@ export default function ReservasZonasView() {
 
   const handleCambiarEstado = async (id, nuevoEstado) => {
     try {
-      await updateEstadoReservaZona(id, { estado: nuevoEstado });
+      const updated = await updateEstadoReservaZona(id, { estado: nuevoEstado });
+      setReservas((prev) =>
+        prev.map((r) => (r.id === id ? (updated?.id ? updated : { ...r, estado: nuevoEstado }) : r))
+      );
       toast.success(`Reserva marcada como ${nuevoEstado}`);
-      loadData();
-    } catch (e) {
+    } catch {
       toast.error('Error al actualizar estado');
     }
   };

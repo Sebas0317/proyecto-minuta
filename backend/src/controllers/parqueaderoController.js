@@ -92,12 +92,16 @@ async function liberarParqueadero(req, res) {
 // ── REGISTRAR VEHÍCULO EN BAHÍA PRIVADA (INVASIÓN / PRÉSTAMO) ──
 async function reportarInvasion(req, res) {
   try {
-    const parqueaderos = await getParqueaderos();
     const { bahiaId, placa, aptoResponsable, torreResponsable, nombreResponsable, telefonoResponsable, motivo } = req.body;
 
     if (!bahiaId || !placa || !aptoResponsable) {
       return res.status(400).json({ error: 'Bahía, Placa y Apartamento Responsable son requeridos' });
     }
+
+    const [parqueaderos, rawMinuta] = await Promise.all([
+      getParqueaderos(),
+      getMinuta().catch(() => null),
+    ]);
 
     const index = parqueaderos.findIndex(p => p.id === bahiaId);
     if (index === -1) {
@@ -116,11 +120,10 @@ async function reportarInvasion(req, res) {
       motivo: motivo || 'Parqueado temporalmente en bahía ajena'
     };
 
-    await saveParqueaderos(parqueaderos);
+    const writeTasks = [saveParqueaderos(parqueaderos)];
 
-    // Asentar en minuta automáticamente
-    try {
-      const minuta = await getMinuta();
+    if (Array.isArray(rawMinuta)) {
+      const minuta = [...rawMinuta];
       minuta.unshift({
         id: `min-inv-${Date.now()}`,
         fecha: new Date().toISOString(),
@@ -130,8 +133,10 @@ async function reportarInvasion(req, res) {
         severidad: 'advertencia',
         guarda: req.user?.username || 'Guarda de Turno'
       });
-      await saveMinuta(minuta);
-    } catch (e) {}
+      writeTasks.push(saveMinuta(minuta).catch(() => {}));
+    }
+
+    await Promise.all(writeTasks);
 
     logger.info({ bahiaId, placa, aptoResponsable }, 'Invasión / Préstamo de bahía registrado');
     res.json(parqueaderos[index]);

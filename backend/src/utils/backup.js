@@ -8,16 +8,21 @@
 const cron = require('node-cron');
 const fs = require('node:fs').promises;
 const path = require('node:path');
+const os = require('node:os');
 const { logger } = require('./logger');
-// Simple in‑process mutex to serialize backup runs
+
+const IS_VERCEL = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+
+// Simple in-process mutex to serialize backup runs
 let backupLock = Promise.resolve();
 function queueBackup(fn) {
-  // Ensure any error does not break the chain
   backupLock = backupLock.then(() => fn()).catch(() => fn());
   return backupLock;
 }
 
-const BACKUP_DIR = path.join(__dirname, '../../backups');
+const BACKUP_DIR = IS_VERCEL
+  ? path.join(os.tmpdir(), 'ecobosque-backups')
+  : path.join(__dirname, '../../backups');
 const DATA_DIR = path.join(__dirname, '../..');
 const DATA_FILES = [
   'unidades.json',
@@ -30,13 +35,10 @@ const DATA_FILES = [
   'chatbot_knowledge.json',
   'codes.json',
   'history.json',
-  'stateHistory.json'
+  'stateHistory.json',
 ];
 const MAX_BACKUP_DAYS = 30;
 
-/**
- * Create backup of all data files.
- */
 async function _createBackup() {
   try {
     const timestamp = new Date()
@@ -45,22 +47,20 @@ async function _createBackup() {
       .slice(0, 19);
     const backupDir = path.join(BACKUP_DIR, timestamp);
 
-    // Create backup directory
     await fs.mkdir(backupDir, { recursive: true });
 
-    // Copy each data file
-    const results = [];
-    for (const file of DATA_FILES) {
-      const src = path.join(DATA_DIR, file);
-      const dest = path.join(backupDir, file);
-
-      try {
-        await fs.copyFile(src, dest);
-        results.push({ file, status: 'success' });
-      } catch (err) {
-        results.push({ file, status: 'error', error: err.message });
-      }
-    }
+    const results = await Promise.all(
+      DATA_FILES.map(async (file) => {
+        const src = path.join(DATA_DIR, file);
+        const dest = path.join(backupDir, file);
+        try {
+          await fs.copyFile(src, dest);
+          return { file, status: 'success' };
+        } catch (err) {
+          return { file, status: 'error', error: err.message };
+        }
+      })
+    );
 
     logger.info({ timestamp }, 'Backup created');
     return { timestamp, results };
@@ -70,19 +70,15 @@ async function _createBackup() {
   }
 }
 
-/**
- * Clean up old backups (keep only MAX_BACKUP_DAYS).
- */
 async function cleanupOldBackups() {
   try {
     const backups = await fs.readdir(BACKUP_DIR);
     const backupDirs = backups.filter((b) => /^\d{4}-\d{2}-\d{2}T/.test(b));
 
     if (backupDirs.length <= MAX_BACKUP_DAYS) {
-      return; // No cleanup needed
+      return;
     }
 
-    // Sort by name (timestamp) and remove oldest
     const sorted = backupDirs.sort();
     const toRemove = sorted.slice(0, sorted.length - MAX_BACKUP_DAYS);
 
@@ -96,26 +92,18 @@ async function cleanupOldBackups() {
   }
 }
 
-/**
- * List all available backups.
- */
 async function listBackups() {
   try {
     const backups = await fs.readdir(BACKUP_DIR);
     return backups.sort().reverse();
-  } catch (_error) {
+  } catch {
     return [];
   }
 }
 
-/**
- * Restore from a specific backup.
- */
 async function restoreBackup(timestamp) {
   try {
     const backupDir = path.join(BACKUP_DIR, timestamp);
-
-    // Verify backup exists
     await fs.access(backupDir);
 
     const results = [];
@@ -139,13 +127,12 @@ async function restoreBackup(timestamp) {
   }
 }
 
-// Public wrapper that ensures backup runs sequentially
 function createBackup() {
   return queueBackup(_createBackup);
 }
 
-// Schedule daily backup at 2:00 AM
-if (process.env.NODE_ENV !== 'test') {
+// Schedule daily backup at 2:00 AM (local persistent server only)
+if (process.env.NODE_ENV !== 'test' && !IS_VERCEL) {
   cron.schedule('0 2 * * *', async () => {
     logger.info('Starting scheduled backup');
     try {
@@ -158,7 +145,6 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-// Export for manual trigger via API
 module.exports = {
   createBackup,
   cleanupOldBackups,

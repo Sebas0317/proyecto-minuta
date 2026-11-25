@@ -21,11 +21,13 @@ function withFileLock(targetPath, fn) {
   const prev = fileWriteLocks.get(targetPath) || Promise.resolve();
   const next = prev.then(fn, fn);
   fileWriteLocks.set(targetPath, next);
-  next.finally(() => {
-    if (fileWriteLocks.get(targetPath) === next) {
-      fileWriteLocks.delete(targetPath);
-    }
-  });
+  next
+    .finally(() => {
+      if (fileWriteLocks.get(targetPath) === next) {
+        fileWriteLocks.delete(targetPath);
+      }
+    })
+    .catch(() => {});
   return next;
 }
 
@@ -131,21 +133,36 @@ async function writeJsonFile(filePath, data) {
     const tmp = `${targetPath}.${uniqueSuffix}.tmp`;
     try {
       await fs.mkdir(path.dirname(targetPath), { recursive: true });
-      await fs.writeFile(tmp, JSON.stringify(data, null, 2), 'utf8');
-      let fd = null;
-      try {
-        fd = await fs.open(tmp, 'r');
-        if (process.platform !== 'win32') {
-          await fd.sync();
-        } else {
-          logger.debug({ file: tmp }, 'fsync skipped on Windows');
+      const serialized = IS_VERCEL ? JSON.stringify(data) : JSON.stringify(data, null, 2);
+      await fs.writeFile(tmp, serialized, 'utf8');
+
+      let renamed = false;
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        try {
+          await fs.rename(tmp, targetPath);
+          renamed = true;
+          break;
+        } catch (renameErr) {
+          if (
+            (renameErr.code === 'EPERM' || renameErr.code === 'EBUSY' || renameErr.code === 'EACCES') &&
+            attempt < 4
+          ) {
+            await new Promise((r) => setTimeout(r, 15 * attempt));
+            continue;
+          }
+          if (renameErr.code === 'EPERM' || renameErr.code === 'EBUSY' || renameErr.code === 'EACCES') {
+            await fs.writeFile(targetPath, serialized, 'utf8');
+            await fs.unlink(tmp).catch(() => {});
+            renamed = true;
+            break;
+          }
+          throw renameErr;
         }
-      } catch (syncErr) {
-        logger.warn({ err: syncErr, file: tmp }, 'fsync skipped');
-      } finally {
-        if (fd) await fd.close().catch(() => {});
       }
-      await fs.rename(tmp, targetPath);
+      if (!renamed) {
+        await fs.writeFile(targetPath, serialized, 'utf8');
+        await fs.unlink(tmp).catch(() => {});
+      }
     } catch (err) {
       await fs.unlink(tmp).catch(() => {});
       logger.warn({ err, file: targetPath }, 'Error writing JSON file');

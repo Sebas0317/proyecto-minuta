@@ -122,16 +122,28 @@ export default function UnidadesView() {
       };
 
       if (isEditing && selectedUnidad) {
-        await updateUnidad(selectedUnidad.id, payload);
+        const updated = await updateUnidad(selectedUnidad.id, payload);
+        if (updated?.id) {
+          setUnidades((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+        } else {
+          await loadData();
+        }
         toast.success('Ficha de inmueble actualizada correctamente');
       } else {
-        await createUnidad(payload);
+        const created = await createUnidad(payload);
+        if (created?.id) {
+          setUnidades((prev) => [created, ...prev.filter((u) => u.id !== created.id)]);
+        } else {
+          await loadData();
+        }
+        if (filtroTorre && created?.torre && filtroTorre !== created.torre) {
+          setFiltroTorre('');
+        }
         toast.success('Nueva unidad registrada en el censo');
       }
 
       setShowModal(false);
       setIsEditing(false);
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al guardar unidad');
     }
@@ -170,8 +182,8 @@ export default function UnidadesView() {
     if (!window.confirm(`¿Seguro que deseas eliminar la unidad ${u.torre} - Apto ${u.numero}?`)) return;
     try {
       await deleteUnidad(u.id);
+      setUnidades((prev) => prev.filter((item) => item.id !== u.id));
       toast.success('Unidad eliminada del censo');
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al eliminar unidad');
     }

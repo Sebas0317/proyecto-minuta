@@ -4,7 +4,7 @@
  * Proyecto Minuta - Sistema de Portería y Vigilancia Residencial
  * Persistence layer: abstracts storage between local JSON files and Upstash Redis.
  *
- * In production (Vercel): uses Upstash Redis via KV_REST_API_URL or UPSTASH_REDIS_REST_URL with disk/memory fallback.
+ * In production (Vercel): uses Upstash Redis via KV_REST_API_URL or UPSTASH_REDIS_REST_URL with fast circuit-breaker fallback.
  * In development/local: uses file-based JSON storage.
  */
 
@@ -12,10 +12,15 @@ const path = require('node:path');
 const { readJsonFile, writeJsonFile } = require('./jsonStoreHelper');
 const { logger } = require('../utils/logger');
 
-// ── Redis client (lazy init) ──
+const IS_VERCEL = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+const REDIS_COOLDOWN_MS = 30000;
+
+// ── Redis client (lazy init + fast circuit breaker) ──
 let redis = null;
+let redisCircuitOpenUntil = 0;
 
 function getRedis() {
+  if (Date.now() < redisCircuitOpenUntil) return null;
   if (redis) return redis;
   const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -23,21 +28,39 @@ function getRedis() {
   if (redisUrl && redisToken) {
     const { Redis } = require('@upstash/redis');
     const timeoutFetch = (url, init) =>
-      fetch(url, { ...init, signal: AbortSignal.timeout(5000) });
+      fetch(url, { ...init, signal: AbortSignal.timeout(2000) });
     redis = new Redis({
       url: redisUrl,
       token: redisToken,
       fetch: timeoutFetch,
+      retry: { retries: 1, backoff: () => 100 },
     });
     logger.info('Using Upstash Redis for persistence in Minuta Residencial');
   }
   return redis;
 }
 
+function tripRedisCircuit(err, key) {
+  redisCircuitOpenUntil = Date.now() + REDIS_COOLDOWN_MS;
+  logger.warn({ err: err?.message || err, key }, 'Redis unreachable — circuit open for 30s, using local fallback');
+}
+
 function isRedisAvailable() {
   const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-  return !!(redisUrl && redisToken);
+  return !!(redisUrl && redisToken) && Date.now() >= redisCircuitOpenUntil;
+}
+
+function cloneValue(val) {
+  if (val === null || val === undefined || typeof val !== 'object') return val;
+  if (typeof structuredClone === 'function') {
+    try {
+      return structuredClone(val);
+    } catch {
+      // Fallback below
+    }
+  }
+  return JSON.parse(JSON.stringify(val));
 }
 
 // ── File paths (used as Redis keys) ──
@@ -79,10 +102,16 @@ const bootstrapped = new Map();
 // Per-key write lock to prevent lost updates
 const writeLocks = new Map();
 function withWriteLock(key, fn) {
-  if (!writeLocks.has(key)) writeLocks.set(key, Promise.resolve());
-  const prev = writeLocks.get(key);
+  const prev = writeLocks.get(key) || Promise.resolve();
   const next = prev.then(fn, fn);
   writeLocks.set(key, next);
+  next
+    .finally(() => {
+      if (writeLocks.get(key) === next) {
+        writeLocks.delete(key);
+      }
+    })
+    .catch(() => {});
   return next;
 }
 
@@ -94,12 +123,12 @@ async function getData(key, defaultVal = null) {
     try {
       const val = await r.get(key);
       if (val !== null && val !== undefined) {
-        if (!Array.isArray(val) || val.length > 0 || initializedKeys.has(key)) {
-          return val;
-        }
+        memoryStore.set(key, val);
+        initializedKeys.add(key);
+        return cloneValue(val);
       }
     } catch (err) {
-      logger.warn({ err, key }, 'Redis get failed, falling back to memory');
+      tripRedisCircuit(err, key);
     }
   }
 
@@ -107,7 +136,7 @@ async function getData(key, defaultVal = null) {
   if (memoryStore.has(key)) {
     const mem = memoryStore.get(key);
     if (!Array.isArray(mem) || mem.length > 0 || initializedKeys.has(key)) {
-      return mem;
+      return cloneValue(mem);
     }
   }
 
@@ -123,8 +152,9 @@ async function getData(key, defaultVal = null) {
             if (data !== null) {
               memoryStore.set(key, data);
               initializedKeys.add(key);
-              if (r) {
-                await r.set(key, data).catch(() => {});
+              const activeRedis = getRedis();
+              if (activeRedis) {
+                await activeRedis.set(key, data).catch((err) => tripRedisCircuit(err, key));
               }
               logger.info(`Lazy-seeded ${key} from ${path.basename(file)} (${Array.isArray(data) ? data.length : 'obj'})`);
               return data;
@@ -139,35 +169,38 @@ async function getData(key, defaultVal = null) {
   }
 
   const result = await bootstrapped.get(key);
-  if (memoryStore.has(key)) return memoryStore.get(key);
-  return result !== null && result !== undefined ? result : defaultVal;
+  if (memoryStore.has(key)) return cloneValue(memoryStore.get(key));
+  return result !== null && result !== undefined ? cloneValue(result) : cloneValue(defaultVal);
 }
 
 async function _setData(key, data) {
+  const snapshot = cloneValue(data);
   const r = getRedis();
   let redisOk = false;
   if (r) {
     try {
-      await r.set(key, data);
+      await r.set(key, snapshot);
       redisOk = true;
     } catch (err) {
-      logger.warn({ err, key }, 'Redis set failed');
+      tripRedisCircuit(err, key);
     }
   }
-  // Fallback: persist to JSON file for restart resilience
+
+  // On Vercel, skip redundant /tmp file writes when Redis already persisted the data.
+  // Locally (or when Redis is unavailable/down), persist to JSON file for durability.
   const file = fileForKey(key);
   let fileOk = false;
-  if (file) {
+  if (file && (!IS_VERCEL || !redisOk)) {
     try {
-      await writeJsonFile(file, data);
+      await writeJsonFile(file, snapshot);
       fileOk = true;
     } catch (err) {
       logger.warn({ err, key, file }, 'File write failed');
     }
   }
-  // Only update in-memory if at least one persistent store succeeded
+
   if (redisOk || fileOk || (!r && file)) {
-    memoryStore.set(key, data);
+    memoryStore.set(key, snapshot);
     initializedKeys.add(key);
   } else if (memoryStore.has(key)) {
     logger.warn(
@@ -183,12 +216,13 @@ async function setData(key, data) {
 
 async function _delData(key) {
   memoryStore.delete(key);
+  initializedKeys.delete(key);
   const r = getRedis();
   if (r) {
     try {
       await r.del(key);
     } catch (err) {
-      logger.warn({ err, key }, 'Redis del failed');
+      tripRedisCircuit(err, key);
     }
   }
 }
@@ -226,8 +260,6 @@ function fileForKey(key) {
   const name = map[key];
   return name ? path.join(DATA_DIR, name) : null;
 }
-
-// ── Key-specific helpers ──
 
 // ── MINUTA & RESIDENTIAL SYSTEM HELPERS ──
 async function getUnidades() {
@@ -412,7 +444,7 @@ async function setState(data) {
   return setData(STATE_KEY, data);
 }
 
-// ── Bootstrap: seed from JSON files on first run (Redis cold start) ──
+// ── Bootstrap: seed from JSON files on first run (parallelized) ──
 async function bootstrapFromFiles() {
   if (!isRedisAvailable()) return;
   const r = getRedis();
@@ -440,20 +472,22 @@ async function bootstrapFromFiles() {
     { file: path.join(DATA_DIR, 'codes.json'), key: CODES_KEY },
   ];
 
-  for (const { file, key } of fileKeyPairs) {
-    try {
-      const exists = await r.exists(key);
-      if (!exists) {
-        const data = await readJsonFile(file, null);
-        if (data !== null) {
-          await r.set(key, data);
-          logger.info(`Seeded Redis key ${key} from ${path.basename(file)}`);
+  await Promise.all(
+    fileKeyPairs.map(async ({ file, key }) => {
+      try {
+        const exists = await r.exists(key);
+        if (!exists) {
+          const data = await readJsonFile(file, null);
+          if (data !== null) {
+            await r.set(key, data);
+            logger.info(`Seeded Redis key ${key} from ${path.basename(file)}`);
+          }
         }
+      } catch (err) {
+        tripRedisCircuit(err, key);
       }
-    } catch (err) {
-      logger.warn({ err, key }, 'Failed to seed Redis key from file');
-    }
-  }
+    })
+  );
 }
 
 module.exports = {

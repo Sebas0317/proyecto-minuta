@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Heart, Search, Plus, QrCode, Shield, Phone, Printer, RefreshCw, X, CheckCircle } from 'lucide-react';
+import { Heart, Search, Plus, QrCode, Shield, Phone, Printer, RefreshCw, X, CheckCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchMascotas, createMascota } from '../services/api';
+import { fetchMascotas, createMascota, deleteMascota, getLocalDateISO } from '../services/api';
 
 export default function MascotasView() {
   const [mascotas, setMascotas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filtroEspecie, setFiltroEspecie] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -22,7 +23,7 @@ export default function MascotasView() {
     telefono: '',
     color: '',
     vacunaAntirrabica: true,
-    fechaVacuna: new Date().toISOString().split('T')[0],
+    fechaVacuna: getLocalDateISO(),
     manejoEspecial: false,
     polizaResponsabilidad: '',
     observaciones: ''
@@ -60,8 +61,18 @@ export default function MascotasView() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     try {
-      await createMascota(form);
+      setSubmitting(true);
+      const created = await createMascota(form);
+      if (created?.id) {
+        setMascotas((prev) => [created, ...prev.filter((m) => m.id !== created.id)]);
+      } else {
+        await loadData();
+      }
+      if (filtroEspecie && created?.especie && filtroEspecie !== created.especie) {
+        setFiltroEspecie('');
+      }
       toast.success('Mascota censada y carnet generado');
       setShowModal(false);
       setForm({
@@ -74,14 +85,26 @@ export default function MascotasView() {
         telefono: '',
         color: '',
         vacunaAntirrabica: true,
-        fechaVacuna: new Date().toISOString().split('T')[0],
+        fechaVacuna: getLocalDateISO(),
         manejoEspecial: false,
         polizaResponsabilidad: '',
         observaciones: ''
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al registrar mascota');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (pet) => {
+    if (!window.confirm(`¿Seguro que deseas retirar a "${pet.nombre}" del censo de mascotas?`)) return;
+    try {
+      await deleteMascota(pet.id);
+      setMascotas((prev) => prev.filter((m) => m.id !== pet.id));
+      toast.success(`Mascota "${pet.nombre}" eliminada del censo`);
+    } catch (err) {
+      toast.error(err.message || 'Error al eliminar mascota');
     }
   };
 
@@ -200,14 +223,23 @@ export default function MascotasView() {
               )}
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-slate-700/80">
-              <span className="text-[10px] font-mono text-slate-400">TOKEN: {pet.qrToken}</span>
-              <button
-                onClick={() => handleImprimirCarnet(pet)}
-                className="bg-pink-600 hover:bg-pink-500 text-white px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow"
-              >
-                <Printer className="w-3.5 h-3.5" /> Ver / Imprimir Carnet
-              </button>
+            <div className="flex items-center justify-between pt-2 border-t border-slate-700/80 gap-2">
+              <span className="text-[10px] font-mono text-slate-400 truncate">TOKEN: {pet.qrToken}</span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  onClick={() => handleImprimirCarnet(pet)}
+                  className="bg-pink-600 hover:bg-pink-500 text-white px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow"
+                >
+                  <Printer className="w-3.5 h-3.5" /> Carnet
+                </button>
+                <button
+                  onClick={() => handleDelete(pet)}
+                  title="Eliminar del censo"
+                  className="p-1.5 bg-red-500/15 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 rounded-xl transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         ))

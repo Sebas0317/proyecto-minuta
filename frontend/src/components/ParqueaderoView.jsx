@@ -118,11 +118,13 @@ export default function ParqueaderoView() {
     e.preventDefault();
     if (!showOcuparModal) return;
     try {
-      await ocuparParqueadero(showOcuparModal.id, formOcupar);
+      const updated = await ocuparParqueadero(showOcuparModal.id, formOcupar);
+      setParqueaderos((prev) =>
+        prev.map((p) => (p.id === showOcuparModal.id ? (updated?.id ? updated : { ...p, estado: 'ocupado', ...formOcupar }) : p))
+      );
       toast.success(`Bahía ${showOcuparModal.id} asignada a ${formOcupar.placa}`);
       setShowOcuparModal(null);
       setFormOcupar({ placa: '', tipo: 'carro', torre: 'Torre 1', apto: '' });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al asignar bahía');
     }
@@ -131,9 +133,15 @@ export default function ParqueaderoView() {
   const handleLiberarVisitante = async (id, placa) => {
     try {
       await liberarParqueadero(id);
+      setParqueaderos((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? { ...p, estado: 'disponible', placa: null, unidadId: null, torre: null, apto: null, horaIngreso: null }
+            : p
+        )
+      );
       toast.success(`Bahía ${id} liberada (${placa || ''})`);
-      loadData();
-    } catch (err) {
+    } catch {
       toast.error('Error al liberar bahía');
     }
   };
@@ -142,7 +150,12 @@ export default function ParqueaderoView() {
   const handleRegistrarInvasion = async (e) => {
     e.preventDefault();
     try {
-      await reportarInvasionParqueadero(formInvasion);
+      const updated = await reportarInvasionParqueadero(formInvasion);
+      if (updated?.id) {
+        setParqueaderos((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+      } else {
+        await loadData();
+      }
       toast.warning(`Vehículo ${formInvasion.placa} registrado en bahía privada ${formInvasion.bahiaId}`);
       setShowInvasionModal(false);
       setFormInvasion({
@@ -154,7 +167,6 @@ export default function ParqueaderoView() {
         telefonoResponsable: '',
         motivo: 'Permiso temporal / Falta de cupo en visitantes'
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al registrar vehículo en bahía');
     }
@@ -166,8 +178,18 @@ export default function ParqueaderoView() {
         bahiaPrivadaId,
         bahiaVisitanteDestinoId
       });
+      if (res?.bahiaPrivada?.id && res?.bahiaVisitante?.id) {
+        setParqueaderos((prev) =>
+          prev.map((p) => {
+            if (p.id === res.bahiaPrivada.id) return res.bahiaPrivada;
+            if (p.id === res.bahiaVisitante.id) return res.bahiaVisitante;
+            return p;
+          })
+        );
+      } else {
+        await loadData();
+      }
       toast.success(res.message || 'Vehículo reubicado con éxito a bahía de visitantes');
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al reubicar vehículo');
     }
@@ -175,10 +197,12 @@ export default function ParqueaderoView() {
 
   const handleLiberarInvasion = async (bahiaId) => {
     try {
-      await liberarInvasionParqueadero(bahiaId);
+      const res = await liberarInvasionParqueadero(bahiaId);
+      setParqueaderos((prev) =>
+        prev.map((p) => (p.id === bahiaId ? (res?.bahia?.id ? res.bahia : { ...p, estado: 'libre', invasion: null }) : p))
+      );
       toast.success(`Bahía privada ${bahiaId} liberada`);
-      loadData();
-    } catch (err) {
+    } catch {
       toast.error('Error al liberar bahía privada');
     }
   };

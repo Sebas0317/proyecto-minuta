@@ -96,19 +96,26 @@ export default function RondasView() {
 
     try {
       setSubmitting(true);
-      await registrarPuntoRonda({
+      const res = await registrarPuntoRonda({
         puntoId: selectedPunto.id,
         guarda,
         estado: estadoPunto,
         observaciones: observaciones.trim() || (estadoPunto === 'novedad' ? 'Novedad detectada' : 'Punto verificado sin novedad.')
       });
+      if (res?.registro?.id) {
+        setData((prev) => ({
+          ...prev,
+          registrosRondas: [res.registro, ...(prev.registrosRondas || []).filter((r) => r.id !== res.registro.id)],
+        }));
+      } else {
+        await loadData();
+      }
 
       toast.success(`Punto "${selectedPunto.nombre}" verificado correctamente`);
       setSelectedPunto(null);
       setObservaciones('');
       setEstadoPunto('normal');
-      loadData();
-    } catch (e) {
+    } catch {
       toast.error('Error al registrar verificación de ronda');
     } finally {
       setSubmitting(false);
@@ -120,16 +127,23 @@ export default function RondasView() {
     if (!nuevoNombre.trim()) return;
 
     try {
-      await createPuntoControl({
+      const created = await createPuntoControl({
         nombre: nuevoNombre.trim(),
         ubicacion: nuevaUbicacion.trim() || 'Área General'
       });
+      if (created?.id) {
+        setData((prev) => ({
+          ...prev,
+          puntosControl: [...(prev.puntosControl || []), created],
+        }));
+      } else {
+        await loadData();
+      }
       toast.success('Nuevo punto de control creado con su código QR');
       setShowNewPuntoModal(false);
       setNuevoNombre('');
       setNuevaUbicacion('');
-      loadData();
-    } catch (e) {
+    } catch {
       toast.error('Error al crear punto de control');
     }
   };

@@ -119,6 +119,14 @@ export default function PqrsAdminView() {
 
     try {
       const created = await createPqrs(createForm);
+      if (created?.id) {
+        setPqrsList((prev) => [created, ...prev.filter((t) => t.id !== created.id)]);
+      } else {
+        await loadData();
+      }
+      if (filterEstado !== 'todos' && created?.estado && filterEstado !== created.estado) setFilterEstado('todos');
+      if (filterCategoria !== 'todas' && created?.categoria && filterCategoria !== created.categoria) setFilterCategoria('todas');
+      if (filterTorre !== 'todas' && created?.torre && filterTorre !== created.torre) setFilterTorre('todas');
       toast.success(`PQRS radicada exitosamente: ${created.radicado || ''}`);
       setShowCreateModal(false);
       setCreateForm({
@@ -132,7 +140,6 @@ export default function PqrsAdminView() {
         telefono: '',
         prioridad: 'media'
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al radicar PQRS');
     }
@@ -153,9 +160,13 @@ export default function PqrsAdminView() {
         nuevoEstado: nuevoEstadoRespuesta
       });
       toast.success('Respuesta oficial registrada y notificada');
-      setSelectedTicket(updated);
+      if (updated?.id) {
+        setSelectedTicket(updated);
+        setPqrsList((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+      } else {
+        await loadData();
+      }
       setRespuestaText('');
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al enviar respuesta');
     } finally {
@@ -168,10 +179,12 @@ export default function PqrsAdminView() {
       const updated = await updatePqrsEstado(ticketId, { estado });
       toast.success(`Estado actualizado a ${estado}`);
       if (selectedTicket && selectedTicket.id === ticketId) {
-        setSelectedTicket(updated);
+        setSelectedTicket(updated?.id ? updated : { ...selectedTicket, estado });
       }
-      loadData();
-    } catch (err) {
+      setPqrsList((prev) =>
+        prev.map((t) => (t.id === ticketId ? (updated?.id ? updated : { ...t, estado }) : t))
+      );
+    } catch {
       toast.error('Error al actualizar estado');
     }
   };
@@ -180,10 +193,10 @@ export default function PqrsAdminView() {
     if (!window.confirm('¿Seguro que deseas eliminar/archivar esta PQRS?')) return;
     try {
       await deletePqrs(ticketId);
+      setPqrsList((prev) => prev.filter((t) => t.id !== ticketId));
       toast.success('PQRS eliminada correctamente');
       setShowDetailModal(false);
       setSelectedTicket(null);
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al eliminar PQRS');
     }

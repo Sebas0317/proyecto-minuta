@@ -187,4 +187,19 @@ describe('Regresión de correcciones integrales MinutaTech', () => {
     expect(analyticsRes.body.categoriasMasConsultadas).toBeDefined();
     expect(typeof analyticsRes.body.consultasConRespuesta).toBe('number');
   });
+
+  it('GET /v1/health/detailed e integridad JSON responden HTTP 200 sin error 500', async () => {
+    const basicRes = await request(app).get('/v1/health');
+    expect(basicRes.status).toBe(200);
+    expect(typeof basicRes.body.redisAvailable).toBe('boolean');
+
+    const detailedRes = await request(app).get('/v1/health/detailed');
+    expect(detailedRes.status).toBe(200);
+    expect(detailedRes.body.status).toBe('healthy');
+    expect(detailedRes.body.dataFiles['unidades.json']?.valid).toBe(true);
+
+    const integrityRes = await request(app).post('/v1/health/json-integrity');
+    expect(integrityRes.status).toBe(200);
+    expect(integrityRes.body.report.overall).toBe(true);
+  });
 });

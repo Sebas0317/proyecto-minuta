@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Vote, Plus, Clock, RefreshCw, BarChart3, Download } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchAsambleas, createAsamblea, updateQuorum, addVotacion, castVote, closeVotacion } from '../services/api';
+import { fetchAsambleas, createAsamblea, updateQuorum, addVotacion, castVote, closeVotacion, getLocalDateISO } from '../services/api';
 import { generarActaAsambleaPDF } from '../utils/pdfGenerator';
 
 export default function AsambleasView() {
@@ -14,7 +14,7 @@ export default function AsambleasView() {
 
   const [formAsamblea, setFormAsamblea] = useState({
     titulo: '',
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: getLocalDateISO(),
     horaInicio: '08:00 AM',
     totalCoeficiente: 100
   });
@@ -49,16 +49,20 @@ export default function AsambleasView() {
     e.preventDefault();
     try {
       const created = await createAsamblea(formAsamblea);
+      if (created?.id) {
+        setAsambleas((prev) => [created, ...prev.filter((a) => a.id !== created.id)]);
+        setSelectedAsambleaId(created.id);
+      } else {
+        await loadData();
+      }
       toast.success('Asamblea convocada exitosamente');
       setShowAsambleaModal(false);
       setFormAsamblea({
         titulo: '',
-        fecha: new Date().toISOString().split('T')[0],
+        fecha: getLocalDateISO(),
         horaInicio: '08:00 AM',
         totalCoeficiente: 100
       });
-      if (created?.id) setSelectedAsambleaId(created.id);
-      loadData();
     } catch (e) {
       toast.error(e.message || 'Error al convocar asamblea');
     }
@@ -68,9 +72,11 @@ export default function AsambleasView() {
     if (!activeAsamblea) return;
     const clamped = Math.min(100, Math.max(0, Number(Number(nuevoQuorum).toFixed(2))));
     try {
-      await updateQuorum(activeAsamblea.id, clamped);
+      const updated = await updateQuorum(activeAsamblea.id, clamped);
+      setAsambleas((prev) =>
+        prev.map((a) => (a.id === activeAsamblea.id ? (updated?.id ? updated : { ...a, quorumRegistrado: clamped }) : a))
+      );
       toast.success('Quórum actualizado: ' + clamped + '%');
-      loadData();
     } catch (e) {
       toast.error(e.message || 'Error al actualizar quórum');
     }
@@ -80,11 +86,21 @@ export default function AsambleasView() {
     e.preventDefault();
     if (!activeAsamblea) return;
     try {
-      await addVotacion(activeAsamblea.id, formVot.pregunta);
+      const createdVot = await addVotacion(activeAsamblea.id, formVot.pregunta);
+      if (createdVot?.id) {
+        setAsambleas((prev) =>
+          prev.map((a) =>
+            a.id === activeAsamblea.id
+              ? { ...a, votaciones: [...(a.votaciones || []), createdVot] }
+              : a
+          )
+        );
+      } else {
+        await loadData();
+      }
       toast.success('Pregunta de votación añadida');
       setShowVotModal(false);
       setFormVot({ pregunta: '' });
-      loadData();
     } catch (e) {
       toast.error(e.message || 'Error al añadir votación');
     }
@@ -93,11 +109,22 @@ export default function AsambleasView() {
   const handleCastVote = async (votId, opcion) => {
     if (!activeAsamblea) return;
     try {
-      await castVote(activeAsamblea.id, votId, opcion, coeficienteVoto, {
+      const res = await castVote(activeAsamblea.id, votId, opcion, coeficienteVoto, {
         unidadId: unidadVotante.trim() || undefined,
       });
+      const updatedVot = res?.votacion || (res?.id ? res : null);
+      if (updatedVot?.id) {
+        setAsambleas((prev) =>
+          prev.map((a) =>
+            a.id === activeAsamblea.id
+              ? { ...a, votaciones: (a.votaciones || []).map((v) => (v.id === votId ? updatedVot : v)) }
+              : a
+          )
+        );
+      } else {
+        await loadData();
+      }
       toast.success(`Voto registrado (${opcion.toUpperCase()} - ${unidadVotante || 'Unidad'} - Coef: ${coeficienteVoto}%)`);
-      loadData();
     } catch (e) {
       toast.error(e.message || 'Error al registrar voto');
     }
@@ -106,9 +133,20 @@ export default function AsambleasView() {
   const handleCloseVot = async (votId) => {
     if (!window.confirm('¿Seguro que deseas cerrar esta votación y consolidar el resultado?')) return;
     try {
-      await closeVotacion(activeAsamblea.id, votId);
+      const res = await closeVotacion(activeAsamblea.id, votId);
+      const updatedVot = res?.votacion || (res?.id ? res : null);
+      if (updatedVot?.id) {
+        setAsambleas((prev) =>
+          prev.map((a) =>
+            a.id === activeAsamblea.id
+              ? { ...a, votaciones: (a.votaciones || []).map((v) => (v.id === votId ? updatedVot : v)) }
+              : a
+          )
+        );
+      } else {
+        await loadData();
+      }
       toast.success('Votación cerrada');
-      loadData();
     } catch (e) {
       toast.error(e.message || 'Error al cerrar votación');
     }

@@ -219,16 +219,28 @@ export default function ChatbotAdminView() {
       };
 
       if (editingItem) {
-        await updateKnowledgeItem(editingItem.id, payload);
+        const updated = await updateKnowledgeItem(editingItem.id, payload);
+        if (updated?.id) {
+          setKnowledge((prev) => prev.map((k) => (k.id === updated.id ? updated : k)));
+        } else {
+          await loadData();
+        }
         toast.success('Respuesta actualizada en la base de conocimiento');
       } else {
-        await createKnowledgeItem(payload);
+        const created = await createKnowledgeItem(payload);
+        if (created?.id) {
+          setKnowledge((prev) => [created, ...prev.filter((k) => k.id !== created.id)]);
+        } else {
+          await loadData();
+        }
+        if (selectedCat !== 'todos' && created?.categoria && selectedCat !== created.categoria) {
+          setSelectedCat('todos');
+        }
         toast.success('Nueva respuesta añadida al asistente virtual');
       }
 
       setShowModal(false);
-      loadData();
-    } catch (err) {
+    } catch {
       toast.error('Error al guardar en el chatbot');
     }
   };
@@ -237,9 +249,9 @@ export default function ChatbotAdminView() {
     if (!window.confirm('¿Seguro que deseas eliminar esta respuesta de la base de conocimiento?')) return;
     try {
       await deleteKnowledgeItem(id);
+      setKnowledge((prev) => prev.filter((k) => k.id !== id));
       toast.success('Respuesta eliminada');
-      loadData();
-    } catch (e) {
+    } catch {
       toast.error('Error al eliminar');
     }
   };
@@ -247,9 +259,9 @@ export default function ChatbotAdminView() {
   const handleDeleteUnanswered = async (id) => {
     try {
       await deleteUnansweredQuestion(id);
+      setUnanswered((prev) => prev.filter((u) => u.id !== id));
       toast.success('Pregunta descartada');
-      loadData();
-    } catch (e) {
+    } catch {
       toast.error('Error al descartar');
     }
   };

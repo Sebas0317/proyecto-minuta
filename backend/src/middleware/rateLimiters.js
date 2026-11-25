@@ -108,8 +108,10 @@ async function pinCompoundRateLimiter(req, res, next) {
     const ipKey = String(ip).trim();
     const targetKey = String(target).trim();
 
-    const ipResult = await pinIpStore.increment(ipKey);
-    const targetResult = await pinTargetStore.increment(targetKey);
+    const [ipResult, targetResult] = await Promise.all([
+      pinIpStore.increment(ipKey),
+      pinTargetStore.increment(targetKey),
+    ]);
 
     if (ipResult.totalHits > MAX_PIN_ATTEMPTS || targetResult.totalHits > MAX_PIN_ATTEMPTS) {
       return res.status(429).json({

@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { 
   fetchUnidades, fetchAccesos, fetchPaquetes, fetchMinuta, fetchParqueaderos,
   registrarIngreso, registrarSalida, createPaquete, notificarPaquete, entregarPaquete,
-  createMinutaEntry, aprobarAccesoPreautorizado
+  createMinutaEntry, aprobarAccesoPreautorizado, getLocalDateISO
 } from '../services/api';
 import CertificadosModal from './CertificadosModal';
 
@@ -81,9 +81,10 @@ export default function PorteriaDashboard() {
     retiradoPor: '',
     codigoRetiro: ''
   });
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (silent = false) => {
+    const isSilent = silent === true;
     try {
-      setLoading(true);
+      if (!isSilent) setLoading(true);
       const [uData, aData, pData, mData, prqData] = await Promise.all([
         fetchUnidades().catch(() => []),
         fetchAccesos().catch(() => []),
@@ -97,15 +98,19 @@ export default function PorteriaDashboard() {
       setMinuta(Array.isArray(mData) ? mData : []);
       setParqueaderos(Array.isArray(prqData) ? prqData : []);
     } catch {
-      toast.error('Error al cargar datos de portería');
+      if (!isSilent) toast.error('Error al cargar datos de portería');
     } finally {
-      setLoading(false);
+      if (!isSilent) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, 30000);
+    loadData(false);
+    const interval = setInterval(() => {
+      if (typeof document === 'undefined' || !document.hidden) {
+        loadData(true);
+      }
+    }, 30000);
     return () => clearInterval(interval);
   }, [loadData]);
 
@@ -126,7 +131,11 @@ export default function PorteriaDashboard() {
   const stats = useMemo(() => {
     const enConjunto = (accesos || []).filter(a => a.estado === 'en_conjunto');
     const cuposLibres = (parqueaderos || []).filter(p => p.categoria === 'visitantes' && p.estado === 'disponible').length;
-    const novedadesHoy = (minuta || []).filter(m => m.fecha && m.fecha.startsWith(new Date().toISOString().slice(0, 10))).length;
+    const todayLocal = getLocalDateISO();
+    const novedadesHoy = (minuta || []).filter((m) => {
+      if (!m?.fecha) return false;
+      return getLocalDateISO(m.fecha) === todayLocal;
+    }).length;
     const recibosCriticos = recibosPendientes.filter(r => calcularDiasCasillero(r.fechaIngreso) > 30).length;
 
     return {
@@ -169,7 +178,15 @@ export default function PorteriaDashboard() {
         parqueaderoAsignado: ingresoForm.parqueaderoAsignado || null
       };
 
-      await registrarIngreso(payload);
+      const created = await registrarIngreso(payload);
+      if (created?.id) {
+        setAccesos((prev) => [created, ...prev.filter((a) => a.id !== created.id)]);
+        if (payload.parqueaderoAsignado) {
+          setParqueaderos((prev) =>
+            prev.map((p) => (p.id === payload.parqueaderoAsignado ? { ...p, estado: 'ocupado', placa: payload.vehiculo?.placa } : p))
+          );
+        }
+      }
       toast.success(`Ingreso de ${ingresoForm.nombre} registrado correctamente`);
       setShowIngresoModal(false);
       setIngresoForm({
@@ -184,7 +201,7 @@ export default function PorteriaDashboard() {
         parqueaderoAsignado: '',
         autorizadoPor: ''
       });
-      loadData();
+      loadData(true);
     } catch (err) {
       toast.error(err.message || 'Error al registrar ingreso');
     }
@@ -202,10 +219,13 @@ export default function PorteriaDashboard() {
 
   const handleSalida = async (accesoId, nombre) => {
     try {
-      await registrarSalida(accesoId);
+      const updated = await registrarSalida(accesoId);
+      setAccesos((prev) =>
+        prev.map((a) => (a.id === accesoId ? (updated?.id ? updated : { ...a, estado: 'finalizado', fechaSalida: new Date().toISOString() }) : a))
+      );
       toast.success(`Salida de ${nombre} registrada y asentada en la minuta`);
-      loadData();
-    } catch (err) {
+      loadData(true);
+    } catch {
       toast.error('Error al registrar salida');
     }
   };
@@ -227,6 +247,11 @@ export default function PorteriaDashboard() {
         codigoRetiro: `REC-${reciboForm.apto}`
       };
       const created = await createPaquete(payload);
+      if (created?.id) {
+        const safeItem = { ...created };
+        delete safeItem.codigoRetiro;
+        setPaquetes((prev) => [safeItem, ...prev.filter((p) => p.id !== created.id)]);
+      }
       if (created?.id && created?.codigoRetiro) {
         setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
         setPinGeneradoModal(created);
@@ -242,7 +267,6 @@ export default function PorteriaDashboard() {
         valorFactura: '',
         destinatario: 'Titular Inmueble'
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al registrar recibo público');
     }
@@ -260,6 +284,11 @@ export default function PorteriaDashboard() {
     e.preventDefault();
     try {
       const created = await createPaquete(paqueteForm);
+      if (created?.id) {
+        const safeItem = { ...created };
+        delete safeItem.codigoRetiro;
+        setPaquetes((prev) => [safeItem, ...prev.filter((p) => p.id !== created.id)]);
+      }
       if (created?.id && created?.codigoRetiro) {
         setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
         setPinGeneradoModal(created);
@@ -274,7 +303,6 @@ export default function PorteriaDashboard() {
         guia: '',
         descripcion: 'Paquete mediano'
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al registrar paquete');
     }
@@ -289,7 +317,11 @@ export default function PorteriaDashboard() {
     
     if (tel) {
       window.open(`https://wa.me/57${tel.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
-      notificarPaquete(paquete.id).then(() => loadData()).catch(() => {});
+      notificarPaquete(paquete.id)
+        .then((updated) => {
+          setPaquetes((prev) => prev.map((p) => (p.id === paquete.id ? (updated?.id ? updated : { ...p, estado: 'notificado' }) : p)));
+        })
+        .catch(() => {});
     } else {
       toast.info(pin ? `Código PIN de retiro: ${pin}` : 'Sin teléfono registrado para WhatsApp.');
     }
@@ -297,11 +329,12 @@ export default function PorteriaDashboard() {
 
   const handleAprobarPreautorizado = async (visita) => {
     try {
-      await aprobarAccesoPreautorizado(visita.id, {
+      const updated = await aprobarAccesoPreautorizado(visita.id, {
         guarda: 'Guarda de Turno'
       });
+      setAccesos((prev) => prev.map((a) => (a.id === visita.id ? (updated?.id ? updated : { ...a, estado: 'en_conjunto' }) : a)));
       toast.success(`Ingreso de ${visita.nombre} autorizado y registrado en la minuta`);
-      loadData();
+      loadData(true);
     } catch (err) {
       toast.error(err.message || 'Error al autorizar ingreso pre-autorizado');
     }
@@ -311,11 +344,13 @@ export default function PorteriaDashboard() {
     e.preventDefault();
     if (!showEntregaModal) return;
     try {
-      await entregarPaquete(showEntregaModal.id, entregaForm);
+      const updated = await entregarPaquete(showEntregaModal.id, entregaForm);
+      setPaquetes((prev) =>
+        prev.map((p) => (p.id === showEntregaModal.id ? (updated?.id ? updated : { ...p, estado: 'entregado' }) : p))
+      );
       toast.success('Paquete entregado satisfactoriamente');
       setShowEntregaModal(null);
       setEntregaForm({ retiradoPor: '', codigoRetiro: '' });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al entregar paquete');
     }
@@ -324,7 +359,12 @@ export default function PorteriaDashboard() {
   const handleRegistrarMinuta = async (e) => {
     e.preventDefault();
     try {
-      await createMinutaEntry(minutaForm);
+      const created = await createMinutaEntry(minutaForm);
+      if (created?.id) {
+        setMinuta((prev) => [created, ...prev.filter((m) => m.id !== created.id)]);
+      } else {
+        await loadData(true);
+      }
       toast.success('Novedad asentada en la minuta digital');
       setShowMinutaModal(false);
       setMinutaForm({
@@ -333,7 +373,6 @@ export default function PorteriaDashboard() {
         descripcion: '',
         severidad: 'info'
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al registrar en minuta');
     }

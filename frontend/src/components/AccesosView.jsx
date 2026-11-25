@@ -69,7 +69,25 @@ export default function AccesosView() {
         parqueaderoAsignado: form.parqueaderoAsignado || null
       };
 
-      await registrarIngreso(payload);
+      const created = await registrarIngreso(payload);
+      if (created?.id) {
+        if (filtroEstado === 'preautorizado' || filtroEstado === 'finalizado') {
+          setFiltroEstado('en_conjunto');
+        }
+        if (filtroTipo && created.tipo && filtroTipo !== created.tipo) {
+          setFiltroTipo('');
+        }
+        setAccesos((prev) => [created, ...prev.filter((a) => a.id !== created.id)]);
+        if (payload.parqueaderoAsignado) {
+          setParqueaderos((prev) =>
+            prev.map((p) =>
+              p.id === payload.parqueaderoAsignado ? { ...p, estado: 'ocupado', placa: payload.vehiculo?.placa } : p
+            )
+          );
+        }
+      } else {
+        await loadData();
+      }
       toast.success(`Ingreso de ${form.nombre} registrado`);
       setShowModal(false);
       setForm({
@@ -84,7 +102,6 @@ export default function AccesosView() {
         parqueaderoAsignado: '',
         autorizadoPor: ''
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al registrar ingreso');
     }
@@ -92,10 +109,20 @@ export default function AccesosView() {
 
   const handleSalida = async (accesoId, nombre) => {
     try {
-      await registrarSalida(accesoId);
+      const updated = await registrarSalida(accesoId);
+      setAccesos((prev) => {
+        if (filtroEstado === 'en_conjunto') {
+          return prev.filter((a) => a.id !== accesoId);
+        }
+        return prev.map((a) => (a.id === accesoId ? (updated?.id ? updated : { ...a, estado: 'finalizado', fechaSalida: new Date().toISOString() }) : a));
+      });
+      if (updated?.parqueaderoAsignado) {
+        setParqueaderos((prev) =>
+          prev.map((p) => (p.id === updated.parqueaderoAsignado ? { ...p, estado: 'disponible', placa: null } : p))
+        );
+      }
       toast.success(`Salida de ${nombre} registrada`);
-      loadData();
-    } catch (err) {
+    } catch {
       toast.error('Error al registrar salida');
     }
   };

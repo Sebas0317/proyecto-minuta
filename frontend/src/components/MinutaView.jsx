@@ -44,7 +44,14 @@ export default function MinutaView() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createMinutaEntry(form);
+      const created = await createMinutaEntry(form);
+      if (created?.id) {
+        setMinuta((prev) => [created, ...prev.filter((m) => m.id !== created.id)]);
+      } else {
+        await loadMinuta();
+      }
+      if (filtroTipo && created?.tipo && filtroTipo !== created.tipo) setFiltroTipo('');
+      if (filtroSeveridad && created?.severidad && filtroSeveridad !== created.severidad) setFiltroSeveridad('');
       toast.success('Novedad registrada en la minuta oficial');
       setShowModal(false);
       setForm({
@@ -54,7 +61,6 @@ export default function MinutaView() {
         severidad: 'info',
         unidadId: ''
       });
-      loadMinuta();
     } catch (err) {
       toast.error(err.message || 'Error al guardar novedad');
     }

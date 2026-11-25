@@ -4,8 +4,10 @@ const { Redis } = require('@upstash/redis');
 
 let redis = null;
 let redisChecked = false;
+let redisCircuitOpenUntil = 0;
 
 function getRedisClient() {
+  if (Date.now() < redisCircuitOpenUntil) return null;
   if (redisChecked) return redis;
   const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -13,8 +15,13 @@ function getRedisClient() {
   if (redisUrl && redisToken) {
     try {
       const timeoutFetch = (url, init) =>
-        fetch(url, { ...init, signal: AbortSignal.timeout(5000) });
-      redis = new Redis({ url: redisUrl, token: redisToken, fetch: timeoutFetch });
+        fetch(url, { ...init, signal: AbortSignal.timeout(1500) });
+      redis = new Redis({
+        url: redisUrl,
+        token: redisToken,
+        fetch: timeoutFetch,
+        retry: false,
+      });
     } catch {
       redis = null;
     }
@@ -73,6 +80,7 @@ class UpstashStore {
       const totalHits = results[2] || 0;
       return { totalHits, resetTime };
     } catch {
+      redisCircuitOpenUntil = Date.now() + 30000;
       // Fall back to memory on Redis error
       const entry = this.memoryFallback.get(fullKey);
       if (!entry || now > entry.resetTime) {

@@ -2,6 +2,14 @@
 // Override with VITE_API_BASE env var for Vercel production (e.g. /_/backend/v1)
 export const API_BASE = import.meta.env.VITE_API_BASE || '/v1';
 
+export function getLocalDateISO(date = new Date()) {
+  const d = date instanceof Date ? date : new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // ── Room token management ──
 // Stores the signed room token issued after PIN validation.
 // Used to prove room ownership on guest-facing API calls.
@@ -184,6 +192,7 @@ export async function checkHealth() {
 async function apiFetch(endpoint, options = {}, timeout = 10000) {
   const url = `${API_BASE}${endpoint}`;
   const config = {
+    cache: 'no-store',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -215,6 +224,15 @@ async function apiFetch(endpoint, options = {}, timeout = 10000) {
     }
 
     if (!response.ok) {
+      if (
+        response.status === 401 &&
+        typeof window !== 'undefined' &&
+        !endpoint.startsWith('/auth/')
+      ) {
+        window.dispatchEvent(
+          new CustomEvent('minuta:unauthorized', { detail: { endpoint } })
+        );
+      }
       const message = normalizeErrorMessage(
         data?.error ?? data?.message ?? response.statusText,
         'Request failed'

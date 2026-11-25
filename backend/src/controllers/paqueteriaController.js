@@ -62,8 +62,6 @@ async function getAllPaquetes(req, res) {
 
 async function createPaquete(req, res) {
   try {
-    const raw = await getPaquetes();
-    const paquetes = Array.isArray(raw) ? [...raw] : [];
     const {
       unidadId,
       torre,
@@ -85,9 +83,13 @@ async function createPaquete(req, res) {
       return res.status(400).json({ error: 'Torre, Apartamento y Destinatario son obligatorios' });
     }
 
-    // Generar código de retiro numérico criptográficamente seguro de 4 dígitos
+    // Generar código de retiro numérico criptográficamente seguro de 4 dígitos en paralelo con lectura de BD
     const codigoRetiroPlano = crypto.randomInt(1000, 10000).toString();
-    const codigoRetiroHash = await bcrypt.hash(codigoRetiroPlano, 10);
+    const [raw, codigoRetiroHash] = await Promise.all([
+      getPaquetes(),
+      bcrypt.hash(codigoRetiroPlano, 8),
+    ]);
+    const paquetes = Array.isArray(raw) ? [...raw] : [];
 
     const nuevoPaquete = {
       id: `pkg-${Date.now()}-${generateId(4)}`,

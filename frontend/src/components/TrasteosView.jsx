@@ -3,7 +3,7 @@ import {
   Truck, Plus, CheckCircle, XCircle, RefreshCw, X
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchTrasteos, createTrasteo, updateTrasteoEstado } from '../services/api';
+import { fetchTrasteos, createTrasteo, updateTrasteoEstado, getLocalDateISO } from '../services/api';
 
 export default function TrasteosView() {
   const [trasteos, setTrasteos] = useState([]);
@@ -16,7 +16,7 @@ export default function TrasteosView() {
     apto: '',
     solicitante: '',
     telefono: '',
-    fechaProgramada: new Date().toISOString().slice(0, 10),
+    fechaProgramada: getLocalDateISO(),
     horario: '08:00 a 12:00',
     empresaMudanza: '',
     placaVehiculo: '',
@@ -44,7 +44,12 @@ export default function TrasteosView() {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      await createTrasteo(form);
+      const created = await createTrasteo(form);
+      if (created?.id) {
+        setTrasteos((prev) => [created, ...prev.filter((t) => t.id !== created.id)]);
+      } else {
+        await loadData();
+      }
       toast.success('Solicitud de mudanza registrada');
       setShowModal(false);
       setForm({
@@ -53,7 +58,7 @@ export default function TrasteosView() {
         apto: '',
         solicitante: '',
         telefono: '',
-        fechaProgramada: new Date().toISOString().slice(0, 10),
+        fechaProgramada: getLocalDateISO(),
         horario: '08:00 a 12:00',
         empresaMudanza: '',
         placaVehiculo: '',
@@ -61,7 +66,6 @@ export default function TrasteosView() {
         depositoGarantia: 0,
         observaciones: ''
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al programar mudanza');
     }
@@ -69,10 +73,12 @@ export default function TrasteosView() {
 
   const handleEstado = async (id, nuevoEstado) => {
     try {
-      await updateTrasteoEstado(id, { estado: nuevoEstado });
+      const updated = await updateTrasteoEstado(id, { estado: nuevoEstado });
+      setTrasteos((prev) =>
+        prev.map((t) => (t.id === id ? (updated?.id ? updated : { ...t, estado: nuevoEstado }) : t))
+      );
       toast.success(`Mudanza ${nuevoEstado === 'aprobado' ? 'aprobada' : 'actualizada'}`);
-      loadData();
-    } catch (err) {
+    } catch {
       toast.error('Error al actualizar estado');
     }
   };

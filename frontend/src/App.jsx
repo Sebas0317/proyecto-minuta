@@ -7,13 +7,15 @@ import {
   useState,
 } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSession } from './hooks/useSession';
 import {
   logout as apiLogout,
   clearRoomToken,
+  getAuthProfile,
   getUserInfo,
+  setUserInfo,
 } from './services/api';
 import './App.css';
 
@@ -197,6 +199,45 @@ export default function App() {
     setShowSessionModal(false);
     navigate('/', { replace: true });
   }, [navigate]);
+
+  // Verify stored staff session cookie on boot and react immediately to 401 on protected actions
+  useEffect(() => {
+    const onUnauthorized = () => {
+      const current = getUserInfo();
+      if (!current) return;
+      setUserInfo(null);
+      setRol(null);
+      setShowSessionModal(false);
+      toast.error('Tu sesión expiró. Inicia sesión nuevamente para guardar cambios.');
+      navigate('/login/admin', { replace: true });
+    };
+
+    window.addEventListener('minuta:unauthorized', onUnauthorized);
+    return () => window.removeEventListener('minuta:unauthorized', onUnauthorized);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!rol || rol === 'user' || rol === 'cliente' || rol === 'residente') return;
+    let cancelled = false;
+    getAuthProfile()
+      .then((profile) => {
+        if (!cancelled && profile?.role) {
+          setUserInfo(profile);
+          setRol(profile.role);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled && err?.status === 401) {
+          setUserInfo(null);
+          setRol(null);
+          toast.error('Tu sesión expiró. Por favor inicia sesión nuevamente.');
+          navigate('/login/admin', { replace: true });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [rol, navigate]);
 
   const { reset: resetSession } = useSession({
     timeout: 30 * 60 * 1000, // 30 min para puesto de vigilancia

@@ -221,6 +221,12 @@ export default function PortalResidenteView() {
       };
 
       const res = await createPqrs(payload);
+      if (res?.id) {
+        setPqrsList((prev) => [res, ...prev.filter((t) => t.id !== res.id)]);
+      } else {
+        const aptoNum = unidadData?.numero || '101';
+        fetchPqrs({ apto: aptoNum, torre: unidadData?.torre }).then(setPqrsList).catch(() => {});
+      }
       toast.success(`PQRS radicada con éxito: Radicado ${res.radicado || ''}`);
       setShowPqrsModal(false);
       setFormPqrs({
@@ -229,9 +235,6 @@ export default function PortalResidenteView() {
         descripcion: '',
         telefono: ''
       });
-
-      const aptoNum = unidadData?.numero || '101';
-      fetchPqrs({ apto: aptoNum, torre: unidadData?.torre }).then(setPqrsList).catch(() => {});
     } catch (err) {
       toast.error(err.message || 'Error al radicar PQRS');
     }
@@ -263,6 +266,12 @@ export default function PortalResidenteView() {
       };
 
       const res = await preautorizarAcceso(payload);
+      if (res?.id) {
+        setVisitas((prev) => [res, ...prev.filter((v) => v.id !== res.id)]);
+      } else {
+        const aptoNum = unidadData?.numero || '101';
+        fetchPreautorizadosUnidad(unidadData?.id || selectedUnidadId, { apto: aptoNum }).then(setVisitas);
+      }
       toast.success(`Visita pre-autorizada con Pase ${res.paseQR}`);
       setShowPreautorizarModal(false);
       setFormVisita({
@@ -275,9 +284,6 @@ export default function PortalResidenteView() {
         placa: '',
         observaciones: ''
       });
-
-      const aptoNum = unidadData?.numero || '101';
-      fetchPreautorizadosUnidad(unidadData?.id || selectedUnidadId, { apto: aptoNum }).then(setVisitas);
     } catch (err) {
       toast.error(err.message || 'Error al crear pre-autorización');
     }
@@ -303,10 +309,14 @@ export default function PortalResidenteView() {
         observaciones: formReserva.observaciones || 'Reserva desde el Portal del Residente'
       };
 
-      await createReservaZona(payload);
+      const created = await createReservaZona(payload);
+      if (created?.id) {
+        setReservas((prev) => [created, ...prev.filter((r) => r.id !== created.id)]);
+      } else {
+        fetchReservasZonas().then(d => setReservas(Array.isArray(d) ? d : [])).catch(() => {});
+      }
       toast.success('Reserva confirmada en el calendario');
       setShowReservaModal(false);
-      fetchReservasZonas().then(d => setReservas(Array.isArray(d) ? d : [])).catch(() => {});
     } catch (err) {
       toast.error(err.message || 'Error al solicitar reserva');
     }
@@ -316,12 +326,23 @@ export default function PortalResidenteView() {
   const handleVotar = async (asambleaId, votacionId, opcion) => {
     try {
       const coef = unidadData?.coeficiente || 1.25;
-      await castVote(asambleaId, votacionId, opcion, coef, {
+      const res = await castVote(asambleaId, votacionId, opcion, coef, {
         unidadId: unidadData?.id || selectedUnidadId,
         apto: unidadData?.numero,
       });
+      const updatedVot = res?.votacion || (res?.id ? res : null);
+      if (updatedVot?.id) {
+        setAsambleas((prev) =>
+          prev.map((a) =>
+            a.id === asambleaId
+              ? { ...a, votaciones: (a.votaciones || []).map((v) => (v.id === votacionId ? updatedVot : v)) }
+              : a
+          )
+        );
+      } else {
+        fetchAsambleas().then(d => setAsambleas(Array.isArray(d) ? d : [])).catch(() => {});
+      }
       toast.success(`Voto por "${opcion.toUpperCase()}" registrado (${coef}%)`);
-      fetchAsambleas().then(d => setAsambleas(Array.isArray(d) ? d : [])).catch(() => {});
     } catch (e) {
       toast.error(e.message || 'Error al registrar voto');
     }
@@ -349,7 +370,12 @@ export default function PortalResidenteView() {
         telefonoContacto: telefono,
       };
 
-      await createMascota(payload);
+      const created = await createMascota(payload);
+      if (created?.id) {
+        setMascotas((prev) => [created, ...prev.filter((m) => m.id !== created.id)]);
+      } else {
+        fetchMascotas({ apto: unidadData?.numero || '101', torre: unidadData?.torre }).then(d => setMascotas(Array.isArray(d) ? d : [])).catch(() => {});
+      }
       toast.success('Mascota registrada exitosamente con carnet QR');
       setShowMascotaModal(false);
       setFormMascota({
@@ -361,7 +387,6 @@ export default function PortalResidenteView() {
         vacunaAntirrabica: true,
         fechaVacuna: new Date().toISOString().split('T')[0]
       });
-      fetchMascotas({ apto: unidadData?.numero || '101', torre: unidadData?.torre }).then(d => setMascotas(Array.isArray(d) ? d : [])).catch(() => {});
     } catch (err) {
       toast.error(err.message || 'Error al registrar mascota');
     }

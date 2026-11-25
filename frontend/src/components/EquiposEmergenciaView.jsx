@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Flame, Plus, Search, RefreshCw, Download, X } from 'lucide-react';
+import { Flame, Plus, Search, RefreshCw, Download, X, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchEquipos, createEquipo } from '../services/api';
+import { fetchEquipos, createEquipo, deleteEquipo, getLocalDateISO } from '../services/api';
 
 export default function EquiposEmergenciaView() {
   const [equipos, setEquipos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [filtroTipo, setFiltroTipo] = useState('');
   const [filtroTorre, setFiltroTorre] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,8 +21,8 @@ export default function EquiposEmergenciaView() {
     piso: 1,
     capacidad: '20 Lbs',
     agente: 'Polvo Químico Seco (PQS)',
-    fechaRecarga: new Date().toISOString().split('T')[0],
-    fechaVencimiento: new Date(Date.now() + 365*24*3600*1000).toISOString().split('T')[0],
+    fechaRecarga: getLocalDateISO(),
+    fechaVencimiento: getLocalDateISO(new Date(Date.now() + 365 * 24 * 3600 * 1000)),
     observaciones: ''
   });
 
@@ -65,8 +66,17 @@ export default function EquiposEmergenciaView() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     try {
-      await createEquipo(form);
+      setSubmitting(true);
+      const created = await createEquipo(form);
+      if (created?.id) {
+        setEquipos((prev) => [created, ...prev.filter((eq) => eq.id !== created.id)]);
+      } else {
+        await loadData();
+      }
+      if (filtroTipo && created?.tipo && filtroTipo !== created.tipo) setFiltroTipo('');
+      if (filtroTorre && created?.torre && String(filtroTorre) !== String(created.torre)) setFiltroTorre('');
       toast.success('Equipo de emergencia registrado en inventario');
       setShowModal(false);
       setForm({
@@ -77,13 +87,25 @@ export default function EquiposEmergenciaView() {
         piso: 1,
         capacidad: '20 Lbs',
         agente: 'Polvo Químico Seco (PQS)',
-        fechaRecarga: new Date().toISOString().split('T')[0],
-        fechaVencimiento: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().split('T')[0],
+        fechaRecarga: getLocalDateISO(),
+        fechaVencimiento: getLocalDateISO(new Date(Date.now() + 365 * 24 * 3600 * 1000)),
         observaciones: ''
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al registrar equipo');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (eq) => {
+    if (!window.confirm(`¿Seguro que deseas retirar "${eq.nombre}" del inventario de emergencia?`)) return;
+    try {
+      await deleteEquipo(eq.id);
+      setEquipos((prev) => prev.filter((item) => item.id !== eq.id));
+      toast.success(`Equipo "${eq.nombre}" eliminado del inventario`);
+    } catch (err) {
+      toast.error(err.message || 'Error al eliminar equipo');
     }
   };
 
@@ -217,12 +239,13 @@ export default function EquiposEmergenciaView() {
                 <th className="p-4">Última Recarga</th>
                 <th className="p-4">Vencimiento</th>
                 <th className="p-4 text-center">Semáforo de Estado</th>
+                <th className="p-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/60">
               {filteredEquipos.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-10 text-center text-slate-500">
+                  <td colSpan={7} className="p-10 text-center text-slate-500">
                     No se encontraron equipos con los filtros seleccionados.
                   </td>
                 </tr>
@@ -266,6 +289,15 @@ export default function EquiposEmergenciaView() {
                       )}>
                         {esVencido ? '🔴 VENCIDO' : esPorVencer ? ('🟡 Vence en ' + dias + ' días') : '🟢 OPERATIVO'}
                       </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => handleDelete(eq)}
+                        title="Eliminar equipo"
+                        className="p-1.5 bg-red-500/15 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </td>
                   </tr>
                 );

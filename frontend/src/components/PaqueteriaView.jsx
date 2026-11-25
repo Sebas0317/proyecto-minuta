@@ -118,10 +118,19 @@ export default function PaqueteriaView() {
     e.preventDefault();
     try {
       const created = await createPaquete({ ...formPaquete, categoria: 'encomienda' });
+      if (created?.id) {
+        const safeItem = { ...created };
+        delete safeItem.codigoRetiro;
+        setPaquetes((prev) => [safeItem, ...prev.filter((p) => p.id !== created.id)]);
+      } else {
+        await loadData();
+      }
       if (created?.id && created?.codigoRetiro) {
         setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
         setPinGeneradoModal(created);
       }
+      if (filtroTorre && created?.torre && filtroTorre !== created.torre) setFiltroTorre('');
+      setTabActiva('paquetes');
       toast.success(`Encomienda registrada • PIN de retiro: ${created?.codigoRetiro || 'Generado'}`);
       setShowPaqueteModal(false);
       setFormPaquete({
@@ -133,7 +142,6 @@ export default function PaqueteriaView() {
         guia: '',
         descripcion: 'Paquete mediano'
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al registrar encomienda');
     }
@@ -149,10 +157,19 @@ export default function PaqueteriaView() {
         destinatario: `Titular Apto ${formRecibo.apto}`,
         guia: `REC-${formRecibo.apto}`
       });
+      if (created?.id) {
+        const safeItem = { ...created };
+        delete safeItem.codigoRetiro;
+        setPaquetes((prev) => [safeItem, ...prev.filter((p) => p.id !== created.id)]);
+      } else {
+        await loadData();
+      }
       if (created?.id && created?.codigoRetiro) {
         setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
         setPinGeneradoModal(created);
       }
+      if (filtroTorre && created?.torre && filtroTorre !== created.torre) setFiltroTorre('');
+      setTabActiva('recibos');
       toast.success(`Recibo de ${formRecibo.tipoRecibo} registrado para Apto ${formRecibo.apto}`);
       setShowReciboModal(false);
       setFormRecibo({
@@ -164,7 +181,6 @@ export default function PaqueteriaView() {
         mesFacturado: mesActualLabel,
         observacion: 'Factura del mes'
       });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al registrar recibo público');
     }
@@ -179,7 +195,13 @@ export default function PaqueteriaView() {
     
     if (tel) {
       window.open(`https://wa.me/57${tel.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
-      notificarPaquete(paquete.id).then(() => loadData()).catch(() => {});
+      notificarPaquete(paquete.id)
+        .then((updated) => {
+          setPaquetes((prev) =>
+            prev.map((p) => (p.id === paquete.id ? (updated?.id ? updated : { ...p, estado: 'notificado' }) : p))
+          );
+        })
+        .catch(() => {});
     } else {
       toast.info(pin ? `Código PIN de retiro: ${pin}` : 'Sin teléfono registrado para WhatsApp; el PIN se entrega únicamente al registrar.');
     }
@@ -189,11 +211,19 @@ export default function PaqueteriaView() {
     e.preventDefault();
     if (!entregaModal) return;
     try {
-      await entregarPaquete(entregaModal.id, entregaForm);
+      const updated = await entregarPaquete(entregaModal.id, entregaForm);
+      setPaquetes((prev) =>
+        prev.map((p) =>
+          p.id === entregaModal.id
+            ? updated?.id
+              ? updated
+              : { ...p, estado: 'entregado', fechaEntrega: new Date().toISOString(), retiradoPor: entregaForm.retiradoPor }
+            : p
+        )
+      );
       toast.success('Correspondencia entregada con éxito');
       setEntregaModal(null);
       setEntregaForm({ retiradoPor: '', codigoRetiro: '' });
-      loadData();
     } catch (err) {
       toast.error(err.message || 'Error al entregar correspondencia');
     }

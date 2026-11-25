@@ -50,12 +50,19 @@ async function getAllAccesos(req, res) {
 
 async function registrarIngreso(req, res) {
   try {
-    const accesos = await getAccesos();
     const { tipo, nombre, documento, unidadId, torre, apto, motivo, vehiculo, autorizadoPor, guarda, parqueaderoAsignado } = req.body;
 
     if (!nombre || !torre || !apto) {
       return res.status(400).json({ error: 'Nombre, Torre y Apartamento de destino son obligatorios' });
     }
+
+    const necesitaParqueadero = Boolean(parqueaderoAsignado && vehiculo?.placa);
+    const [rawAccesos, rawMinuta, rawParqueaderos] = await Promise.all([
+      getAccesos(),
+      getMinuta().catch(() => null),
+      necesitaParqueadero ? getParqueaderos() : Promise.resolve(null),
+    ]);
+    const accesos = Array.isArray(rawAccesos) ? [...rawAccesos] : [];
 
     const guardaResponsable = guarda || req.user?.username || req.user?.firstName || 'Guarda de Turno';
 
@@ -77,27 +84,30 @@ async function registrarIngreso(req, res) {
       guarda: guardaResponsable
     };
 
-    // Si tiene vehículo y se asignó parqueadero, ocuparlo
-    if (parqueaderoAsignado && vehiculo?.placa) {
-      const parqueaderos = await getParqueaderos();
+    const writeTasks = [];
+
+    if (necesitaParqueadero && Array.isArray(rawParqueaderos)) {
+      const parqueaderos = [...rawParqueaderos];
       const pIndex = parqueaderos.findIndex(p => p.id === parqueaderoAsignado);
       if (pIndex !== -1) {
-        parqueaderos[pIndex].estado = 'ocupado';
-        parqueaderos[pIndex].placa = vehiculo.placa;
-        parqueaderos[pIndex].unidadId = nuevoAcceso.unidadId;
-        parqueaderos[pIndex].torre = nuevoAcceso.torre;
-        parqueaderos[pIndex].apto = nuevoAcceso.apto;
-        parqueaderos[pIndex].horaIngreso = nuevoAcceso.fechaIngreso;
-        await saveParqueaderos(parqueaderos);
+        parqueaderos[pIndex] = {
+          ...parqueaderos[pIndex],
+          estado: 'ocupado',
+          placa: vehiculo.placa,
+          unidadId: nuevoAcceso.unidadId,
+          torre: nuevoAcceso.torre,
+          apto: nuevoAcceso.apto,
+          horaIngreso: nuevoAcceso.fechaIngreso,
+        };
+        writeTasks.push(saveParqueaderos(parqueaderos));
       }
     }
 
     accesos.unshift(nuevoAcceso);
-    await saveAccesos(accesos);
+    writeTasks.push(saveAccesos(accesos));
 
-    // Asentar en la minuta digital
-    try {
-      const minuta = await getMinuta();
+    if (Array.isArray(rawMinuta)) {
+      const minuta = [...rawMinuta];
       minuta.unshift({
         id: `min-${Date.now()}-${generateId(4)}`,
         fecha: nuevoAcceso.fechaIngreso,
@@ -109,10 +119,14 @@ async function registrarIngreso(req, res) {
         unidadId: nuevoAcceso.unidadId,
         evidencia: null
       });
-      await saveMinuta(minuta);
-    } catch (e) {
-      logger.warn({ error: e.message }, 'No se pudo asentar ingreso en minuta');
+      writeTasks.push(
+        saveMinuta(minuta).catch((e) => {
+          logger.warn({ error: e.message }, 'No se pudo asentar ingreso en minuta');
+        })
+      );
     }
+
+    await Promise.all(writeTasks);
 
     logger.info({ id: nuevoAcceso.id, nombre, torre, apto }, 'Ingreso registrado en portería');
     res.status(201).json(nuevoAcceso);
@@ -124,7 +138,11 @@ async function registrarIngreso(req, res) {
 
 async function registrarSalida(req, res) {
   try {
-    const accesos = await getAccesos();
+    const [rawAccesos, rawMinuta] = await Promise.all([
+      getAccesos(),
+      getMinuta().catch(() => null),
+    ]);
+    const accesos = Array.isArray(rawAccesos) ? [...rawAccesos] : [];
     const { id } = req.params;
 
     const acceso = accesos.find(a => a.id === id);
@@ -144,26 +162,29 @@ async function registrarSalida(req, res) {
     const hrs = Math.floor(mins / 60);
     const duracionStr = hrs > 0 ? `${hrs}h ${mins % 60}m` : `${mins} min`;
 
-    // Si tenía parqueadero asignado, liberarlo
+    const writeTasks = [];
+
     if (acceso.parqueaderoAsignado) {
       const parqueaderos = await getParqueaderos();
       const pIndex = parqueaderos.findIndex(p => p.id === acceso.parqueaderoAsignado);
       if (pIndex !== -1) {
-        parqueaderos[pIndex].estado = 'disponible';
-        parqueaderos[pIndex].placa = null;
-        parqueaderos[pIndex].unidadId = null;
-        parqueaderos[pIndex].torre = null;
-        parqueaderos[pIndex].apto = null;
-        parqueaderos[pIndex].horaIngreso = null;
-        await saveParqueaderos(parqueaderos);
+        parqueaderos[pIndex] = {
+          ...parqueaderos[pIndex],
+          estado: 'disponible',
+          placa: null,
+          unidadId: null,
+          torre: null,
+          apto: null,
+          horaIngreso: null,
+        };
+        writeTasks.push(saveParqueaderos(parqueaderos));
       }
     }
 
-    await saveAccesos(accesos);
+    writeTasks.push(saveAccesos(accesos));
 
-    // Asentar en la minuta digital
-    try {
-      const minuta = await getMinuta();
+    if (Array.isArray(rawMinuta)) {
+      const minuta = [...rawMinuta];
       minuta.unshift({
         id: `min-${Date.now()}-${generateId(4)}`,
         fecha: acceso.fechaSalida,
@@ -175,10 +196,14 @@ async function registrarSalida(req, res) {
         unidadId: acceso.unidadId,
         evidencia: null
       });
-      await saveMinuta(minuta);
-    } catch (e) {
-      logger.warn({ error: e.message }, 'No se pudo asentar salida en minuta');
+      writeTasks.push(
+        saveMinuta(minuta).catch((e) => {
+          logger.warn({ error: e.message }, 'No se pudo asentar salida en minuta');
+        })
+      );
     }
+
+    await Promise.all(writeTasks);
 
     logger.info({ id, nombre: acceso.nombre, duracion: duracionStr }, 'Salida registrada en portería');
     res.json(acceso);
