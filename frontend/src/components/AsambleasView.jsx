@@ -3,7 +3,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Vote, Plus, Clock, RefreshCw, BarChart3, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchAsambleas, createAsamblea, updateQuorum, addVotacion, castVote, closeVotacion, getLocalDateISO } from '../services/api';
-import { generarActaAsambleaPDF } from '../utils/pdfGenerator';
 
 export default function AsambleasView() {
   const [asambleas, setAsambleas] = useState([]);
@@ -176,7 +175,8 @@ export default function AsambleasView() {
         <div className="flex items-center gap-2 w-full md:w-auto">
           {activeAsamblea && (
             <button
-              onClick={() => {
+              onClick={async () => {
+                const { generarActaAsambleaPDF } = await import('../utils/pdfGenerator');
                 generarActaAsambleaPDF(activeAsamblea);
                 toast.success('Acta Oficial de Asamblea descargada en PDF');
               }}

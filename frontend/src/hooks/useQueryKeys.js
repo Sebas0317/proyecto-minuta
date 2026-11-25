@@ -1,35 +1,22 @@
 /**
- * Query keys for type-safe caching
- * Following TanStack Query best practices
+ * Claves estandarizadas de caché para @tanstack/react-query en MinutaTech
  */
 export const queryKeys = {
-  // Rooms
-  rooms: ['rooms'],
-  room: (id) => ['room', id],
-
-  // History
-  history: ['history'],
-  reservationHistory: ['reservationHistory'],
-
-  // Accounting
-  accounting: ['accounting'],
-
-  // Consumos
-  consumos: (roomId) => ['consumos', roomId],
-
-  // Auth
+  unidades: (params = {}) => ['unidades', params],
+  minuta: (params = {}) => ['minuta', params],
+  paquetes: (params = {}) => ['paquetes', params],
+  accesos: (params = {}) => ['accesos', params],
+  parqueaderos: (params = {}) => ['parqueaderos', params],
+  rondas: ['rondas'],
+  contextoOperativo: ['contextoOperativo'],
+  festivos: (year) => ['festivos', year],
   lastLogin: ['lastLogin'],
   loginLogs: ['loginLogs'],
   securityEvents: ['securityEvents'],
 };
 
-/**
- * Stale times for each data type (in milliseconds)
- * Adjust based on how often data changes
- */
 export const staleTimes = {
-  rooms: 1000 * 60 * 5, // 5 minutes
-  history: 1000 * 60 * 10, // 10 minutes
-  accounting: 1000 * 60, // 1 minute
-  consumos: 1000 * 60 * 2, // 2 minutes
+  operativo: 1000 * 20, // 20s para portería en vivo
+  unidades: 1000 * 60 * 2, // 2 min para censo
+  contexto: 1000 * 60 * 5, // 5 min para clima/pico y placa/festivos
 };

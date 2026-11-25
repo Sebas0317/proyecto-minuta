@@ -57,7 +57,6 @@ import {
   createPqrs
 } from '../services/api';
 import CertificadosModal from './CertificadosModal';
-import { generarPazYSalvoPDF, generarTicketPqrsPDF } from '../utils/pdfGenerator';
 
 const TABS = [
   { id: 'resumen', label: 'Mi Inmueble & Finanzas', icon: Home },
@@ -895,7 +894,8 @@ export default function PortalResidenteView() {
                 </div>
                 <div className="pt-2 border-t border-slate-800 space-y-2">
                   <button
-                    onClick={() => {
+                    onClick={async () => {
+                      const { generarPazYSalvoPDF } = await import('../utils/pdfGenerator');
                       generarPazYSalvoPDF(unidadData);
                       toast.success('Paz y Salvo Oficial generado y descargado en PDF');
                     }}
@@ -1165,7 +1165,8 @@ export default function PortalResidenteView() {
                           </div>
 
                           <button
-                            onClick={() => {
+                            onClick={async () => {
+                              const { generarTicketPqrsPDF } = await import('../utils/pdfGenerator');
                               generarTicketPqrsPDF(ticket);
                               toast.success(`Radicado ${ticket.radicado} descargado en PDF`);
                             }}

@@ -1,4 +1,4 @@
-name: CI
+name: MinutaTech Full-Stack CI
 
 on:
   push:
@@ -7,84 +7,43 @@ on:
     branches: [main]
 
 jobs:
-  backend:
-    name: Backend Tests & Integrity
+  verify-backend-and-frontend:
+    name: Backend Tests, Lint, UI Tests & Production Build
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
+
     env:
       NODE_ENV: test
-      JWT_SECRET: ci-test-jwt-secret-minuta-super-seguro-256bit
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
-      - run: npm install
-      - run: npm test
-      - run: node -e "require('./src/data/jsonStore')"
-      - run: node -e "require('./src/utils/idGenerator')"
-      - run: node -e "require('./src/utils/pinGenerator')"
+      JWT_SECRET: ci-test-jwt-secret-minutatech-2026-256bit
 
-  frontend:
-    name: Frontend Lint & Build
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - run: npm install
-      - run: npm run lint
-      - run: npm run build
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  semgrep:
-    name: SAST Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.12'
-      - run: pip install semgrep
-      - run: semgrep --config=auto . --exclude="oi_env|node_modules|.opencode|dist|ai|scripts|backend/*.json.tmp|backend/users.json|docs/reports" --skip-unknown-extensions --metrics=off || true
+          node-version: '22'
 
-  knip:
-    name: Dead Code Detection
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Dead code check (Frontend)
-        working-directory: frontend
-        run: |
-          npm install -g knip
-          knip --no-gitignore || true
-      - name: Dead code check (Backend)
+      - name: Install backend dependencies
         working-directory: backend
-        run: |
-          knip --no-gitignore || true
+        run: npm install --no-audit --no-fund
 
-  ai-review:
-    name: AI Code Review Pipeline
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npx ai-review-pipeline --branch main --lang es || true
+      - name: Run backend security, API & concurrency test suites
+        working-directory: backend
+        run: npm test
 
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+
+      - name: Run frontend ESLint (zero errors / zero warnings)
+        working-directory: frontend
+        run: npx eslint . --max-warnings=0
+
+      - name: Run frontend unit & UI component flow tests
+        working-directory: frontend
+        run: npm test
+
+      - name: Build production Vite bundle
+        working-directory: frontend
+        run: npm run build

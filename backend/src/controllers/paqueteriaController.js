@@ -6,6 +6,7 @@ const { getPaquetes, savePaquetes } = require('../data/jsonStore');
 const { withKeyLock } = require('../data/persistence');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
+const { sendPaginatedOrArray } = require('../utils/pagination');
 
 /**
  * Serializer para paquetería:
@@ -54,7 +55,8 @@ async function getAllPaquetes(req, res) {
     filtered.sort((a, b) => new Date(b.fechaIngreso || 0) - new Date(a.fechaIngreso || 0));
 
     const isStaff = req.user && ['owner', 'admin', 'supervisor', 'guarda', 'superadmin'].includes(req.user.role);
-    res.json(filtered.map(p => serializePaquete(p, isStaff)));
+    const sanitized = filtered.map(p => serializePaquete(p, isStaff));
+    return sendPaginatedOrArray(req, res, sanitized);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener paquetes');
     res.status(500).json({ error: 'Error interno al obtener paquetes' });

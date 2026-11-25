@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchUnidades } from '../services/api';
-import { generarPazYSalvoPDF } from '../utils/pdfGenerator';
 
 export default function CondominioMapView() {
   const [unidades, setUnidades] = useState([]);
@@ -613,7 +612,8 @@ export default function CondominioMapView() {
             <div className="flex justify-end items-center gap-3 pt-2">
               {selectedUnidad.estadoFinanciero?.administracion?.alDia && (
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    const { generarPazYSalvoPDF } = await import('../utils/pdfGenerator');
                     generarPazYSalvoPDF(selectedUnidad);
                     toast.success('Paz y Salvo Oficial generado y descargado en PDF');
                   }}

@@ -1,15 +1,24 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { 
   Shield, Search, UserCheck, Package, Car, AlertTriangle, Receipt, FileText, Droplets, Zap, Flame, Wifi, 
   Plus, CheckCircle, Clock, Send, Phone, User, Users,
-  Home, Building2, ArrowRight, ArrowLeft, LogOut, Check, X, RefreshCw, FileCheck
+  Home, Building2, ArrowRight, ArrowLeft, LogOut, Check, X, RefreshCw, FileCheck, CloudRain, Sun, Calendar
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
-  fetchUnidades, fetchAccesos, fetchPaquetes, fetchMinuta, fetchParqueaderos,
   registrarIngreso, registrarSalida, createPaquete, notificarPaquete, entregarPaquete,
   createMinutaEntry, aprobarAccesoPreautorizado, getLocalDateISO
 } from '../services/api';
+import {
+  useUnidadesQuery,
+  useAccesosQuery,
+  usePaquetesQuery,
+  useMinutaQuery,
+  useParqueaderosQuery,
+  useContextoOperativoQuery,
+} from '../hooks/useCondominioQueries';
+import { queryKeys } from '../hooks/useQueryKeys';
 import CertificadosModal from './CertificadosModal';
 
 function getCurrentMonthLabel() {
@@ -17,13 +26,79 @@ function getCurrentMonthLabel() {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
+function calcularDiasCasillero(fechaIngreso) {
+  if (!fechaIngreso) return 0;
+  const ingreso = new Date(fechaIngreso);
+  const hoy = new Date();
+  return Math.max(0, Math.floor((hoy - ingreso) / (1000 * 60 * 60 * 24)));
+}
+
 export default function PorteriaDashboard() {
-  const [unidades, setUnidades] = useState([]);
-  const [accesos, setAccesos] = useState([]);
-  const [paquetes, setPaquetes] = useState([]);
-  const [minuta, setMinuta] = useState([]);
-  const [parqueaderos, setParqueaderos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const unidadesQ = useUnidadesQuery();
+  const accesosQ = useAccesosQuery();
+  const paquetesQ = usePaquetesQuery();
+  const minutaQ = useMinutaQuery();
+  const parqueaderosQ = useParqueaderosQuery();
+  const contextoQ = useContextoOperativoQuery();
+
+  const unidades = useMemo(() => (Array.isArray(unidadesQ.data) ? unidadesQ.data : []), [unidadesQ.data]);
+  const accesos = useMemo(
+    () => (Array.isArray(accesosQ.data) ? accesosQ.data : accesosQ.data?.data || []),
+    [accesosQ.data]
+  );
+  const paquetes = useMemo(
+    () => (Array.isArray(paquetesQ.data) ? paquetesQ.data : paquetesQ.data?.data || []),
+    [paquetesQ.data]
+  );
+  const minuta = useMemo(
+    () => (Array.isArray(minutaQ.data) ? minutaQ.data : minutaQ.data?.data || []),
+    [minutaQ.data]
+  );
+  const parqueaderos = useMemo(
+    () => (Array.isArray(parqueaderosQ.data) ? parqueaderosQ.data : []),
+    [parqueaderosQ.data]
+  );
+  const contexto = contextoQ.data || null;
+  const loading =
+    unidadesQ.isLoading || accesosQ.isLoading || paquetesQ.isLoading || minutaQ.isLoading;
+
+  const setAccesos = useCallback(
+    (updater) => {
+      queryClient.setQueryData(queryKeys.accesos({}), (old) => {
+        const list = Array.isArray(old) ? old : old?.data || [];
+        return typeof updater === 'function' ? updater(list) : updater;
+      });
+    },
+    [queryClient]
+  );
+  const setPaquetes = useCallback(
+    (updater) => {
+      queryClient.setQueryData(queryKeys.paquetes({}), (old) => {
+        const list = Array.isArray(old) ? old : old?.data || [];
+        return typeof updater === 'function' ? updater(list) : updater;
+      });
+    },
+    [queryClient]
+  );
+  const setMinuta = useCallback(
+    (updater) => {
+      queryClient.setQueryData(queryKeys.minuta({}), (old) => {
+        const list = Array.isArray(old) ? old : old?.data || [];
+        return typeof updater === 'function' ? updater(list) : updater;
+      });
+    },
+    [queryClient]
+  );
+  const setParqueaderos = useCallback(
+    (updater) => {
+      queryClient.setQueryData(queryKeys.parqueaderos({}), (old) => {
+        const list = Array.isArray(old) ? old : [];
+        return typeof updater === 'function' ? updater(list) : updater;
+      });
+    },
+    [queryClient]
+  );
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUnidad, setSelectedUnidad] = useState(null);
@@ -81,44 +156,16 @@ export default function PorteriaDashboard() {
     retiradoPor: '',
     codigoRetiro: ''
   });
-  const loadData = useCallback(async (silent = false) => {
-    const isSilent = silent === true;
-    try {
-      if (!isSilent) setLoading(true);
-      const [uData, aData, pData, mData, prqData] = await Promise.all([
-        fetchUnidades().catch(() => []),
-        fetchAccesos().catch(() => []),
-        fetchPaquetes().catch(() => []),
-        fetchMinuta().catch(() => []),
-        fetchParqueaderos().catch(() => [])
-      ]);
-      setUnidades(Array.isArray(uData) ? uData : []);
-      setAccesos(Array.isArray(aData) ? aData : []);
-      setPaquetes(Array.isArray(pData) ? pData : []);
-      setMinuta(Array.isArray(mData) ? mData : []);
-      setParqueaderos(Array.isArray(prqData) ? prqData : []);
-    } catch {
-      if (!isSilent) toast.error('Error al cargar datos de portería');
-    } finally {
-      if (!isSilent) setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadData(false);
-    const interval = setInterval(() => {
-      if (typeof document === 'undefined' || !document.hidden) {
-        loadData(true);
-      }
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [loadData]);
-
-  const calcularDiasCasillero = (fechaIngreso) => {
-    if (!fechaIngreso) return 0;
-    const diffMs = Date.now() - new Date(fechaIngreso).getTime();
-    return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-  };
+  const loadData = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['unidades'] }),
+      queryClient.invalidateQueries({ queryKey: ['accesos'] }),
+      queryClient.invalidateQueries({ queryKey: ['paquetes'] }),
+      queryClient.invalidateQueries({ queryKey: ['minuta'] }),
+      queryClient.invalidateQueries({ queryKey: ['parqueaderos'] }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.contextoOperativo }),
+    ]);
+  }, [queryClient]);
 
   const encomiendasPendientes = useMemo(() => {
     return (paquetes || []).filter(p => p.categoria !== 'recibo_publico' && p.estado !== 'entregado');
@@ -396,6 +443,30 @@ export default function PorteriaDashboard() {
               </span>
             </div>
             <p className="text-slate-400 text-xs md:text-sm mt-0.5">Control Operativo de Accesos, Paquetería y Minuta</p>
+            {contexto && (
+              <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px]">
+                <span className="inline-flex items-center gap-1 bg-sky-500/15 text-sky-300 border border-sky-500/30 px-2.5 py-0.5 rounded-lg font-semibold">
+                  {contexto.clima?.icono === 'lluvia' || contexto.clima?.icono === 'tormenta' ? (
+                    <CloudRain className="w-3.5 h-3.5 text-sky-400" />
+                  ) : (
+                    <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  )}
+                  {contexto.clima?.ciudad}: {contexto.clima?.temperaturaC}°C ({contexto.clima?.estado})
+                </span>
+                <span className="inline-flex items-center gap-1 bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-lg font-semibold">
+                  <Car className="w-3.5 h-3.5 text-amber-400" />
+                  {contexto.picoYPlaca?.aplica
+                    ? `Pico y Placa hoy: circulan ${contexto.picoYPlaca.placasHabilitadas.join(',')}`
+                    : 'Pico y Placa: sin restricción hoy'}
+                </span>
+                {contexto.calendario?.proximoFestivo && (
+                  <span className="inline-flex items-center gap-1 bg-purple-500/15 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-lg font-semibold">
+                    <Calendar className="w-3.5 h-3.5 text-purple-400" />
+                    Próx. festivo: {contexto.calendario.proximoFestivo.date} ({contexto.calendario.proximoFestivo.name})
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

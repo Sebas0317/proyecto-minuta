@@ -7,6 +7,8 @@ const persistence = require('../data/persistence');
 const { getPaquetes, getParqueaderos, getMinuta, saveMinuta, getUnidades, getPqrs, savePqrs } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
+const { calcularDiasHabilesColombia, calcularPicoYPlacaBogota, getColombianHolidays, getBogotaDateParts } = require('../utils/colombianHolidays');
+const { fetchBogotaWeather } = require('./integracionesController');
 
 const MANUAL_FILE = path.resolve(__dirname, '..', '..', 'manual_convivencia.json');
 
@@ -24,17 +26,7 @@ function getNextPqrsRadicado(lista, year = new Date().getFullYear()) {
 }
 
 function calcular15DiasHabiles(fechaInicio = new Date()) {
-  const fecha = new Date(fechaInicio);
-  let diasAgregados = 0;
-  while (diasAgregados < 15) {
-    fecha.setDate(fecha.getDate() + 1);
-    const diaSemana = fecha.getDay();
-    if (diaSemana !== 0 && diaSemana !== 6) {
-      diasAgregados++;
-    }
-  }
-  fecha.setHours(23, 59, 59, 999);
-  return fecha.toISOString();
+  return calcularDiasHabilesColombia(fechaInicio, 15);
 }
 
 // Normalizador de texto
@@ -562,6 +554,44 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
       respuesta: `📝 **Radicación de PQRS (Ley 1755 de 2015 & Ley 675)**\n\nCon gusto te ayudo a radicar tu **Petición, Queja, Reclamo o Mantenimiento** ante la administración.\n\nPuedes hacerlo directamente diciéndome tu número de apartamento y el motivo (ejemplo:\n👉 *"Quiero radicar una queja por filtración en el apto 302"* o\n👉 *"Radicar reclamo de mantenimiento apto 204: farola apagada"*)\n\nO si lo prefieres, haz clic en el botón de abajo para abrir el formulario completo en el Portal del Residente con consecutivo oficial y plazo de 15 días hábiles.`,
       accionRapida: { tipo: 'link', label: 'Abrir Formulario de PQRS', ruta: '/residente' },
       updatedContext: { ...context, waitingFor: 'apto_pqrs' }
+    };
+  }
+
+  // 9. 🌤️ INTEGRACIONES EN VIVO: PICO Y PLACA BOGOTÁ, CLIMA Y FESTIVOS COLOMBIA
+  if (/pico y placa|restriccion vehicular|placas hoy/i.test(textoNormalizado)) {
+    const pyp = calcularPicoYPlacaBogota(new Date());
+    await logAnalytics(textoOriginal, 'movilidad');
+    return {
+      tipo: 'pico_y_placa',
+      titulo: `Pico y Placa Bogotá (${pyp.fecha})`,
+      respuesta: pyp.aplica
+        ? `🚗 **Pico y Placa en Bogotá Hoy (${pyp.fecha})**\n\n• **Pueden circular:** Placas terminadas en \`${pyp.placasHabilitadas.join(', ')}\`\n• **Restringidas:** Placas terminadas en \`${pyp.placasRestringidas.join(', ')}\`\n• **Horario oficial:** ${pyp.horario}`
+        : `🚗 **Pico y Placa en Bogotá (${pyp.fecha})**\n\n✅ **Hoy NO aplica Pico y Placa urbano** (${pyp.esFestivo ? `Festivo: ${pyp.festivoNombre}` : 'Fin de semana'}).${pyp.alertaRegional ? `\n\n⚠️ **Atención:** ${pyp.alertaRegional}` : ''}`,
+      updatedContext: context,
+    };
+  }
+
+  if (/\bclima\b|lluvia|va a llover|temperatura/i.test(textoNormalizado)) {
+    const clima = await fetchBogotaWeather();
+    await logAnalytics(textoOriginal, 'clima');
+    return {
+      tipo: 'clima_bogota',
+      titulo: `Clima Operativo en ${clima.ciudad}`,
+      respuesta: `🌤️ **Reporte Meteorológico en Vivo (${clima.ciudad})**\n\n• **Estado:** ${clima.estado} (\`${clima.temperaturaC}°C\`)\n• **Probabilidad de lluvia:** \`${clima.probabilidadLluviaPct}%\` • Viento: \`${clima.vientoKmh} km/h\`\n\n🛡️ **Protocolo de Portería:** ${clima.protocoloPorteria}`,
+      updatedContext: context,
+    };
+  }
+
+  if (/festivo|feriado|puente festivo/i.test(textoNormalizado)) {
+    const { year, ymd } = getBogotaDateParts(new Date());
+    const festivos = await getColombianHolidays(year);
+    const prox = festivos.find((f) => f.date >= ymd) || (await getColombianHolidays(year + 1))[0];
+    await logAnalytics(textoOriginal, 'convivencia');
+    return {
+      tipo: 'calendario_festivos',
+      titulo: 'Calendario Oficial de Festivos Colombia (Ley Emiliani)',
+      respuesta: `📅 **Próximo Festivo Oficial en Colombia:**\n• **${prox?.name || 'Festivo Nacional'}:** \`${prox?.date || ''}\`\n\n📌 *Recuerda (Art. 24 Manual de Convivencia): Los domingos y festivos nacionales no están permitidas las mudanzas ni obras con ruido en el conjunto.*`,
+      updatedContext: context,
     };
   }
 

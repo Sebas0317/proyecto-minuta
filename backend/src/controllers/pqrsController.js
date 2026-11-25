@@ -3,19 +3,10 @@
 const { getPqrs, savePqrs } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
+const { calcularDiasHabilesColombia } = require('../utils/colombianHolidays');
 
 function calcular15DiasHabiles(fechaInicio = new Date()) {
-  const fecha = new Date(fechaInicio);
-  let diasAgregados = 0;
-  while (diasAgregados < 15) {
-    fecha.setDate(fecha.getDate() + 1);
-    const diaSemana = fecha.getDay();
-    if (diaSemana !== 0 && diaSemana !== 6) {
-      diasAgregados++;
-    }
-  }
-  fecha.setHours(23, 59, 59, 999);
-  return fecha.toISOString();
+  return calcularDiasHabilesColombia(fechaInicio, 15);
 }
 
 function normalizePqrsItem(p) {

@@ -1,6 +1,7 @@
 // API base URL - uses /v1 prefix for versioned API
 // Override with VITE_API_BASE env var for Vercel production (e.g. /_/backend/v1)
 export const API_BASE = import.meta.env.VITE_API_BASE || '/v1';
+import { enqueueOfflineMutation } from './offlineQueue';
 
 export function getLocalDateISO(date = new Date()) {
   const d = date instanceof Date ? date : new Date(date);
@@ -991,6 +992,8 @@ export async function fetchMinuta(params = {}) {
   if (params.severidad) qs.append('severidad', params.severidad);
   if (params.fecha) qs.append('fecha', params.fecha);
   if (params.search) qs.append('search', params.search);
+  if (params.page) qs.append('page', String(params.page));
+  if (params.limit) qs.append('limit', String(params.limit));
   const query = qs.toString() ? `?${qs.toString()}` : '';
   return apiFetch(`/minuta${query}`, { method: 'GET' });
 }
@@ -999,11 +1002,39 @@ export async function fetchMinutaStats() {
   return apiFetch('/minuta/stats', { method: 'GET' });
 }
 
+function isOfflineNetworkFailure(err) {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
+  if (!err) return false;
+  return err.status === 0 || err.status === 408 || /Error de red|Failed to fetch|NetworkError/i.test(String(err.message || ''));
+}
+
 export async function createMinutaEntry(data) {
-  return apiFetch('/minuta', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  try {
+    return await apiFetch('/minuta', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  } catch (err) {
+    if (isOfflineNetworkFailure(err)) {
+      const queued = await enqueueOfflineMutation({
+        endpoint: '/minuta',
+        method: 'POST',
+        body: data,
+        label: `Minuta: ${data?.titulo || data?.tipo || 'Novedad'}`,
+      });
+      return {
+        id: queued.queueId,
+        fecha: queued.createdAt,
+        tipo: data?.tipo || 'general',
+        titulo: data?.titulo || 'Novedad (En cola offline)',
+        descripcion: data?.descripcion || '',
+        severidad: data?.severidad || 'info',
+        guarda: data?.guarda || 'Guarda (Offline)',
+        offlinePending: true,
+      };
+    }
+    throw err;
+  }
 }
 
 // ── PAQUETERÍA ──
@@ -1013,6 +1044,8 @@ export async function fetchPaquetes(params = {}) {
   if (params.torre) qs.append('torre', params.torre);
   if (params.apto) qs.append('apto', params.apto);
   if (params.search) qs.append('search', params.search);
+  if (params.page) qs.append('page', String(params.page));
+  if (params.limit) qs.append('limit', String(params.limit));
   const query = qs.toString() ? `?${qs.toString()}` : '';
   return apiFetch(`/paquetes${query}`, { method: 'GET' });
 }
@@ -1045,15 +1078,36 @@ export async function fetchAccesos(params = {}) {
   if (params.torre) qs.append('torre', params.torre);
   if (params.apto) qs.append('apto', params.apto);
   if (params.search) qs.append('search', params.search);
+  if (params.page) qs.append('page', String(params.page));
+  if (params.limit) qs.append('limit', String(params.limit));
   const query = qs.toString() ? `?${qs.toString()}` : '';
   return apiFetch(`/accesos${query}`, { method: 'GET' });
 }
 
 export async function registrarIngreso(data) {
-  return apiFetch('/accesos/ingreso', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  try {
+    return await apiFetch('/accesos/ingreso', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  } catch (err) {
+    if (isOfflineNetworkFailure(err)) {
+      const queued = await enqueueOfflineMutation({
+        endpoint: '/accesos/ingreso',
+        method: 'POST',
+        body: data,
+        label: `Ingreso: ${data?.nombre || 'Visitante'}`,
+      });
+      return {
+        id: queued.queueId,
+        ...data,
+        fechaIngreso: queued.createdAt,
+        estado: 'en_conjunto',
+        offlinePending: true,
+      };
+    }
+    throw err;
+  }
 }
 
 export async function registrarSalida(id) {
@@ -1177,10 +1231,37 @@ export async function fetchRondas() {
 }
 
 export async function registrarPuntoRonda(data) {
-  return apiFetch('/rondas/registrar', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  try {
+    return await apiFetch('/rondas/registrar', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  } catch (err) {
+    if (isOfflineNetworkFailure(err)) {
+      const queued = await enqueueOfflineMutation({
+        endpoint: '/rondas/registrar',
+        method: 'POST',
+        body: data,
+        label: `Ronda: ${data?.puntoId || 'Punto QR'}`,
+      });
+      return {
+        success: true,
+        offlinePending: true,
+        registro: {
+          id: queued.queueId,
+          fecha: queued.createdAt,
+          puntoId: data?.puntoId,
+          nombrePunto: data?.nombrePunto || `Punto ${data?.puntoId || ''}`,
+          ubicacion: 'Registrado en cola offline',
+          guarda: data?.guarda || 'Guarda (Offline)',
+          estado: data?.estado || 'normal',
+          observaciones: data?.observaciones || 'Pendiente de sincronización',
+          offlinePending: true,
+        },
+      };
+    }
+    throw err;
+  }
 }
 
 export async function createPuntoControl(data) {
@@ -1373,4 +1454,14 @@ export async function deletePqrs(id) {
   return apiFetch(`/pqrs/${id}`, {
     method: 'DELETE',
   });
+}
+
+// ── INTEGRACIONES EXTERNAS (CLIMA BOGOTÁ, PICO Y PLACA, FESTIVOS COLOMBIA, TRM) ──
+export async function fetchContextoOperativo() {
+  return apiFetch('/integraciones/contexto-operativo', { method: 'GET' });
+}
+
+export async function fetchFestivosColombia(year) {
+  const qs = year ? `?year=${encodeURIComponent(year)}` : '';
+  return apiFetch(`/integraciones/festivos${qs}`, { method: 'GET' });
 }

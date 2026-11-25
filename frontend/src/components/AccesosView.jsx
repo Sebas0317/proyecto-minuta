@@ -1,17 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
-  UserCheck, Search, Plus, LogOut, RefreshCw, X, CheckCircle
+  UserCheck, Search, Plus, LogOut, RefreshCw, X, CheckCircle, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchAccesos, registrarIngreso, registrarSalida, fetchParqueaderos, aprobarAccesoPreautorizado } from '../services/api';
+import { registrarIngreso, registrarSalida, aprobarAccesoPreautorizado } from '../services/api';
+import { useAccesosQuery, useParqueaderosQuery } from '../hooks/useCondominioQueries';
+import { queryKeys } from '../hooks/useQueryKeys';
+
+const PAGE_LIMIT = 25;
 
 export default function AccesosView() {
-  const [accesos, setAccesos] = useState([]);
-  const [parqueaderos, setParqueaderos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [filtroEstado, setFiltroEstado] = useState('en_conjunto');
   const [filtroTipo, setFiltroTipo] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
 
   const [form, setForm] = useState({
@@ -27,29 +31,40 @@ export default function AccesosView() {
     autorizadoPor: ''
   });
 
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [aData, prqData] = await Promise.all([
-        fetchAccesos({
-          estado: filtroEstado || undefined,
-          tipo: filtroTipo || undefined,
-          search: searchQuery || undefined
-        }),
-        fetchParqueaderos()
-      ]);
-      setAccesos(Array.isArray(aData) ? aData : []);
-      setParqueaderos(Array.isArray(prqData) ? prqData : []);
-    } catch {
-      toast.error('Error al cargar accesos');
-    } finally {
-      setLoading(false);
-    }
-  }, [filtroEstado, filtroTipo, searchQuery]);
+  const queryParams = useMemo(
+    () => ({
+      estado: filtroEstado || undefined,
+      tipo: filtroTipo || undefined,
+      search: searchQuery || undefined,
+      page,
+      limit: PAGE_LIMIT,
+    }),
+    [filtroEstado, filtroTipo, searchQuery, page]
+  );
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  const accesosQ = useAccesosQuery(queryParams);
+  const parqueaderosQ = useParqueaderosQuery();
+  const loading = accesosQ.isLoading || accesosQ.isFetching;
+  const parqueaderos = parqueaderosQ.data || [];
+
+  const { accesos, pagination } = useMemo(() => {
+    const raw = accesosQ.data;
+    if (Array.isArray(raw)) {
+      return {
+        accesos: raw,
+        pagination: { page: 1, total: raw.length, totalPages: 1, hasMore: false },
+      };
+    }
+    return {
+      accesos: Array.isArray(raw?.data) ? raw.data : [],
+      pagination: raw?.pagination || { page: 1, total: 0, totalPages: 1, hasMore: false },
+    };
+  }, [accesosQ.data]);
+
+  const loadData = () => {
+    queryClient.invalidateQueries({ queryKey: ['accesos'] });
+    queryClient.invalidateQueries({ queryKey: ['parqueaderos'] });
+  };
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -70,25 +85,46 @@ export default function AccesosView() {
       };
 
       const created = await registrarIngreso(payload);
+      let nextEstado = filtroEstado;
+      let nextTipo = filtroTipo;
       if (created?.id) {
         if (filtroEstado === 'preautorizado' || filtroEstado === 'finalizado') {
+          nextEstado = 'en_conjunto';
           setFiltroEstado('en_conjunto');
         }
         if (filtroTipo && created.tipo && filtroTipo !== created.tipo) {
+          nextTipo = '';
           setFiltroTipo('');
         }
-        setAccesos((prev) => [created, ...prev.filter((a) => a.id !== created.id)]);
-        if (payload.parqueaderoAsignado) {
-          setParqueaderos((prev) =>
-            prev.map((p) =>
-              p.id === payload.parqueaderoAsignado ? { ...p, estado: 'ocupado', placa: payload.vehiculo?.placa } : p
-            )
-          );
-        }
-      } else {
-        await loadData();
+        setPage(1);
+        const targetKey = queryKeys.accesos({
+          estado: nextEstado || undefined,
+          tipo: nextTipo || undefined,
+          search: searchQuery || undefined,
+          page: 1,
+          limit: PAGE_LIMIT,
+        });
+        queryClient.setQueryData(targetKey, (old) => {
+          if (Array.isArray(old)) return [created, ...old.filter((a) => a.id !== created.id)];
+          const prevData = Array.isArray(old?.data) ? old.data : [];
+          return {
+            data: [created, ...prevData.filter((a) => a.id !== created.id)],
+            pagination: {
+              ...(old?.pagination || { page: 1, limit: PAGE_LIMIT, totalPages: 1, hasMore: false }),
+              total: (old?.pagination?.total || prevData.length) + 1,
+            },
+          };
+        });
       }
-      toast.success(`Ingreso de ${form.nombre} registrado`);
+      queryClient.invalidateQueries({ queryKey: ['accesos'] });
+      queryClient.invalidateQueries({ queryKey: ['parqueaderos'] });
+      queryClient.invalidateQueries({ queryKey: ['minuta'] });
+
+      toast.success(
+        created?.offlinePending
+          ? `Ingreso de ${form.nombre} en cola offline (sincronizará al reconectar)`
+          : `Ingreso de ${form.nombre} registrado`
+      );
       setShowModal(false);
       setForm({
         tipo: 'visitante',
@@ -110,17 +146,26 @@ export default function AccesosView() {
   const handleSalida = async (accesoId, nombre) => {
     try {
       const updated = await registrarSalida(accesoId);
-      setAccesos((prev) => {
-        if (filtroEstado === 'en_conjunto') {
-          return prev.filter((a) => a.id !== accesoId);
-        }
-        return prev.map((a) => (a.id === accesoId ? (updated?.id ? updated : { ...a, estado: 'finalizado', fechaSalida: new Date().toISOString() }) : a));
+      queryClient.setQueryData(queryKeys.accesos(queryParams), (old) => {
+        const updateList = (list) => {
+          if (filtroEstado === 'en_conjunto') {
+            return list.filter((a) => a.id !== accesoId);
+          }
+          return list.map((a) =>
+            a.id === accesoId
+              ? updated?.id
+                ? updated
+                : { ...a, estado: 'finalizado', fechaSalida: new Date().toISOString() }
+              : a
+          );
+        };
+        if (Array.isArray(old)) return updateList(old);
+        const prevData = Array.isArray(old?.data) ? old.data : [];
+        return { ...old, data: updateList(prevData) };
       });
-      if (updated?.parqueaderoAsignado) {
-        setParqueaderos((prev) =>
-          prev.map((p) => (p.id === updated.parqueaderoAsignado ? { ...p, estado: 'disponible', placa: null } : p))
-        );
-      }
+      queryClient.invalidateQueries({ queryKey: ['accesos'] });
+      queryClient.invalidateQueries({ queryKey: ['parqueaderos'] });
+      queryClient.invalidateQueries({ queryKey: ['minuta'] });
       toast.success(`Salida de ${nombre} registrada`);
     } catch {
       toast.error('Error al registrar salida');
@@ -186,7 +231,10 @@ export default function AccesosView() {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
             placeholder="Buscar por nombre, documento, placa o apartamento..."
             className="w-full bg-slate-900 border border-slate-700 text-white pl-10 pr-4 py-2 rounded-xl text-sm outline-none focus:border-emerald-500"
           />
@@ -194,7 +242,10 @@ export default function AccesosView() {
         <div className="flex gap-2">
           <select
             value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
+            onChange={(e) => {
+              setFiltroEstado(e.target.value);
+              setPage(1);
+            }}
             className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold outline-none focus:border-emerald-500"
           >
             <option value="en_conjunto">Activos en Conjunto</option>
@@ -204,7 +255,10 @@ export default function AccesosView() {
           </select>
           <select
             value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value)}
+            onChange={(e) => {
+              setFiltroTipo(e.target.value);
+              setPage(1);
+            }}
             className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold outline-none focus:border-emerald-500"
           >
             <option value="">Todos los Tipos</option>
@@ -250,8 +304,13 @@ export default function AccesosView() {
                       </div>
                     </td>
                     <td className="p-4">
-                      <div className="font-bold text-white text-sm flex items-center gap-2">
+                      <div className="font-bold text-white text-sm flex items-center gap-2 flex-wrap">
                         <span>{a.nombre}</span>
+                        {a.offlinePending && (
+                          <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                            ⏳ En cola offline
+                          </span>
+                        )}
                         {a.paseQR && (
                           <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-1.5 py-0.2 rounded font-mono font-bold">
                             {a.paseQR}
@@ -339,6 +398,32 @@ export default function AccesosView() {
             </tbody>
           </table>
         </div>
+        {pagination.totalPages > 1 && (
+          <div className="px-4 py-3 border-t border-slate-700/70 bg-slate-900/60 flex items-center justify-between text-xs text-slate-400">
+            <span>
+              Página <strong className="text-white">{pagination.page}</strong> de{' '}
+              <strong className="text-white">{pagination.totalPages}</strong> ({pagination.total} registros)
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={pagination.page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 font-semibold transition-all"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" /> Anterior
+              </button>
+              <button
+                type="button"
+                disabled={!pagination.hasMore}
+                onClick={() => setPage((p) => p + 1)}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 font-semibold transition-all"
+              >
+                Siguiente <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* MODAL: REGISTRO DE INGRESO */}

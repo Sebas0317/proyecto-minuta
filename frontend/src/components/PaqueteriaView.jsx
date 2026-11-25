@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  Package, Search, Plus, Send, Check, Clock, User, 
-  Building2, Phone, Filter, RefreshCw, X, CheckCircle,
-  FileText, AlertTriangle, Calendar, Layers, CheckSquare, Download
+import React, { useState, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  Package, Search, Plus, Send, RefreshCw, X, CheckCircle,
+  FileText, Download
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchPaquetes, createPaquete, notificarPaquete, entregarPaquete, fetchUnidades } from '../services/api';
+import { createPaquete, notificarPaquete, entregarPaquete } from '../services/api';
+import { usePaquetesQuery, useUnidadesQuery } from '../hooks/useCondominioQueries';
+import { queryKeys } from '../hooks/useQueryKeys';
 
 export default function PaqueteriaView() {
-  const [paquetes, setPaquetes] = useState([]);
-  const [unidades, setUnidades] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [tabActiva, setTabActiva] = useState('paquetes'); // 'paquetes' | 'recibos' | 'historial'
   const [filtroTorre, setFiltroTorre] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -55,27 +55,44 @@ export default function PaqueteriaView() {
     codigoRetiro: ''
   });
 
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [pData, uData] = await Promise.all([
-        fetchPaquetes({
-          search: searchQuery || undefined
-        }),
-        fetchUnidades()
-      ]);
-      setPaquetes(Array.isArray(pData) ? pData : []);
-      setUnidades(Array.isArray(uData) ? uData : []);
-    } catch {
-      toast.error('Error al cargar correspondencia');
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery]);
+  const queryParams = useMemo(
+    () => ({
+      search: searchQuery || undefined,
+      page: 1,
+      limit: 200,
+    }),
+    [searchQuery]
+  );
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  const paquetesQ = usePaquetesQuery(queryParams);
+  const unidadesQ = useUnidadesQuery();
+  const loading = paquetesQ.isLoading || paquetesQ.isFetching;
+  const unidades = unidadesQ.data || [];
+
+  const paquetes = useMemo(() => {
+    const raw = paquetesQ.data;
+    if (Array.isArray(raw)) return raw;
+    return Array.isArray(raw?.data) ? raw.data : [];
+  }, [paquetesQ.data]);
+
+  const loadData = () => {
+    queryClient.invalidateQueries({ queryKey: ['paquetes'] });
+    queryClient.invalidateQueries({ queryKey: ['unidades'] });
+  };
+
+  const upsertPaqueteCache = (item) => {
+    queryClient.setQueryData(queryKeys.paquetes(queryParams), (old) => {
+      if (Array.isArray(old)) {
+        return [item, ...old.filter((p) => p.id !== item.id)];
+      }
+      const prevData = Array.isArray(old?.data) ? old.data : [];
+      return {
+        ...(old || {}),
+        data: [item, ...prevData.filter((p) => p.id !== item.id)],
+      };
+    });
+    queryClient.invalidateQueries({ queryKey: ['paquetes'] });
+  };
 
   // Helper para calcular días acumulados en portería
   const calcularDiasEnPorteria = (fechaIngreso) => {
@@ -121,9 +138,9 @@ export default function PaqueteriaView() {
       if (created?.id) {
         const safeItem = { ...created };
         delete safeItem.codigoRetiro;
-        setPaquetes((prev) => [safeItem, ...prev.filter((p) => p.id !== created.id)]);
+        upsertPaqueteCache(safeItem);
       } else {
-        await loadData();
+        loadData();
       }
       if (created?.id && created?.codigoRetiro) {
         setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
@@ -160,9 +177,9 @@ export default function PaqueteriaView() {
       if (created?.id) {
         const safeItem = { ...created };
         delete safeItem.codigoRetiro;
-        setPaquetes((prev) => [safeItem, ...prev.filter((p) => p.id !== created.id)]);
+        upsertPaqueteCache(safeItem);
       } else {
-        await loadData();
+        loadData();
       }
       if (created?.id && created?.codigoRetiro) {
         setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
@@ -197,9 +214,7 @@ export default function PaqueteriaView() {
       window.open(`https://wa.me/57${tel.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
       notificarPaquete(paquete.id)
         .then((updated) => {
-          setPaquetes((prev) =>
-            prev.map((p) => (p.id === paquete.id ? (updated?.id ? updated : { ...p, estado: 'notificado' }) : p))
-          );
+          upsertPaqueteCache(updated?.id ? updated : { ...paquete, estado: 'notificado' });
         })
         .catch(() => {});
     } else {
@@ -212,14 +227,10 @@ export default function PaqueteriaView() {
     if (!entregaModal) return;
     try {
       const updated = await entregarPaquete(entregaModal.id, entregaForm);
-      setPaquetes((prev) =>
-        prev.map((p) =>
-          p.id === entregaModal.id
-            ? updated?.id
-              ? updated
-              : { ...p, estado: 'entregado', fechaEntrega: new Date().toISOString(), retiradoPor: entregaForm.retiradoPor }
-            : p
-        )
+      upsertPaqueteCache(
+        updated?.id
+          ? updated
+          : { ...entregaModal, estado: 'entregado', fechaEntrega: new Date().toISOString(), retiradoPor: entregaForm.retiradoPor }
       );
       toast.success('Correspondencia entregada con éxito');
       setEntregaModal(null);

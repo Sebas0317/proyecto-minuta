@@ -202,4 +202,64 @@ describe('Regresión de correcciones integrales MinutaTech', () => {
     expect(integrityRes.status).toBe(200);
     expect(integrityRes.body.report.overall).toBe(true);
   });
+
+  it('API /v1/integraciones/contexto-operativo y /festivos entregan clima Bogotá, Pico y Placa y 18 festivos Ley Emiliani', async () => {
+    const ctxRes = await request(app).get('/v1/integraciones/contexto-operativo');
+    expect(ctxRes.status).toBe(200);
+    expect(ctxRes.body.clima?.ciudad).toContain('Bogotá');
+    expect(ctxRes.body.picoYPlaca).toBeDefined();
+    expect(typeof ctxRes.body.calendario?.mudanzasHabilitadasHoy).toBe('boolean');
+
+    const festRes = await request(app).get('/v1/integraciones/festivos?year=2026');
+    expect(festRes.status).toBe(200);
+    expect(festRes.body.total).toBe(18);
+    expect(festRes.body.festivos.some((f) => f.date === '2026-01-01')).toBe(true);
+  });
+
+  it('Paginación en servidor (?page=1&limit=5) funciona en Minuta, Accesos y Paquetería sin romper modo arreglo', async () => {
+    const minPag = await request(app).get('/v1/minuta?page=1&limit=5');
+    expect(minPag.status).toBe(200);
+    expect(Array.isArray(minPag.body.data)).toBe(true);
+    expect(minPag.body.data.length).toBeLessThanOrEqual(5);
+    expect(minPag.body.pagination.page).toBe(1);
+    expect(minPag.body.pagination.total).toBeGreaterThanOrEqual(minPag.body.data.length);
+
+    const accPag = await request(app).get('/v1/accesos?page=1&limit=5');
+    expect(accPag.status).toBe(200);
+    expect(Array.isArray(accPag.body.data)).toBe(true);
+
+    const pkgPag = await request(app).get('/v1/paquetes?page=1&limit=5');
+    expect(pkgPag.status).toBe(200);
+    expect(Array.isArray(pkgPag.body.data)).toBe(true);
+  });
+
+  it('RBAC granular bloquea con HTTP 403 acciones administrativas para rol guarda y cliente', async () => {
+    const guardaToken = jwt.sign(
+      { id: 'g1', username: 'guarda1', role: 'guarda' },
+      JWT_SECRET
+    );
+    const clienteToken = jwt.sign(
+      { id: 'c1', username: 'residente1', role: 'cliente' },
+      JWT_SECRET
+    );
+
+    // Guarda NO puede eliminar unidades ni crear asambleas ni modificar base del chatbot
+    const delUnitGuarda = await request(app)
+      .delete('/v1/unidades/t1-101')
+      .set('Cookie', [`token=${guardaToken}`]);
+    expect(delUnitGuarda.status).toBe(403);
+
+    const createAsmbGuarda = await request(app)
+      .post('/v1/asambleas')
+      .set('Cookie', [`token=${guardaToken}`])
+      .send({ titulo: 'Intento No Autorizado' });
+    expect(createAsmbGuarda.status).toBe(403);
+
+    // Cliente NO puede registrar paquetes en portería
+    const pkgCliente = await request(app)
+      .post('/v1/paquetes')
+      .set('Cookie', [`token=${clienteToken}`])
+      .send({ torre: 'Torre 1', apto: '101', destinatario: 'Test' });
+    expect(pkgCliente.status).toBe(403);
+  });
 });

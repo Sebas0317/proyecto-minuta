@@ -3,6 +3,7 @@
 const { getMinuta, saveMinuta } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
+const { sendPaginatedOrArray } = require('../utils/pagination');
 
 function normalizeMinutaEntry(m) {
   if (!m || typeof m !== 'object') return m;
@@ -48,7 +49,7 @@ async function getAllMinuta(req, res) {
     // Sort newest first
     filtered.sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
 
-    res.json(filtered);
+    return sendPaginatedOrArray(req, res, filtered);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener minuta');
     res.status(500).json({ error: 'Error interno al obtener minuta' });

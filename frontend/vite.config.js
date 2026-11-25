@@ -60,11 +60,14 @@ export default defineConfig({
             if (id.includes('react-router')) return 'vendor-router';
             if (id.includes('react/')) return 'vendor-react-core';
             
-            // UI libraries
+            // UI & Icons
             if (id.includes('framer-motion')) return 'vendor-animation';
             if (id.includes('swiper')) return 'vendor-ui-swiper';
-            if (id.includes('icons')) return 'vendor-ui-icons';
-            
+            if (id.includes('lucide-react') || id.includes('icons')) return 'vendor-ui-icons';
+
+            // On-demand PDF / Canvas chunk (loaded only when user clicks Download PDF)
+            if (id.includes('jspdf') || id.includes('html2canvas') || id.includes('canvg')) return 'vendor-pdf';
+
             // Data fetching
             if (id.includes('@tanstack')) return 'vendor-query';
             

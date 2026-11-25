@@ -68,6 +68,7 @@ const asambleasRoutes = require('./src/routes/asambleas');
 const equiposRoutes = require('./src/routes/equipos');
 const mascotasRoutes = require('./src/routes/mascotas');
 const pqrsRoutes = require('./src/routes/pqrs');
+const integracionesRoutes = require('./src/routes/integraciones');
 
 const app = express();
 
@@ -257,6 +258,8 @@ app.use('/v1/mascotas', mutationLock('mascotas'), mascotasRoutes);
 app.use('/mascotas', mutationLock('mascotas'), mascotasRoutes);
 app.use('/v1/pqrs', mutationLock('pqrs'), pqrsRoutes);
 app.use('/pqrs', mutationLock('pqrs'), pqrsRoutes);
+app.use('/v1/integraciones', integracionesRoutes);
+app.use('/integraciones', integracionesRoutes);
 
 // ── BACKUP MANAGEMENT (admin only) ──
 function requireAdminRole(req, res, next) {

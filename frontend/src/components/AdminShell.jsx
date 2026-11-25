@@ -29,13 +29,20 @@ import {
   Vote,
   Heart,
   MessageSquareQuote,
-  AlertOctagon
+  AlertOctagon,
+  WifiOff,
+  RefreshCw
 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
+  API_BASE,
   downloadLoginLogsCSV,
   fetchLoginLogs,
 } from '../services/api';
+import { flushOfflineQueue, getOfflineQueue } from '../services/offlineQueue';
 import BotonPanicoModal from './BotonPanicoModal';
+
+const ADMIN_ONLY_KEYS = new Set(['users', 'security', 'chatbot']);
 
 const NAV_GROUPS = [
   {
@@ -88,11 +95,55 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
   const [logs, setLogs] = useState([]);
   const [logsLoading, setLogsLoading] = useState(false);
   const [horaActual, setHoraActual] = useState(new Date());
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
+  const [offlineCount, setOfflineCount] = useState(0);
+  const [syncingOffline, setSyncingOffline] = useState(false);
+
+  const isGuardRole = rol === 'guarda' || rol === 'operator';
+  const visibleNavGroups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !(isGuardRole && ADMIN_ONLY_KEYS.has(item.key))),
+  })).filter((g) => g.items.length > 0);
 
   // Reloj digital en vivo para portería
   useEffect(() => {
     const timer = setInterval(() => setHoraActual(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Monitoreo de red y sincronización automática de cola offline en IndexedDB
+  useEffect(() => {
+    getOfflineQueue().then((items) => setOfflineCount(items.length)).catch(() => {});
+
+    const handleOnline = () => {
+      setIsOnline(true);
+      flushOfflineQueue(API_BASE)
+        .then(({ synced }) => {
+          if (synced > 0) {
+            toast.success(`${synced} registro(s) offline sincronizados con el servidor`);
+          }
+        })
+        .catch(() => {});
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.warning('Modo Contingencia Offline activo: los registros de garita se guardarán localmente en IndexedDB');
+    };
+    const handleQueueUpdate = (e) => {
+      if (typeof e.detail?.count === 'number') setOfflineCount(e.detail.count);
+      if (typeof e.detail?.syncing === 'boolean') setSyncingOffline(e.detail.syncing);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('minuta:offline-queue', handleQueueUpdate);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('minuta:offline-queue', handleQueueUpdate);
+    };
   }, []);
 
   const toggleCollapse = () => {
@@ -219,7 +270,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
 
         {/* NAVEGACIÓN AGRUPADA CON SCROLL INTERNO INDEPENDIENTE */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-6 scrollbar-thin scrollbar-thumb-slate-700">
-          {NAV_GROUPS.map((group, gIdx) => (
+          {visibleNavGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-1.5">
               {!collapsed ? (
                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 px-3 block">
@@ -360,9 +411,28 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
               <span className="sm:hidden">SOS</span>
             </button>
 
-            <span className="hidden lg:flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-full">
-              <Activity className="w-3.5 h-3.5 animate-pulse" /> Sistema Conectado
-            </span>
+            {!isOnline || offlineCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => flushOfflineQueue(API_BASE)}
+                className="flex items-center gap-1.5 text-xs text-amber-300 font-bold bg-amber-950/70 border border-amber-600/60 px-2.5 py-1 rounded-full cursor-pointer"
+                title="Sincronizar cola offline de IndexedDB"
+              >
+                {syncingOffline ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <WifiOff className="w-3.5 h-3.5 text-amber-400" />
+                )}
+                <span>
+                  {!isOnline ? 'Modo Offline' : 'Sincronizar'}
+                  {offlineCount > 0 ? ` (${offlineCount})` : ''}
+                </span>
+              </button>
+            ) : (
+              <span className="hidden lg:flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-full">
+                <Activity className="w-3.5 h-3.5 animate-pulse" /> Sistema Conectado
+              </span>
+            )}
           </div>
         </header>
 

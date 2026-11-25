@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const { getAccesos, saveAccesos, getParqueaderos, saveParqueaderos, getMinuta, saveMinuta } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
+const { sendPaginatedOrArray } = require('../utils/pagination');
 
 async function getAllAccesos(req, res) {
   try {
@@ -41,7 +42,7 @@ async function getAllAccesos(req, res) {
     }
 
     filtered.sort((a, b) => new Date(b.fechaIngreso || b.fechaCreacion || 0) - new Date(a.fechaIngreso || a.fechaCreacion || 0));
-    res.json(filtered);
+    return sendPaginatedOrArray(req, res, filtered);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener accesos');
     res.status(500).json({ error: 'Error interno al obtener accesos' });

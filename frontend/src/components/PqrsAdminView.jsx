@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchPqrs, createPqrs, responderPqrs, updatePqrsEstado, deletePqrs } from '../services/api';
-import { generarTicketPqrsPDF } from '../utils/pdfGenerator';
 
 const CATEGORIAS = [
   'Petición',
@@ -471,7 +470,8 @@ export default function PqrsAdminView() {
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => {
+                      onClick={async () => {
+                        const { generarTicketPqrsPDF } = await import('../utils/pdfGenerator');
                         generarTicketPqrsPDF(ticket);
                         toast.success(`Comprobante ${ticket.radicado} descargado`);
                       }}
@@ -648,7 +648,8 @@ export default function PqrsAdminView() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
+                    const { generarTicketPqrsPDF } = await import('../utils/pdfGenerator');
                     generarTicketPqrsPDF(selectedTicket);
                     toast.success('Radicado oficial descargado');
                   }}

@@ -124,6 +124,27 @@ function optionalAuth(req, res, next) {
   }
 }
 
+/**
+ * Si la petición incluye una sesión autenticada (cookie JWT), exige que el rol
+ * tenga el permiso granular indicado; permite flujos públicos/tests sin cookie.
+ */
+function requirePermissionIfAuthed(permission) {
+  return (req, res, next) => {
+    optionalAuth(req, res, () => {
+      if (req.user && !hasPermission(req.user.role, permission)) {
+        logger.warn('Permission denied for authenticated role', {
+          ip: req.ip,
+          role: req.user.role,
+          required: permission,
+          path: req.originalUrl,
+        });
+        return res.status(403).json({ error: 'Permisos insuficientes para tu rol' });
+      }
+      next();
+    });
+  };
+}
+
 // CSRF protection: requires a custom header on state-changing requests.
 // CSRF protection using csurf (cookie token) — gracefully handles Express 5 incompatibility
 let csrfProtection;
@@ -141,6 +162,7 @@ module.exports = {
   requireAuth,
   optionalAuth,
   requirePermission,
+  requirePermissionIfAuthed,
   requireRole,
   revalidateRole,
   csrfProtection,

@@ -1,16 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
-  Clock, Plus, Search, FileText, Download, User, RefreshCw, X
+  Clock, Plus, Search, FileText, Download, User, RefreshCw, X, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchMinuta, createMinutaEntry } from '../services/api';
+import { createMinutaEntry } from '../services/api';
+import { useMinutaQuery } from '../hooks/useCondominioQueries';
+import { queryKeys } from '../hooks/useQueryKeys';
+
+const PAGE_LIMIT = 20;
 
 export default function MinutaView() {
-  const [minuta, setMinuta] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [filtroTipo, setFiltroTipo] = useState('');
   const [filtroSeveridad, setFiltroSeveridad] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
 
   const [form, setForm] = useState({
@@ -21,38 +26,68 @@ export default function MinutaView() {
     unidadId: ''
   });
 
-  const loadMinuta = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await fetchMinuta({
-        tipo: filtroTipo || undefined,
-        severidad: filtroSeveridad || undefined,
-        search: searchQuery || undefined
-      });
-      setMinuta(Array.isArray(data) ? data : []);
-    } catch {
-      toast.error('Error al cargar minuta de novedades');
-    } finally {
-      setLoading(false);
-    }
-  }, [filtroTipo, filtroSeveridad, searchQuery]);
+  const queryParams = useMemo(
+    () => ({
+      tipo: filtroTipo || undefined,
+      severidad: filtroSeveridad || undefined,
+      search: searchQuery || undefined,
+      page,
+      limit: PAGE_LIMIT,
+    }),
+    [filtroTipo, filtroSeveridad, searchQuery, page]
+  );
 
-  useEffect(() => {
-    loadMinuta();
-  }, [loadMinuta]);
+  const minutaQ = useMinutaQuery(queryParams);
+  const loading = minutaQ.isLoading || minutaQ.isFetching;
+
+  const { minuta, pagination } = useMemo(() => {
+    const raw = minutaQ.data;
+    if (Array.isArray(raw)) {
+      return {
+        minuta: raw,
+        pagination: { page: 1, total: raw.length, totalPages: 1, hasMore: false },
+      };
+    }
+    return {
+      minuta: Array.isArray(raw?.data) ? raw.data : [],
+      pagination: raw?.pagination || { page: 1, total: 0, totalPages: 1, hasMore: false },
+    };
+  }, [minutaQ.data]);
+
+  const loadMinuta = () => {
+    queryClient.invalidateQueries({ queryKey: ['minuta'] });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const created = await createMinutaEntry(form);
-      if (created?.id) {
-        setMinuta((prev) => [created, ...prev.filter((m) => m.id !== created.id)]);
-      } else {
-        await loadMinuta();
-      }
       if (filtroTipo && created?.tipo && filtroTipo !== created.tipo) setFiltroTipo('');
       if (filtroSeveridad && created?.severidad && filtroSeveridad !== created.severidad) setFiltroSeveridad('');
-      toast.success('Novedad registrada en la minuta oficial');
+      setPage(1);
+
+      if (created?.id) {
+        queryClient.setQueryData(queryKeys.minuta({ ...queryParams, page: 1 }), (old) => {
+          if (Array.isArray(old)) {
+            return [created, ...old.filter((m) => m.id !== created.id)];
+          }
+          const prevData = Array.isArray(old?.data) ? old.data : [];
+          return {
+            data: [created, ...prevData.filter((m) => m.id !== created.id)],
+            pagination: {
+              ...(old?.pagination || { page: 1, limit: PAGE_LIMIT, totalPages: 1, hasMore: false }),
+              total: (old?.pagination?.total || prevData.length) + 1,
+            },
+          };
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ['minuta'] });
+
+      toast.success(
+        created?.offlinePending
+          ? 'Novedad guardada en cola offline (se sincronizará al reconectar)'
+          : 'Novedad registrada en la minuta oficial'
+      );
       setShowModal(false);
       setForm({
         tipo: 'general',
@@ -92,6 +127,7 @@ export default function MinutaView() {
     };
     return tipos[tipo] || tipo || '📝 Novedad';
   };
+
   const handleExportCSV = () => {
     if (!minuta.length) {
       toast.info('No hay entradas en la minuta para exportar');
@@ -128,7 +164,7 @@ export default function MinutaView() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-              Minuta Digital de Vigilancia <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">Libro Oficial</span>
+              Minuta Digital de Vigilancia <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">Libro Oficial ({pagination.total})</span>
             </h1>
             <p className="text-slate-400 text-sm">Registro cronológico inmutable de novedades, rondas y cambios de guardia</p>
           </div>
@@ -166,32 +202,44 @@ export default function MinutaView() {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por palabras clave, guardia o contenido..."
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Buscar en la minuta por palabra clave, guardia o apartamento..."
             className="w-full bg-slate-900 border border-slate-700 text-white pl-10 pr-4 py-2 rounded-xl text-sm outline-none focus:border-amber-500"
           />
         </div>
         <div className="flex gap-2">
           <select
             value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value)}
-            className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-amber-500"
+            onChange={(e) => {
+              setFiltroTipo(e.target.value);
+              setPage(1);
+            }}
+            className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none"
           >
             <option value="">Todos los Tipos</option>
-            <option value="cambio_turno">Cambio de Turno</option>
+            <option value="cambio_turno">Cambios de Turno</option>
             <option value="ronda">Rondas</option>
+            <option value="recorrido">Recorridos Perimetrales</option>
             <option value="acceso">Control de Accesos</option>
             <option value="incidente">Incidentes</option>
-            <option value="emergencia">Emergencia / SOS</option>
+            <option value="emergencia">Emergencias / SOS</option>
+            <option value="urgente">Urgentes</option>
             <option value="mantenimiento">Mantenimiento</option>
+            <option value="novedad">Novedad</option>
             <option value="general">General</option>
           </select>
           <select
             value={filtroSeveridad}
-            onChange={(e) => setFiltroSeveridad(e.target.value)}
-            className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none focus:border-amber-500"
+            onChange={(e) => {
+              setFiltroSeveridad(e.target.value);
+              setPage(1);
+            }}
+            className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-sm outline-none"
           >
-            <option value="">Toda Severidad</option>
+            <option value="">Cualquier Severidad</option>
             <option value="info">Informativa</option>
             <option value="advertencia">Advertencia</option>
             <option value="peligro">Crítica</option>
@@ -199,30 +247,34 @@ export default function MinutaView() {
         </div>
       </div>
 
-      {/* TIMELINE DE MINUTA */}
-      <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
+      {/* TIMELINE DE NOVEDADES */}
+      <div className="space-y-4">
         {minuta.length === 0 ? (
-          <div className="text-center py-16 text-slate-500">
+          <div className="text-center py-16 text-slate-500 bg-slate-800/40 border border-slate-800 rounded-2xl">
             <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>No hay registros en la minuta con los filtros seleccionados.</p>
+            <p>No se encontraron registros en la minuta oficial.</p>
           </div>
         ) : (
-          <div className="relative border-l-2 border-slate-700 ml-4 pl-6 space-y-6">
+          <div className="relative border-l-2 border-slate-700 ml-4 space-y-6 pb-4">
             {minuta.map((item) => (
-              <div key={item.id} className="relative group">
-                {/* Dot */}
-                <div className={`absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-slate-900 ${
+              <div key={item.id} className="relative pl-6">
+                <div className={`absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-4 border-slate-950 ${
                   item.severidad === 'peligro' ? 'bg-red-500' :
                   item.severidad === 'advertencia' ? 'bg-amber-500' : 'bg-emerald-500'
                 }`} />
 
                 <div className="bg-slate-900/80 border border-slate-700/80 p-5 rounded-2xl shadow-md hover:border-slate-600 transition-all space-y-2">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-bold text-slate-300 bg-slate-800 px-2.5 py-1 rounded-lg">
                         {getTipoLabel(item.tipo)}
                       </span>
                       <h3 className="font-bold text-white text-base">{item.titulo || getTipoLabel(item.tipo)}</h3>
+                      {item.offlinePending && (
+                        <span className="text-[11px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold">
+                          ⏳ En cola offline
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-3">
                       {getSeveridadBadge(item.severidad)}
@@ -246,6 +298,33 @@ export default function MinutaView() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between bg-slate-800/70 border border-slate-700 px-4 py-3 rounded-2xl text-xs">
+            <span className="text-slate-400">
+              Página <strong className="text-white">{pagination.page}</strong> de{' '}
+              <strong className="text-white">{pagination.totalPages}</strong> • {pagination.total} registros totales
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 disabled:opacity-40 flex items-center gap-1 font-semibold"
+              >
+                <ChevronLeft className="w-4 h-4" /> Anterior
+              </button>
+              <button
+                type="button"
+                disabled={!pagination.hasMore}
+                onClick={() => setPage((p) => p + 1)}
+                className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 disabled:opacity-40 flex items-center gap-1 font-semibold"
+              >
+                Siguiente <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         )}
       </div>

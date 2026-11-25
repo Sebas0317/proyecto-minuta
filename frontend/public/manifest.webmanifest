@@ -1,0 +1,20 @@
+{
+  "name": "MinutaTech - Sistema Integral de Portería y Vigilancia",
+  "short_name": "MinutaTech",
+  "description": "Control operativo de portería, minuta digital, paquetería con PIN, rondas QR y portal de residentes.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#020617",
+  "theme_color": "#10b981",
+  "lang": "es-CO",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
