@@ -2,13 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    color-scheme: dark;
+    background-color: #090d16;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #090d16;
+    color: #f1f5f9;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
 }
-body {
-  -webkit-font-smoothing: antialiased;
+
+.tabular-nums,
+.font-mono {
+  font-variant-numeric: tabular-nums;
 }

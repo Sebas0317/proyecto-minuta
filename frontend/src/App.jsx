@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { RefreshCw, ShieldAlert, ShieldCheck, Trash2 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSession } from './hooks/useSession';
@@ -96,21 +97,21 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6 font-sans">
-          <div className="bg-slate-900 border border-slate-800 max-w-lg w-full rounded-2xl p-6 md:p-8 shadow-2xl text-center space-y-4">
-            <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
-              🛡️
+        <div className="min-h-screen bg-[#090d16] text-slate-100 flex items-center justify-center p-6 font-sans">
+          <div className="bg-slate-900 border border-slate-800 max-w-lg w-full rounded-xl p-6 md:p-8 shadow-2xl text-center space-y-4">
+            <div className="w-12 h-12 bg-red-500/10 border border-red-500/25 text-red-400 rounded-xl flex items-center justify-center mx-auto">
+              <ShieldAlert className="w-6 h-6" />
             </div>
-            
+
             <div>
-              <h2 className="text-xl font-bold text-white tracking-tight">Recuperación del Sistema</h2>
+              <h2 className="text-lg font-semibold text-white tracking-tight">Recuperación del Sistema</h2>
               <p className="text-slate-400 text-xs mt-1">
-                Ocurrió un contratiempo temporal en la vista. Los registros de minuta y base de datos permanecen seguros.
+                Ocurrió un contratiempo temporal en la vista. Los registros de minuta y base de datos permanecen íntegros.
               </p>
             </div>
 
             {this.state.error?.message && (
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-left text-xs font-mono text-red-400/90 overflow-x-auto max-h-24">
+              <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-left text-xs font-mono text-red-400/90 overflow-x-auto max-h-24">
                 {this.state.error.message}
               </div>
             )}
@@ -118,15 +119,17 @@ class ErrorBoundary extends Component {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-2">
               <button
                 onClick={this.handleReset}
-                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-lg shadow-emerald-950/40 cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-semibold text-xs transition-colors cursor-pointer"
               >
-                🔄 Reintentar Carga
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Reintentar Carga</span>
               </button>
               <button
                 onClick={this.handleHardReset}
-                className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg font-semibold text-xs transition-colors cursor-pointer"
               >
-                🧹 Limpiar Caché y Reiniciar
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Limpiar Caché y Reiniciar</span>
               </button>
             </div>
 
@@ -154,20 +157,12 @@ function SafeNavigate({ to, replace = true }) {
 
 function LoadingFallback() {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        fontSize: '16px',
-        color: '#94a3b8',
-        background: '#0f172a',
-      }}
-    >
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '36px', marginBottom: '12px' }}>🛡️</div>
-        <p className="font-semibold text-slate-300">Cargando Proyecto Minuta...</p>
+    <div className="min-h-screen flex items-center justify-center bg-[#090d16] text-slate-400">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-11 h-11 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-emerald-400">
+          <ShieldCheck className="w-5 h-5" />
+        </div>
+        <p className="text-xs font-medium tracking-wide text-slate-400">Inicializando consola operativa...</p>
       </div>
     </div>
   );

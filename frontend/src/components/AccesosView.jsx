@@ -187,39 +187,39 @@ export default function AccesosView() {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-800/80 backdrop-blur border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl">
-            <UserCheck className="w-8 h-8" />
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-4 md:p-5 rounded-xl">
+        <div className="flex items-center gap-3.5">
+          <div className="p-2.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 rounded-lg">
+            <UserCheck className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
+              <h1 className="text-lg md:text-xl font-bold tracking-tight text-white">
                 Control de Accesos y Visitas
               </h1>
-              <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-md font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 Registro de Portería
               </span>
             </div>
-            <p className="text-slate-400 text-xs md:text-sm mt-0.5">Registro en tiempo real de visitantes, domiciliarios, contratistas, permanencia y salidas</p>
+            <p className="text-slate-400 text-xs mt-0.5">Trazabilidad de visitantes, domiciliarios, contratistas, tiempos de permanencia y salidas</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
           <button
             onClick={() => setShowModal(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-emerald-900/30 transition-all hover:scale-[1.02]"
+            className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-lg font-semibold text-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Registrar Ingreso</span>
+            <span>Registrar Ingreso</span>
           </button>
           <button
             onClick={loadData}
-            className="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl transition-all"
+            className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors"
             title="Recargar"
           >
-            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
           </button>
         </div>
       </div>
@@ -249,7 +249,7 @@ export default function AccesosView() {
             className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold outline-none focus:border-emerald-500"
           >
             <option value="en_conjunto">Activos en Conjunto</option>
-            <option value="preautorizado">🟣 Visitas Pre-autorizadas (Pases QR)</option>
+            <option value="preautorizado">Visitas Pre-autorizadas (Pases QR)</option>
             <option value="finalizado">Historial de Salidas</option>
             <option value="">Todos los Registros</option>
           </select>
@@ -307,8 +307,8 @@ export default function AccesosView() {
                       <div className="font-bold text-white text-sm flex items-center gap-2 flex-wrap">
                         <span>{a.nombre}</span>
                         {a.offlinePending && (
-                          <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
-                            ⏳ En cola offline
+                          <span className="text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-md font-semibold">
+                            En cola offline
                           </span>
                         )}
                         {a.paseQR && (
@@ -350,15 +350,17 @@ export default function AccesosView() {
                     </td>
                     <td className="p-4 whitespace-nowrap">
                       {a.estado === 'en_conjunto' || a.estado === 'activo' ? (
-                        <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[11px] px-2.5 py-1 rounded-full font-bold animate-pulse">
-                          🟢 En Conjunto
+                        <span className="inline-flex items-center gap-1.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] px-2.5 py-0.5 rounded-md font-semibold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          En Conjunto
                         </span>
                       ) : a.estado === 'preautorizado' ? (
-                        <span className="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[11px] px-2.5 py-1 rounded-full font-bold">
-                          🟣 Pre-autorizado
+                        <span className="inline-flex items-center gap-1.5 bg-sky-500/15 text-sky-300 border border-sky-500/30 text-[11px] px-2.5 py-0.5 rounded-md font-semibold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                          Pre-autorizado
                         </span>
                       ) : (
-                        <span className="bg-slate-800 text-slate-400 border border-slate-700 text-[11px] px-2.5 py-1 rounded-full font-semibold">
+                        <span className="inline-flex items-center gap-1.5 bg-slate-800 text-slate-400 border border-slate-700 text-[11px] px-2.5 py-0.5 rounded-md font-medium">
                           Finalizado
                         </span>
                       )}

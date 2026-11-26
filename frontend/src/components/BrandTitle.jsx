@@ -1,24 +1,29 @@
 import React from 'react';
-import { ShieldCheck, Building2 } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
-export default function BrandTitle({ subtitle = 'Sistema Integral de Portería y Control Residencial' }) {
+export default function BrandTitle({ subtitle = 'Plataforma de Control de Accesos y Gestión de Propiedad Horizontal' }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center space-y-2 mb-6">
-      <div className="flex items-center gap-2.5">
-        <div className="p-2.5 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-2xl shadow-lg shadow-emerald-950/60 border border-emerald-400/30 text-white">
-          <Building2 className="w-7 h-7" />
+    <div className="flex flex-col items-center justify-center text-center space-y-2.5 mb-5">
+      <div className="flex items-center gap-3">
+        <div className="p-2.5 bg-emerald-500/10 rounded-lg border border-emerald-500/30 text-emerald-400">
+          <ShieldCheck className="w-6 h-6" />
         </div>
         <div className="text-left">
-          <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-1.5 leading-none">
-            MINUTA <span className="text-emerald-400 font-mono text-xl">P.H.</span>
-          </h1>
-          <span className="text-[10px] uppercase tracking-widest text-emerald-300/80 font-bold">
-            Seguridad & Vigilancia
+          <div className="flex items-center gap-2 leading-none">
+            <h1 className="text-xl font-bold tracking-tight text-white">
+              MINUTATECH
+            </h1>
+            <span className="text-[11px] font-mono font-semibold px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
+              P.H.
+            </span>
+          </div>
+          <span className="block text-[10px] uppercase tracking-[0.16em] text-slate-400 font-semibold mt-1">
+            Seguridad Física &amp; Operaciones
           </span>
         </div>
       </div>
       {subtitle && (
-        <p className="text-xs text-slate-400 max-w-xs">{subtitle}</p>
+        <p className="text-xs text-slate-400 max-w-xs leading-relaxed">{subtitle}</p>
       )}
     </div>
   );

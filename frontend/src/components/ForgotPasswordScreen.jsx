@@ -136,8 +136,8 @@ export default function ForgotPasswordScreen({ onBack }) {
           <BrandTitle variant="login" />
         </div>
 
-        <p className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-6 text-center">
-          Recuperacion de contrasena
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-6 text-center">
+          Recuperación de contraseña
         </p>
 
         {step === 'email' && (

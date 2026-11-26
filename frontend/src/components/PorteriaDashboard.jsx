@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { 
-  Shield, Search, UserCheck, Package, Car, AlertTriangle, Receipt, FileText, Droplets, Zap, Flame, Wifi, 
-  Plus, CheckCircle, Clock, Send, Phone, User, Users,
-  Home, Building2, ArrowRight, ArrowLeft, LogOut, Check, X, RefreshCw, FileCheck, CloudRain, Sun, Calendar
+  Shield, Search, UserCheck, Package, Car, AlertTriangle, Receipt, 
+  Plus, Clock, Send, Phone, Users,
+  LogOut, Check, X, RefreshCw, FileCheck, CloudRain, Sun, Calendar
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -441,42 +441,44 @@ export default function PorteriaDashboard() {
   return (
     <div className="space-y-4 sm:space-y-6 text-slate-100">
       {/* HEADER DE CONTROL */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-slate-800/90 backdrop-blur border border-slate-700/80 p-4 md:p-6 rounded-2xl shadow-xl">
-        <div className="flex items-center gap-3.5">
-          <div className="p-3 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded-2xl shadow-inner">
-            <Shield className="w-8 h-8" />
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-4 md:p-5 rounded-xl">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="p-2.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 rounded-lg shrink-0">
+            <Shield className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
-                Portería Principal
+              <h1 className="text-lg md:text-xl font-bold tracking-tight text-white">
+                Puesto de Portería Principal
               </h1>
-              <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-md font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 Turno Activo
               </span>
             </div>
-            <p className="text-slate-400 text-xs md:text-sm mt-0.5">Control Operativo de Accesos, Paquetería y Minuta</p>
+            <p className="text-slate-400 text-xs mt-0.5">Control operativo de ingresos, correspondencia con PIN y libro de minuta</p>
             {contexto && (
-              <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px]">
-                <span className="inline-flex items-center gap-1 bg-sky-500/15 text-sky-300 border border-sky-500/30 px-2.5 py-0.5 rounded-lg font-semibold">
+              <div className="flex flex-wrap items-center gap-1.5 mt-2 text-[11px]">
+                <span className="inline-flex items-center gap-1.5 bg-slate-950/90 text-slate-300 border border-slate-800 px-2.5 py-0.5 rounded-md font-medium">
                   {contexto.clima?.icono === 'lluvia' || contexto.clima?.icono === 'tormenta' ? (
                     <CloudRain className="w-3.5 h-3.5 text-sky-400" />
                   ) : (
                     <Sun className="w-3.5 h-3.5 text-amber-400" />
                   )}
-                  {contexto.clima?.ciudad}: {contexto.clima?.temperaturaC}°C ({contexto.clima?.estado})
+                  <span>{contexto.clima?.ciudad}: {contexto.clima?.temperaturaC}°C ({contexto.clima?.estado})</span>
                 </span>
-                <span className="inline-flex items-center gap-1 bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-lg font-semibold">
+                <span className="inline-flex items-center gap-1.5 bg-slate-950/90 text-slate-300 border border-slate-800 px-2.5 py-0.5 rounded-md font-medium">
                   <Car className="w-3.5 h-3.5 text-amber-400" />
-                  {contexto.picoYPlaca?.aplica
-                    ? `Pico y Placa hoy: circulan ${contexto.picoYPlaca.placasHabilitadas.join(',')}`
-                    : 'Pico y Placa: sin restricción hoy'}
+                  <span>
+                    {contexto.picoYPlaca?.aplica
+                      ? `Pico y Placa: circulan ${contexto.picoYPlaca.placasHabilitadas.join(',')}`
+                      : 'Pico y Placa: libre hoy'}
+                  </span>
                 </span>
                 {contexto.calendario?.proximoFestivo && (
-                  <span className="inline-flex items-center gap-1 bg-purple-500/15 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-lg font-semibold">
-                    <Calendar className="w-3.5 h-3.5 text-purple-400" />
-                    Próx. festivo: {contexto.calendario.proximoFestivo.date} ({contexto.calendario.proximoFestivo.name})
+                  <span className="inline-flex items-center gap-1.5 bg-slate-950/90 text-slate-300 border border-slate-800 px-2.5 py-0.5 rounded-md font-medium">
+                    <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Próx. festivo: {contexto.calendario.proximoFestivo.date} ({contexto.calendario.proximoFestivo.name})</span>
                   </span>
                 )}
               </div>
@@ -484,47 +486,47 @@ export default function PorteriaDashboard() {
           </div>
         </div>
 
-        {/* BOTONES DE ACCIÓN RÁPIDA */}
+        {/* BARRA OPERATIVA DISCIPLINADA: 1 CTA PRIMARIO + ACCIONES SECUNDARIAS NEUTRAS */}
         <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
           <button
             onClick={() => setShowIngresoModal(true)}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-emerald-950/40 transition-all hover:scale-[1.02] cursor-pointer"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-lg font-semibold text-xs transition-colors cursor-pointer"
           >
             <UserCheck className="w-4 h-4" />
-            <span>+ Nuevo Ingreso</span>
+            <span>Registrar Ingreso</span>
           </button>
           <button
             onClick={() => setShowPaqueteModal(true)}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-950/40 transition-all hover:scale-[1.02] cursor-pointer"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border border-slate-700/90 px-3 py-2 rounded-lg font-medium text-xs transition-colors cursor-pointer"
           >
-            <Package className="w-4 h-4" />
-            <span>+ Llegó Paquete</span>
+            <Package className="w-4 h-4 text-sky-400" />
+            <span>Paquete</span>
           </button>
           <button
             onClick={() => setShowReciboModal(true)}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-amber-950/40 transition-all hover:scale-[1.02] cursor-pointer"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border border-slate-700/90 px-3 py-2 rounded-lg font-medium text-xs transition-colors cursor-pointer"
           >
-            <Receipt className="w-4 h-4" />
-            <span>+ Factura / Recibo</span>
+            <Receipt className="w-4 h-4 text-amber-400" />
+            <span>Recibo</span>
           </button>
           <button
             onClick={() => setShowCertificados(true)}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-purple-950/40 transition-all hover:scale-[1.02] cursor-pointer"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border border-slate-700/90 px-3 py-2 rounded-lg font-medium text-xs transition-colors cursor-pointer"
           >
-            <FileCheck className="w-4 h-4" />
-            <span>+ Paz y Salvo</span>
+            <FileCheck className="w-4 h-4 text-emerald-400" />
+            <span>Paz y Salvo</span>
           </button>
           <button
             onClick={() => setShowMinutaModal(true)}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-500 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-rose-950/40 transition-all hover:scale-[1.02] cursor-pointer"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border border-slate-700/90 px-3 py-2 rounded-lg font-medium text-xs transition-colors cursor-pointer"
           >
-            <AlertTriangle className="w-4 h-4" />
-            <span>+ Minuta</span>
+            <AlertTriangle className="w-4 h-4 text-rose-400" />
+            <span>Minuta</span>
           </button>
           <button
             onClick={loadData}
             title="Refrescar datos"
-            className="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl transition-all cursor-pointer"
+            className="p-2 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 rounded-lg transition-colors cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
           </button>
@@ -533,40 +535,40 @@ export default function PorteriaDashboard() {
 
       {/* METRIC CARDS */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        <div className="bg-slate-800/60 border border-slate-700/80 p-3.5 rounded-2xl flex items-center gap-3">
-          <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl">
-            <UserCheck className="w-5 h-5" />
+        <div className="bg-slate-900/85 border border-slate-800 p-3.5 rounded-xl flex items-center gap-3">
+          <div className="p-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg">
+            <UserCheck className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Visitas Activas</p>
-            <h3 className="text-xl font-black text-white">{stats.visitantesActivos}</h3>
+            <p className="text-slate-400 text-[11px] font-medium">Visitas Activas</p>
+            <h3 className="text-xl font-bold text-white tabular-nums">{stats.visitantesActivos}</h3>
           </div>
         </div>
 
-        <div className="bg-slate-800/60 border border-slate-700/80 p-3.5 rounded-2xl flex items-center gap-3">
-          <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl">
-            <Package className="w-5 h-5" />
+        <div className="bg-slate-900/85 border border-slate-800 p-3.5 rounded-xl flex items-center gap-3">
+          <div className="p-2 bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-lg">
+            <Package className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Paquetería</p>
-            <h3 className="text-xl font-black text-white">{stats.paquetesPendientes} <span className="text-[10px] text-slate-400 font-normal">encomiendas</span></h3>
+            <p className="text-slate-400 text-[11px] font-medium">Paquetería</p>
+            <h3 className="text-xl font-bold text-white tabular-nums">{stats.paquetesPendientes} <span className="text-[11px] text-slate-500 font-normal">pendientes</span></h3>
           </div>
         </div>
 
-        <div className={`p-3.5 rounded-2xl flex items-center gap-3 border ${
+        <div className={`p-3.5 rounded-xl flex items-center gap-3 border ${
           stats.recibosCriticos > 0
-            ? 'bg-amber-950/40 border-amber-800/80'
-            : 'bg-slate-800/60 border-slate-700/80'
+            ? 'bg-amber-950/30 border-amber-800/70'
+            : 'bg-slate-900/85 border-slate-800'
         }`}>
-          <div className="p-2.5 bg-amber-500/10 text-amber-400 rounded-xl">
-            <Receipt className="w-5 h-5" />
+          <div className="p-2 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg">
+            <Receipt className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Recibos Casillero</p>
+            <p className="text-slate-400 text-[11px] font-medium">Recibos Casillero</p>
             <div className="flex items-center gap-1.5">
-              <h3 className="text-xl font-black text-white">{stats.recibosPendientes}</h3>
+              <h3 className="text-xl font-bold text-white tabular-nums">{stats.recibosPendientes}</h3>
               {stats.recibosCriticos > 0 && (
-                <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-bold animate-pulse">
+                <span className="text-[10px] bg-red-500/15 text-red-300 border border-red-500/30 px-1.5 py-0.5 rounded font-semibold tabular-nums">
                   {stats.recibosCriticos} &gt;30d
                 </span>
               )}
@@ -574,23 +576,23 @@ export default function PorteriaDashboard() {
           </div>
         </div>
 
-        <div className="bg-slate-800/60 border border-slate-700/80 p-3.5 rounded-2xl flex items-center gap-3">
-          <div className="p-2.5 bg-purple-500/10 text-purple-400 rounded-xl">
-            <Car className="w-5 h-5" />
+        <div className="bg-slate-900/85 border border-slate-800 p-3.5 rounded-xl flex items-center gap-3">
+          <div className="p-2 bg-slate-800 text-slate-300 border border-slate-700 rounded-lg">
+            <Car className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Parqueaderos</p>
-            <h3 className="text-xl font-black text-white">{stats.cuposLibres} <span className="text-[10px] text-slate-400 font-normal">libres</span></h3>
+            <p className="text-slate-400 text-[11px] font-medium">Parqueaderos</p>
+            <h3 className="text-xl font-bold text-white tabular-nums">{stats.cuposLibres} <span className="text-[11px] text-slate-500 font-normal">libres</span></h3>
           </div>
         </div>
 
-        <div className="bg-slate-800/60 border border-slate-700/80 p-3.5 rounded-2xl flex items-center gap-3">
-          <div className="p-2.5 bg-cyan-500/10 text-cyan-400 rounded-xl">
-            <Clock className="w-5 h-5" />
+        <div className="bg-slate-900/85 border border-slate-800 p-3.5 rounded-xl flex items-center gap-3">
+          <div className="p-2 bg-slate-800 text-slate-300 border border-slate-700 rounded-lg">
+            <Clock className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Novedades Hoy</p>
-            <h3 className="text-xl font-black text-white">{stats.novedadesHoy}</h3>
+            <p className="text-slate-400 text-[11px] font-medium">Novedades Hoy</p>
+            <h3 className="text-xl font-bold text-white tabular-nums">{stats.novedadesHoy}</h3>
           </div>
         </div>
       </div>
@@ -640,8 +642,8 @@ export default function PorteriaDashboard() {
                 </div>
                 <div className="text-right text-xs text-slate-400">
                   {u.vehiculos?.length > 0 && (
-                    <span className="bg-slate-700 text-emerald-400 px-2 py-1 rounded-md mr-2">
-                      🚗 {u.vehiculos.map(v => v.placa).join(', ')}
+                    <span className="bg-slate-700 text-emerald-400 font-mono px-2 py-1 rounded-md mr-2">
+                      {u.vehiculos.map(v => v.placa).join(', ')}
                     </span>
                   )}
                   <span className="text-emerald-400 font-medium">Ver Ficha →</span>
@@ -714,8 +716,8 @@ export default function PorteriaDashboard() {
                   {selectedUnidad.estadoFinanciero?.administracion?.alDia ? (
                     <span className="text-emerald-400 font-bold">✓ Paz y Salvo</span>
                   ) : (
-                    <span className="text-red-400 font-bold">
-                      ⚠️ En Mora ({selectedUnidad.estadoFinanciero?.administracion?.mesesMora || 0} meses: ${Number(selectedUnidad.estadoFinanciero?.administracion?.saldoPendiente || 0).toLocaleString('es-CO')})
+                    <span className="text-red-400 font-semibold">
+                      En Mora ({selectedUnidad.estadoFinanciero?.administracion?.mesesMora || 0} meses: ${Number(selectedUnidad.estadoFinanciero?.administracion?.saldoPendiente || 0).toLocaleString('es-CO')})
                     </span>
                   )}
                 </div>
@@ -783,38 +785,40 @@ export default function PorteriaDashboard() {
               <h3 className="text-base font-bold text-white">Visitantes y Domicilios</h3>
             </div>
             
-            <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-700 text-xs flex-wrap">
+            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs flex-wrap">
               <button
                 onClick={() => setTabVisitas('activos')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-semibold transition-colors ${
                   tabVisitas === 'activos'
-                    ? 'bg-emerald-600 text-white shadow'
+                    ? 'bg-slate-800 text-white border border-slate-700'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                🟢 Activos ({accesos.filter(a => a.estado === 'en_conjunto').length})
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span>Activos ({accesos.filter(a => a.estado === 'en_conjunto').length})</span>
               </button>
               <button
                 onClick={() => setTabVisitas('preautorizados')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-semibold transition-colors ${
                   tabVisitas === 'preautorizados'
-                    ? 'bg-purple-600 text-white shadow'
+                    ? 'bg-slate-800 text-white border border-slate-700'
                     : accesos.filter(a => a.estado === 'preautorizado').length > 0
-                    ? 'text-purple-300 hover:text-white font-black animate-pulse'
+                    ? 'text-emerald-300 hover:text-white'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                🎫 Pases QR ({accesos.filter(a => a.estado === 'preautorizado').length})
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                <span>Pases QR ({accesos.filter(a => a.estado === 'preautorizado').length})</span>
               </button>
               <button
                 onClick={() => setTabVisitas('salidas')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-semibold transition-colors ${
                   tabVisitas === 'salidas'
-                    ? 'bg-slate-700 text-white shadow'
+                    ? 'bg-slate-800 text-white border border-slate-700'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                📜 Salidas ({accesos.filter(a => a.estado === 'finalizado').length})
+                <span>Salidas ({accesos.filter(a => a.estado === 'finalizado').length})</span>
               </button>
             </div>
           </div>
@@ -842,12 +846,12 @@ export default function PorteriaDashboard() {
                           Destino: <strong className="text-slate-300">{a.torre} - {a.apto}</strong> • Motivo: {a.motivo}
                         </p>
                         <div className="flex flex-wrap items-center gap-2 mt-1">
-                          <span className="text-[11px] text-emerald-400 font-mono font-bold bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded-md">
-                            ⏳ {calcularPermanencia(a.fechaIngreso, null)}
+                          <span className="text-[11px] text-emerald-400 font-mono font-semibold bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded">
+                            {calcularPermanencia(a.fechaIngreso, null)}
                           </span>
                           {a.vehiculo?.placa && (
-                            <span className="text-[11px] text-purple-400 font-mono font-bold bg-purple-950/60 border border-purple-800/80 px-2 py-0.5 rounded-md">
-                              🚗 {a.vehiculo.placa} ({a.parqueaderoAsignado || 'Sin bahía'})
+                            <span className="text-[11px] text-slate-200 font-mono font-semibold bg-slate-800 border border-slate-700 px-2 py-0.5 rounded">
+                              {a.vehiculo.placa} ({a.parqueaderoAsignado || 'Sin bahía'})
                             </span>
                           )}
                         </div>
@@ -891,12 +895,12 @@ export default function PorteriaDashboard() {
                           Destino: <strong className="text-purple-300">{a.torre} - Apto {a.apto}</strong> • Motivo: {a.motivo}
                         </p>
                         <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px]">
-                          <span className="text-slate-300">
-                            📅 Esperado: <strong className="text-white">{a.fechaEsperada || 'Hoy'}</strong>
+                          <span className="text-slate-400">
+                            Esperado: <strong className="text-slate-200">{a.fechaEsperada || 'Hoy'}</strong>
                           </span>
                           {a.vehiculo?.placa && (
-                            <span className="text-purple-400 font-mono font-bold bg-purple-950/60 border border-purple-800/80 px-2 py-0.5 rounded-md">
-                              🚗 {a.vehiculo.placa}
+                            <span className="text-slate-200 font-mono font-semibold bg-slate-800 border border-slate-700 px-2 py-0.5 rounded">
+                              {a.vehiculo.placa}
                             </span>
                           )}
                         </div>
@@ -936,8 +940,8 @@ export default function PorteriaDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-emerald-400 font-mono font-bold block">
-                        ⏱️ {calcularPermanencia(a.fechaIngreso, a.fechaSalida)}
+                      <span className="text-emerald-400 font-mono font-semibold block">
+                        {calcularPermanencia(a.fechaIngreso, a.fechaSalida)}
                       </span>
                       <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full">
                         Finalizado
@@ -989,7 +993,7 @@ export default function PorteriaDashboard() {
                       <p className="text-[11px] text-amber-400 font-mono font-bold mt-0.5">
                         PIN Retiro:{' '}
                         <strong className="bg-slate-800 px-1.5 py-0.5 rounded text-white border border-slate-700">
-                          {pinCache[p.id] || '🔒 Protegido'}
+                          {pinCache[p.id] || 'Protegido (bcrypt)'}
                         </strong>
                       </p>
                     </div>
@@ -1091,8 +1095,8 @@ export default function PorteriaDashboard() {
                     </div>
 
                     {esCritico && (
-                      <p className="text-[10px] text-red-400 font-semibold bg-red-950/80 p-1.5 rounded border border-red-900/60">
-                        ⚠️ ALERTA: Más de 1 mes sin retirar. Riesgo de corte de servicio.
+                      <p className="text-[10px] text-red-300 font-medium bg-red-950/80 p-1.5 rounded border border-red-900/60">
+                        Alerta: más de 30 días sin retirar. Riesgo de suspensión de servicio.
                       </p>
                     )}
                   </div>
@@ -1158,11 +1162,11 @@ export default function PorteriaDashboard() {
                   onChange={(e) => setReciboForm({ ...reciboForm, tipoRecibo: e.target.value, empresa: e.target.value.split(' ')[0] })}
                   className="w-full bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs outline-none focus:border-amber-500"
                 >
-                  <option value="Acueducto y Alcantarillado (Agua)">💧 Acueducto y Alcantarillado (Agua)</option>
-                  <option value="Energía Eléctrica (Luz)">⚡ Energía Eléctrica (Luz)</option>
-                  <option value="Gas Natural Domiciliario">🔥 Gas Natural Domiciliario</option>
-                  <option value="Telecomunicaciones (Internet/TV)">📶 Telecomunicaciones (Internet/TV)</option>
-                  <option value="Impuesto Predial Unificado">🏛️ Impuesto Predial Unificado</option>
+                  <option value="Acueducto y Alcantarillado (Agua)">Acueducto y Alcantarillado (Agua)</option>
+                  <option value="Energía Eléctrica (Luz)">Energía Eléctrica (Luz)</option>
+                  <option value="Gas Natural Domiciliario">Gas Natural Domiciliario</option>
+                  <option value="Telecomunicaciones (Internet/TV)">Telecomunicaciones (Internet/TV)</option>
+                  <option value="Impuesto Predial Unificado">Impuesto Predial Unificado</option>
                 </select>
               </div>
 

@@ -80,8 +80,8 @@ export default function TwoFactorScreen({ userId, onVerified, onBack, email }) {
         {success ? (
           <>
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center animate-bounce">
-                <CheckCircle className="w-8 h-8 text-green-400" />
+              <div className="w-14 h-14 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+                <CheckCircle className="w-7 h-7 text-emerald-400" />
               </div>
             </div>
             <p className="text-lg font-bold text-green-400 text-center mb-2">

@@ -265,77 +265,77 @@ export default function PaqueteriaView() {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-800/80 backdrop-blur border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-xl">
-            <Package className="w-8 h-8" />
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-4 md:p-5 rounded-xl">
+        <div className="flex items-center gap-3.5">
+          <div className="p-2.5 bg-sky-500/10 text-sky-400 border border-sky-500/25 rounded-lg">
+            <Package className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
-                Paquetería & Recibos Públicos
+              <h1 className="text-lg md:text-xl font-bold tracking-tight text-white">
+                Paquetería y Recibos Públicos
               </h1>
-              <span className="inline-flex items-center gap-1.5 text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold">
-                <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 text-[11px] bg-sky-500/10 text-sky-300 border border-sky-500/25 px-2 py-0.5 rounded-md font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
                 Casillero de Portería
               </span>
             </div>
-            <p className="text-slate-400 text-xs md:text-sm mt-0.5">Control de encomiendas con PIN de 4 dígitos y seguimiento de facturas públicas</p>
+            <p className="text-slate-400 text-xs mt-0.5">Custodia de encomiendas con PIN criptográfico de 4 dígitos y control de facturas públicas</p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3.5 py-2.5 rounded-xl font-bold text-xs transition-all"
+            className="inline-flex items-center gap-1.5 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-200 px-3 py-2 rounded-lg font-medium text-xs transition-colors"
             title="Exportar a Excel"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-3.5 h-3.5 text-slate-400" />
             <span>Exportar CSV</span>
           </button>
           <button
             onClick={() => setShowReciboModal(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-amber-950/40 transition-all hover:scale-[1.02]"
+            className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-200 px-3.5 py-2 rounded-lg font-medium text-xs transition-colors"
           >
-            <FileText className="w-4 h-4" />
-            <span>+ Ingresar Recibo Público</span>
+            <FileText className="w-4 h-4 text-amber-400" />
+            <span>Ingresar Recibo</span>
           </button>
           <button
             onClick={() => setShowPaqueteModal(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-900/40 transition-all hover:scale-[1.02]"
+            className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-lg font-semibold text-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Nueva Encomienda</span>
+            <span>Nueva Encomienda</span>
           </button>
           <button
             onClick={loadData}
-            className="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl transition-all"
+            className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors"
             title="Recargar"
           >
-            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-blue-400' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
           </button>
         </div>
       </div>
 
       {/* STATS RÁPIDOS */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-slate-800/60 border border-slate-700 p-3.5 rounded-xl">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase">Paquetes por Retirar</span>
-          <p className="text-2xl font-black text-white">{encomiendasPendientes.length}</p>
+        <div className="bg-slate-900/85 border border-slate-800 p-3.5 rounded-xl">
+          <span className="text-[11px] font-medium text-slate-400">Paquetes por Retirar</span>
+          <p className="text-2xl font-bold text-white tabular-nums mt-0.5">{encomiendasPendientes.length}</p>
         </div>
-        <div className="bg-amber-950/40 border border-amber-800/50 p-3.5 rounded-xl">
-          <span className="text-[11px] font-semibold text-amber-400 uppercase">Recibos Públicos en Custodia</span>
-          <p className="text-2xl font-black text-amber-400">{recibosPublicos.length}</p>
+        <div className="bg-slate-900/85 border border-slate-800 p-3.5 rounded-xl">
+          <span className="text-[11px] font-medium text-slate-400">Recibos en Custodia</span>
+          <p className="text-2xl font-bold text-amber-400 tabular-nums mt-0.5">{recibosPublicos.length}</p>
         </div>
-        <div className="bg-red-950/40 border border-red-800/50 p-3.5 rounded-xl">
-          <span className="text-[11px] font-semibold text-red-400 uppercase">Recibos &gt; 30 Días sin Reclamar</span>
-          <p className="text-2xl font-black text-red-400">
+        <div className="bg-slate-900/85 border border-slate-800 p-3.5 rounded-xl">
+          <span className="text-[11px] font-medium text-slate-400">Recibos &gt; 30 Días</span>
+          <p className="text-2xl font-bold text-red-400 tabular-nums mt-0.5">
             {recibosPublicos.filter(r => calcularDiasEnPorteria(r.fechaIngreso) >= 30).length}
           </p>
         </div>
-        <div className="bg-emerald-950/40 border border-emerald-800/50 p-3.5 rounded-xl">
-          <span className="text-[11px] font-semibold text-emerald-400 uppercase">Entregados este Mes</span>
-          <p className="text-2xl font-black text-emerald-400">{historialEntregas.length}</p>
+        <div className="bg-slate-900/85 border border-slate-800 p-3.5 rounded-xl">
+          <span className="text-[11px] font-medium text-slate-400">Entregados en Historial</span>
+          <p className="text-2xl font-bold text-emerald-400 tabular-nums mt-0.5">{historialEntregas.length}</p>
         </div>
       </div>
 
@@ -426,8 +426,8 @@ export default function PaqueteriaView() {
                         <p className="text-[11px] text-slate-400">{p.empresa}</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono font-bold bg-blue-950 text-blue-300 border border-blue-800 px-2 py-0.5 rounded">
-                      {pinCache[p.id] ? `PIN: ${pinCache[p.id]}` : '🔒 PIN Protegido'}
+                    <span className="text-[10px] font-mono font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-0.5 rounded">
+                      {pinCache[p.id] ? `PIN: ${pinCache[p.id]}` : 'PIN Protegido'}
                     </span>
                   </div>
 
@@ -492,8 +492,8 @@ export default function PaqueteriaView() {
                           <p className="text-[11px] text-amber-400 font-semibold">{r.tipoRecibo}</p>
                         </div>
                       </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                        isCritico ? 'bg-red-500/20 text-red-300 border-red-500/40 animate-pulse' : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border tabular-nums ${
+                        isCritico ? 'bg-red-500/15 text-red-300 border-red-500/30' : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
                       }`}>
                         {dias} días acumulados
                       </span>

@@ -1,174 +1,176 @@
-# 🏢 Proyecto Minuta • Sistema Integral de Portería, Seguridad & Gestión Residencial
+<div align="center">
 
-> **Desarrollado y firmado por:** `sn2_f_`  
-> **Versión:** 1.0.0 • Monorepo (Node.js / Express + React 19 / Vite)
+<img src=".github/assets/banner.svg" alt="MinutaTech P.H. — Control de Accesos, Portería Digital y Gobernanza Residencial" width="100%" />
 
----
+<br />
 
-## 📌 ¿Qué es esto?
+[![CI Pipeline](https://github.com/Sebas0317/proyecto-minuta/actions/workflows/ci.yml/badge.svg)](https://github.com/Sebas0317/proyecto-minuta/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-10b981.svg)](LICENSE)
+[![Backend Tests](https://img.shields.io/badge/Backend_Tests-80_passing-0f172a?logo=nodedotjs&logoColor=34d399)](backend/tests)
+[![Frontend Tests](https://img.shields.io/badge/UI_Tests-29_passing-0f172a?logo=vitest&logoColor=38bdf8)](frontend/src/test)
+[![PWA Ready](https://img.shields.io/badge/PWA-Offline--First-0f172a?logo=pwa&logoColor=f59e0b)](frontend/public/sw.js)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20-0f172a?logo=node.js&logoColor=34d399)](backend/package.json)
+[![React 19](https://img.shields.io/badge/React-19_%2B_Vite_7-0f172a?logo=react&logoColor=38bdf8)](frontend/package.json)
 
-**Proyecto Minuta** (también conocido como *EcoBosque Residencial*) es una plataforma web integral diseñada para digitalizar por completo la operación diaria de conjuntos residenciales, edificios y condominios bajo el régimen de propiedad horizontal.
+**Plataforma open-source de seguridad física, operación de portería 24/7 y administración de propiedad horizontal.**  
+Diseñada para conjuntos residenciales y edificios corporativos en Latinoamérica bajo los lineamientos de la **Ley 675 de 2001** y la **Ley 1755 de 2015**.
 
-Reemplaza los viejos libros de actas y cuadernos de papel de la portería por un sistema interactivo en tiempo real donde conviven tres perfiles clave:
-1. **Los Guardas de Seguridad:** Registran minutas, visitas, rondas por puntos QR y entregan paquetes con validación de PIN.
-2. **La Administración y el Consejo:** Controlan asambleas con votaciones y quórum en vivo, responden PQRS en los plazos de ley, gestionan cobros, emiten paz y salvos oficiales con QR y auditan toda la actividad del condominio.
-3. **Los Residentes:** Cuentan con un portal de autogestión donde ven sus paquetes con código de retiro, reservan canchas y zonas comunes, radican quejas y votan en asambleas desde su celular o computador.
+[Arquitectura](#-arquitectura-del-sistema) • [Ingeniería Destacada](#-decisiones-de-ingeniería) • [Módulos por Rol](#-módulos-por-rol) • [Inicio Rápido](#-inicio-rápido-local) • [Seguridad y Pruebas](#-seguridad-y-calidad) • [Contribuir](CONTRIBUTING.md)
 
----
-
-## 🎯 ¿Para qué es esto?
-
-En la mayoría de copropiedades y edificios existen dolores de cabeza diarios:
-* **Pérdida o confusión de encomiendas:** Paquetes que se pierden o se entregan a la persona equivocada porque solo se anotaban en una libreta.
-* **Falta de trazabilidad en portería:** Novedades e incidentes que no quedan registrados formalmente o cuyos apuntes se borran/extravían en el cambio de turno.
-* **Asambleas eternas y desorganizadas:** Votaciones a mano alzada donde calcular coeficientes y quórum toma horas y genera desconfianza.
-* **PQRS sin respuesta oportuna:** Residentes inconformes porque sus derechos de petición o quejas de convivencia se pierden sin seguimiento a los 15 días hábiles legales (Ley 1755).
-* **Falta de comunicación:** Canales informales como chats de WhatsApp que se saturan y desinforman.
-
-**Proyecto Minuta resuelve todo esto** centralizando la información en una base de datos segura con persistencia híbrida (Upstash Redis + fallback local protegido), autenticación robusta y diseño responsive para tablets de portería y teléfonos móviles.
+</div>
 
 ---
 
-## 👥 ¿Para quiénes es esto?
+<details>
+<summary><strong>🌐 English Overview (Click to expand)</strong></summary>
 
-* 🏢 **Administradores de Propiedad Horizontal:** Que buscan profesionalizar la gestión, agilizar trámites y cumplir con las normativas vigentes (Ley 675 de 2001 y Ley 1755 de 2015 en Colombia).
-* 🛡️ **Empresas y Supervisores de Seguridad Privada:** Que necesitan supervisar a los guardas en tiempo real, monitorear rondas perimetrales y tener una minuta digital inmutable frente a auditorías o incidentes legales.
-* 👮 **Guardas de Vigilancia:** Que requieren una interfaz limpia, rápida y clara para operar en tablets táctiles o PCs de garita sin enredos técnicos.
-* 🏠 **Copropietarios y Residentes:** Que quieren transparencia, seguridad en sus entregas y facilidad para realizar trámites sin tener que ir físicamente a la oficina de administración.
+<br />
+
+**MinutaTech P.H.** is a full-stack **Physical Security, Guardhouse Operations & Condominium Governance Platform** built with **Node.js 20 + Express 5** and **React 19 + Vite 7 + TanStack Query**.
+
+Unlike generic CRUD property dashboards, MinutaTech solves real-world guardhouse reliability and security challenges:
+- **Offline-First Guardhouse Continuity:** Service Worker + transactional `IndexedDB` mutation queue (`offlineQueue.js`) lets security guards log visitor entries, shift logs, parking allocations, and QR patrol checkpoints during internet outages, automatically syncing once connectivity returns.
+- **Cryptographic Package Custody:** One-time 4-digit delivery PINs hashed at rest with `bcrypt`, paired with compound `IP + resourceId` rate-limiting to prevent brute-force parcel claims.
+- **Zero-Race-Condition Hybrid Persistence:** Per-domain FIFO mutex locks (`mutationLock.js`) protect atomic `tmp + rename` local JSON writes alongside an **Upstash Redis** layer with automatic circuit-breaker failover and `dirtyKeys` resynchronization.
+- **Legal Governance Out of the Box:** Weighted condominium assembly voting by unit ownership coefficient (`0.01% – 5.00%`), business-day SLA calculation (`Ley Emiliani` Colombian holidays in `UTC-5`), and client-side verified PDF clearance certificates (`Paz y Salvo`).
+
+</details>
 
 ---
 
-## 🔄 Flexibilidad y Capacidad de Conversión a otros tipos de Proyectos
+## 🎯 El Problema que Resuelve
 
-Una de las mayores ventajas de este sistema es su **arquitectura modular orientada a eventos, turnos y control de flujo**. 
+En miles de copropiedades residenciales, la operación diaria de seguridad y administración sigue fragmentada entre libros de minuta en papel, grupos informales de mensajería y hojas de cálculo sin trazabilidad:
 
-Este proyecto nació originalmente de una plataforma de gestión hotelera y hospitalidad (*PMS hotelero*). Para adaptarlo al mundo residencial, se transformó la lógica de forma directa y elegante:
-* *Habitaciones / Huéspedes* ➡️ **Unidades / Apartamentos y Residentes**.
-* *Check-in / Check-out* ➡️ **Control de Accesos, Visitantes y Mudanzas**.
-* *Consumos / Minibar* ➡️ **Expensas Comunes y Parqueaderos de Visitantes**.
-* *Recepción 24/7* ➡️ **Garita de Portería y Minuta de Vigilancia**.
+1. **Pérdida de trazabilidad en garita:** Cuando cae el internet del puesto de vigilancia, las plataformas nube tradicionales dejan a los guardas a ciegas.
+2. **Disputas en custodia de paquetería:** Entregas de comercio electrónico sin validación criptográfica de quién retiró el paquete ni registro horario auditable.
+3. **Fricción entre portería, administración y residentes:** Certificados de Paz y Salvo manuales, sobrecupo en parqueaderos de visitantes, votaciones de asamblea sin ponderación real por coeficiente y PQRS sin control de vencimientos legales.
 
-Gracias a esa misma base desacoplada y modular, este código se puede adaptar en cuestión de días a otros sectores:
+**MinutaTech P.H.** unifica la consola táctica del guarda de seguridad, el backoffice administrativo y el portal de autogestión del residente en un único monorepo ligero, rápido de desplegar y auditable de extremo a extremo.
 
-| Sector Objetivo | ¿Cómo se adapta la lógica? | Casos de uso inmediatos |
+---
+
+## 🏗 Arquitectura del Sistema
+
+```mermaid
+flowchart LR
+  subgraph Client["Frontend SPA / PWA (React 19 + Vite 7)"]
+    UI["Consola Portería & Portal Residente"]
+    TQ["TanStack Query v5 Cache"]
+    IDB["IndexedDB Offline Queue + SW"]
+    PDF["Motor PDF On-Demand (jsPDF)"]
+    UI --> TQ
+    UI --> IDB
+    UI --> PDF
+  end
+
+  subgraph Server["Backend API (Node.js 20 + Express 5)"]
+    SEC["Helmet + CORS + Compound Rate Limit"]
+    AUTH["JWT HttpOnly + 2FA OTP + Granular RBAC"]
+    LOCK["FIFO Domain Mutex (mutationLock)"]
+    CTRL["17 Controladores de Dominio"]
+    SEC --> AUTH --> LOCK --> CTRL
+  end
+
+  subgraph Storage["Persistencia Híbrida & Telemetría"]
+    REDIS[("Upstash Redis\n(Circuit Breaker + dirtyKeys)")]
+    JSON[("Atomic JSON Store\n(write-tmp + rename)")]
+    EXT["Integraciones Bogotá / CO\nOpen-Meteo • Ley Emiliani • Pico y Placa • TRM"]
+  end
+
+  TQ <-->|"REST /v1/*"| SEC
+  IDB -.->|"Auto-Flush on Reconnect"| SEC
+  CTRL <--> REDIS
+  CTRL <--> JSON
+  CTRL --> EXT
+```
+
+---
+
+## ⚡ Decisiones de Ingeniería
+
+| Desafío Operativo | Implementación en MinutaTech P.H. | Ubicación Clave |
 | :--- | :--- | :--- |
-| **Edificios Corporativos & Coworking** | *Apartamentos* pasan a ser *Oficinas o Empresas*. *Residentes* pasan a ser *Empleados o Miembros*. | Registro de visitantes a pisos, control de salas de juntas (zonas comunes) y recepción de paquetería empresarial. |
-| **Centros Logísticos & Bodegas** | *Torres/Aptos* pasan a ser *Módulos/Bodegas*. *Accesos* pasan a ser *Entrada/Salida de Camiones y Carga*. | Minuta de pesaje y despacho, control de conductores, rondas QR a patios y reporte de daños en montacargas. |
-| **Clínicas & Centros Médicos** | *Unidades* pasan a ser *Consultorios/Pabellones*. *Zonas Comunes* a *Salas de Cirugía/Equipos*. | Control de visitantes por paciente, inventario y calibración de extintores/equipos médicos, PQRS de pacientes. |
-| **Colegios & Universidades** | *Apartamentos* pasan a ser *Salones o Facultades*. *Mascotas* a *Inventario de Equipos*. | Registro de padres de familia, control de acceso vehicular en horas pico y reporte de novedades de celaduría. |
-| **Clubes Deportivos & Campestres** | *Copropietarios* pasan a ser *Socios/Afiliados*. | Reserva de canchas de tenis/fútbol, cobro de cuotas mensuales, control de invitados en portería. |
+| **Cortes de internet en portería** | Cola persistente en `IndexedDB` que intercepta fallos de red en mutaciones críticas (minuta, ingresos, parqueaderos, rondas) y ejecuta `flushOfflineQueue` con bloqueo de concurrencia al reconectar. | `frontend/src/services/offlineQueue.js` `frontend/public/sw.js` |
+| **Suplantación en retiro de paquetes** | Generación de PIN único de 4 dígitos con hash `bcrypt` en reposo; el texto plano solo se retorna una vez en el alta y nunca se expone en listados posteriores. | `backend/src/controllers/paqueteriaController.js` |
+| **Condiciones de carrera bajo carga** | Serialización por dominio mediante promesas encadenadas FIFO (`mutationLock`) con liberación garantizada ante desconexiones tempranas (`res.destroyed`). | `backend/src/middleware/mutationLock.js` |
+| **Resiliencia ante caída de Redis** | Patrón *Circuit Breaker* sobre Upstash Redis con fallback transparente a escritura atómica local (`tmp + rename`) y reconciliación automática de `dirtyKeys` al restaurarse el servicio. | `backend/src/services/jsonStore.js` |
+| **Control de acceso de mínimo privilegio** | Sesiones `HttpOnly` + `SameSite`, verificación 2FA real, tokens de recuperación de un solo uso vinculados al hash de contraseña (`pwdFp`) y matriz RBAC granular por rol (`owner`, `admin`, `guarda`). | `backend/src/middleware/rbac.js` `backend/src/controllers/authController.js` |
+| **Normativa colombiana en `UTC-5`** | Cálculo determinístico de los 18 festivos oficiales de Colombia (*Ley Emiliani*), plazos de 15 días hábiles para PQRS (*Ley 1755*), quórum ponderado por coeficiente (*Ley 675*) y Pico y Placa Bogotá. | `backend/src/services/integracionesService.js` |
 
 ---
 
-## ⚡ Módulos y Funcionalidades Incluidas
+## 🧩 Módulos por Rol
 
-* 📋 **Minuta Digital de Vigilancia:** Registro oficial de novedades con niveles de severidad (Informativa, Advertencia, Peligro), radicado único y autoría del guarda.
-* 📦 **Paquetería con PIN Hash y Rate Limit:** Al registrar un paquete o recibo público se genera un PIN de 4 dígitos (hasheado con bcrypt en backend); se entrega únicamente al validar el PIN con protección contra fuerza bruta en Redis.
-* 🗳️ **Asambleas Digitales (Ley 675):** Registro de asistencia, cálculo automático de quórum por coeficiente y votaciones secretas en tiempo real con gráficas de barras interactivas.
-* 📝 **Módulo de PQRS & Términos Legales (Ley 1755):** Radicación de quejas, peticiones y mantenimientos con cálculo exacto de **15 días hábiles** de vencimiento, respuestas oficiales de la administración y exportación en PDF.
-* 🤖 **MinutaBot IA:** Asistente conversacional con NLP local, base de conocimiento del Manual de Convivencia, detección de emergencias (Alerta SOS en portería), generación de paz y salvos y radicación de PQRS en lenguaje natural.
-* 📅 **Reserva de Zonas Comunes:** Calendario en vivo para apartar canchas sintéticas, zonas BBQ y salones sociales con control de horarios y depósitos.
-* 🚗 **Control de Parqueaderos:** Mapa de bahías con tiempo de cortesía (4 horas) para visitantes, alertas de permanencia y cálculo de cupos libres.
-* 🚶 **Control de Accesos & Visitas:** Registro ágil de peatones, contratistas y vehículos con hora de entrada, salida y cálculo de tiempo de permanencia.
-* 🐶 **Censo de Mascotas:** Registro de perros/gatos por apartamento con carné de vacunación antirrábica y validación de razas de manejo especial (Ley 746 / 1801).
-* 🧯 **Equipos de Emergencia:** Auditoría e inventario de extintores, gabinetes contra incendios, detectores de humo y motobombas con semáforo de vencimiento.
-* 📄 **Generador de Certificados & Paz y Salvos en PDF:** Emisión digital de paz y salvo de administración con membrete, firma y código QR antifraude para verificar autenticidad.
-* 🛡️ **Módulo de Ciberseguridad:** Auditoría de IPs de inicio de sesión, bloqueo de fuerza bruta, exportación en CSV y logs centralizados con Pino.
+| Consola de Portería (`guarda`) | Administración (`admin` / `owner`) | Portal de Residentes (`residente`) |
+| :--- | :--- | :--- |
+| • **Tablero Operativo en Vivo:** Ingresos, salidas, permanencia y buscador predictivo por apto, cédula o placa. | • **Censo Maestro y Mapa Interactivo:** Estado habitacional, contratos de arriendo, vehículos y cartera por torre/unidad. | • **Estado de Cuenta y Certificados:** Descarga inmediata de Paz y Salvo oficial en PDF (bloqueado automáticamente en mora). |
+| • **Casillero con PIN y WhatsApp:** Recepción de encomiendas y recibos públicos con alerta de facturas `>30 días`. | • **Asambleas y Votaciones (Ley 675):** Control de quórum en vivo y escrutinio ponderado por coeficiente de copropiedad. | • **Pases QR de Visitantes:** Pre-autorización anticipada de visitas, domiciliarios y contratistas. |
+| • **Minuta Digital y Rondas QR:** Libro cronológico auditable, relevos de turno, puntos de control perimetral y botón SOS. | • **Gestión PQRS y Equipos:** Radicados con semáforo de días hábiles, inspección de extintores/activos, usuarios y logs de seguridad. | • **Autogestión Residencial:** Consulta de paquetes, reserva de zonas comunes sin solapamientos, radicación PQRS, mascotas y asistente **MinutaBot**. |
 
 ---
 
-## 🛠️ Requisitos Técnicos & Dependencias
+## 🚀 Inicio Rápido Local
 
-### Entorno necesario:
-* **Node.js:** Versión 18.0.0 o superior (Recomendado Node.js 20 LTS o 22 LTS).
-* **npm:** Versión 9.0 o superior (o pnpm / yarn).
-* **Git:** Para clonar el repositorio.
+### Prerrequisitos
+- **Node.js** `>= 20.0.0` y **npm** `>= 10`
+- *(Opcional)* Cuenta en **Upstash Redis** para persistencia distribuida en despliegues serverless; en local funciona de inmediato con almacenamiento atómico en disco.
 
-*(Puedes consultar el archivo [`requirements.txt`](./requirements.txt) para ver el listado detallado de librerías y versiones).*
+### 1. Clonar e instalar dependencias
 
----
-
-## 🚀 Instalación y Puesta en Marcha
-
-Sigue estos sencillos pasos para tener el sistema corriendo en tu máquina en menos de 3 minutos:
-
-### 1. Clonar el repositorio
 ```bash
 git clone https://github.com/Sebas0317/proyecto-minuta.git
 cd proyecto-minuta
+
+cd backend && npm ci
+cd ../frontend && npm ci
 ```
 
-### 2. Instalar dependencias del Monorepo
-Instala las dependencias del backend y del frontend:
-```bash
-# Dependencias de la raíz y backend
-npm install
-cd backend && npm install && cd ..
+### 2. Configurar variables de entorno
 
-# Dependencias del frontend
-cd frontend && npm install && cd ..
-```
-
-### 3. Configurar Variables de Entorno
-Crea un archivo `.env` dentro de la carpeta `backend/` (o usa los valores por defecto para desarrollo local):
+Crea `backend/.env` a partir de la plantilla incluida en `backend/.env.example`:
 
 ```env
 PORT=3001
 NODE_ENV=development
-JWT_SECRET=tu_clave_secreta_super_segura_de_minimo_32_caracteres
-
-# Opcional (Upstash Redis para producción serverless / Vercel KV)
-# UPSTASH_REDIS_REST_URL=https://tu-db.upstash.io
-# UPSTASH_REDIS_REST_TOKEN=tu_token_upstash
-
-# Orígenes permitidos para CORS
-ALLOWED_ORIGINS=http://localhost:5173,http://localhost:4173
+JWT_SECRET=reemplazar_por_secreto_aleatorio_de_minimo_32_caracteres
+CORS_ORIGIN=http://localhost:5173
 ```
 
-### 4. Iniciar en Modo Desarrollo
+### 3. Iniciar servidores de desarrollo
 
-Abre dos terminales (una para el servidor y otra para la interfaz):
-
-**Terminal 1 (Backend - API REST en puerto 3001):**
-```bash
-npm run dev:backend
-# O directamente: cd backend && npm run dev
-```
-
-**Terminal 2 (Frontend - Vite en puerto 5173):**
-```bash
-npm run dev:frontend
-# O directamente: cd frontend && npm run dev
-```
-
-Abre tu navegador en `http://localhost:5173`.
-
----
-
-## 🧪 Ejecución de Pruebas Automatizadas
-
-El proyecto cuenta con una suite completa de pruebas unitarias y de integración que validan endpoints, tokens JWT, rate limiting y reglas de negocio:
+En dos terminales independientes:
 
 ```bash
+# Terminal 1 — API REST (http://localhost:3001)
 cd backend
-npm test
+npm run dev
 ```
 
-Para ver la cobertura de código:
 ```bash
-cd backend
-npm run test:coverage
+# Terminal 2 — Aplicación Web PWA (http://localhost:5173)
+cd frontend
+npm run dev
 ```
 
 ---
 
-## 📦 Compilación para Producción
+## 🛡 Seguridad y Calidad
 
-Para compilar el frontend optimizado con compresión Gzip/Brotli:
+El repositorio mantiene verificación continua mediante GitHub Actions (`.github/workflows/ci.yml`) con acciones fijadas por hash SHA y permisos mínimos:
+
 ```bash
-npm run build
+# Suite de integración, concurrencia, RBAC y seguridad del Backend (80 tests)
+cd backend && npm test
+
+# Linter estricto sin advertencias + Pruebas de flujos UI + Build de producción (29 tests)
+cd frontend && npx eslint . --max-warnings=0 && npm test && npm run build
 ```
-Los archivos estáticos se generarán en `frontend/dist/`.
+
+### Controles de Seguridad Implementados
+- **Protección Anti-Fuerza Bruta Compuesta:** Rate-limiting independiente por combinación `IP + identificador/recurso` en login, verificación 2FA, recuperación de cuenta y validación de PINs.
+- **Exportaciones Seguras:** Sanitización contra *CSV Formula Injection* (`=`, `+`, `-`, `@`) y descargas mediante `Blob` autenticado sin exponer credenciales en URLs.
+- **Auditoría Estática y de Reglas:** Código auditado al 100% sobre 81 archivos fuente con remediación completa de hallazgos críticos, altos y medios. Reporte de vulnerabilidades disponible en [SECURITY.md](SECURITY.md).
 
 ---
 
@@ -176,36 +178,51 @@ Los archivos estáticos se generarán en `frontend/dist/`.
 
 ```text
 proyecto-minuta/
-├── backend/                  # API REST Express & Motor de Datos
+├── .github/
+│   ├── assets/banner.svg          # Identidad gráfica vectorial del repositorio
+│   ├── ISSUE_TEMPLATE/            # Plantillas estructuradas para bugs y mejoras
+│   ├── PULL_REQUEST_TEMPLATE.md   # Checklist de revisión para colaboradores
+│   └── workflows/ci.yml           # Pipeline CI endurecido (Backend + Frontend + Build)
+├── backend/
 │   ├── src/
-│   │   ├── controllers/      # Controladores (Paquetes, PQRS, Minuta, Chatbot, etc.)
-│   │   ├── middleware/       # JWT Auth, Rate Limiters, Sanitización, Helmet
-│   │   ├── routes/           # Definición de rutas v1
-│   │   ├── utils/            # Generadores de ID, Hasheo Bcrypt, Logger Pino
-│   │   └── data/             # Persistencia híbrida (Redis + JSON Store)
-│   ├── tests/                # Suite de pruebas con Vitest y Supertest
-│   └── server.js             # Entrada principal del servidor
-├── frontend/                 # Aplicación SPA React 19 + Vite + Tailwind
-│   ├── src/
-│   │   ├── components/       # MinutaBotWidget, AdminShell, Modales
-│   │   ├── views/            # Vistas (Portería, Asambleas, PQRS, Residente, etc.)
-│   │   ├── services/         # Cliente API con manejo de Axios/Fetch y caché
-│   │   └── utils/            # Generador PDF con jsPDF, formateadores COP
-│   └── index.html
-├── requirements.txt          # Requerimientos de dependencias del sistema
-├── DECISIONS.md              # Registro de decisiones de arquitectura
-└── README.md                 # Documentación principal
+│   │   ├── config/                # Constantes, logger estructurado y entorno
+│   │   ├── controllers/           # Lógica de negocio (accesos, minuta, paquetes, PQRS, asambleas...)
+│   │   ├── middleware/            # Auth JWT, RBAC granular, rateLimiter, FIFO mutationLock
+│   │   ├── routes/                # Endpoints REST versionados (/v1/*)
+│   │   └── services/              # Persistencia híbrida Redis/JSON e integraciones Colombia
+│   └── tests/                     # 80 pruebas de integración, estrés y seguridad
+├── frontend/
+│   ├── public/                    # Service Worker (sw.js), Web App Manifest e íconos PWA
+│   └── src/
+│       ├── components/            # Consolas operativas, Portal Residente y modales lazy-loaded
+│       ├── hooks/                 # Hooks de caché reactiva (@tanstack/react-query) y sesión
+│       ├── services/              # Cliente HTTP centralizado y cola offline IndexedDB
+│       ├── test/                  # 29 pruebas unitarias y de flujos de usuario (Vitest + RTL)
+│       └── utils/                 # Generador dinámico de certificados y actas en PDF
+├── CONTRIBUTING.md
+├── LICENSE
+└── SECURITY.md
 ```
 
 ---
 
-## ✍️ Autoría, Créditos y Licencia
+## 🗺 Roadmap Abierto
 
-Este proyecto fue diseñado, desarrollado y optimizado por **`sn2_f_`**.
+¿Quieres aportar al proyecto? Estas son las próximas líneas de evolución abiertas a la comunidad:
 
-* **Desarrollador Principal:** `sn2_f_`
-* **Licencia:** Distribuido bajo licencia libre para uso en proyectos comunitarios, educativos y de seguridad privada con atribución obligatoria al autor.
-* **Firma Digital en Código:** `sn2_f_`
+- [ ] Notificaciones *Web Push* nativas (VAPID) al registrar correspondencia en portería.
+- [ ] Lectura óptica desde cámara móvil para escaneo directo de cédulas colombianas (PDF417) y códigos QR de visitantes.
+- [ ] Adaptador opcional PostgreSQL / Supabase manteniendo la interfaz de repositorio actual.
+- [ ] Modo multi-copropiedad (*multi-tenant*) para empresas de vigilancia y firmas administradoras.
+
+Revisa la guía en [CONTRIBUTING.md](CONTRIBUTING.md) para levantar tu entorno y enviar un Pull Request.
 
 ---
-*EcoBosque PH • Innovación y Seguridad en Propiedad Horizontal.*
+
+## ⭐ Apoya el Proyecto
+
+Si este repositorio te resulta útil como referencia de arquitectura **PropTech**, **PWA Offline-First** o **Seguridad Física en Node.js + React**, considera darle una **estrella (⭐)** en GitHub y compartirlo con otros desarrolladores.
+
+## 📄 Licencia
+
+Distribuido bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para más detalles.

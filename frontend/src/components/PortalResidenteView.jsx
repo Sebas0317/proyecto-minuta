@@ -139,7 +139,7 @@ export default function PortalResidenteView({ onSalir }) {
     {
       id: 'welcome',
       sender: 'bot',
-      text: '¡Hola! 👋 Soy **MinutaBot**, asistente inteligente del condominio.\n\nPuedes consultarme sobre horarios de zonas comunes, rutas de aseo, basuras, tus paquetes pendientes o pedirme que emita tu Paz y Salvo de administración al instante.',
+      text: 'Bienvenido a **MinutaBot**, asistente documental del condominio.\n\nConsulte horarios de zonas comunes, recolección de residuos, paquetes en custodia o solicite certificados de administración.',
       timestamp: new Date()
     }
   ]);
@@ -503,7 +503,7 @@ export default function PortalResidenteView({ onSalir }) {
             }`}
           >
             <FileCheck className="w-3.5 h-3.5" />
-            <span>{alDia ? '📄 Paz y Salvo Oficial' : '⚠️ Estado de Cuenta'}</span>
+            <span>{alDia ? 'Paz y Salvo Oficial' : 'Estado de Cuenta'}</span>
           </button>
 
           <button
@@ -591,19 +591,21 @@ export default function PortalResidenteView({ onSalir }) {
               </button>
               <button
                 onClick={() => setSidebarEstadoFilter('habitados')}
-                className={`py-1 rounded-lg text-center ${
+                className={`py-1 rounded-lg text-center inline-flex items-center justify-center gap-1 ${
                   sidebarEstadoFilter === 'habitados' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                🟢 Habitados
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span>Habitados</span>
               </button>
               <button
                 onClick={() => setSidebarEstadoFilter('vacios')}
-                className={`py-1 rounded-lg text-center ${
+                className={`py-1 rounded-lg text-center inline-flex items-center justify-center gap-1 ${
                   sidebarEstadoFilter === 'vacios' ? 'bg-slate-800 text-slate-300 border border-slate-600' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                ⚪ Vacíos
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                <span>Vacíos</span>
               </button>
             </div>
           </div>
@@ -697,81 +699,81 @@ export default function PortalResidenteView({ onSalir }) {
                   Coef. {unidadData?.coeficiente || '1.25'}%
                 </span>
               </div>
-              <h3 className="text-xl font-black text-white">
+              <h3 className="text-xl font-bold text-white tabular-nums">
                 {unidadData?.torre || 'Torre 1'} — {unidadData?.numero || '101'}
               </h3>
               <p className="text-xs text-slate-300 mt-1 truncate">
-                👤 {unidadData?.propietario?.nombre || (esVacio ? 'Inmueble Vacío / Sin Ocupar' : 'Residente')}
+                {unidadData?.propietario?.nombre || (esVacio ? 'Inmueble Vacío / Sin Ocupar' : 'Residente')}
               </p>
-              <p className="text-[11px] text-slate-400">
-                📞 {unidadData?.propietario?.telefono || (esVacio ? 'Portería Ext. 100' : 'Registrado en Administración')}
+              <p className="text-[11px] text-slate-400 font-mono">
+                {unidadData?.propietario?.telefono || (esVacio ? 'Portería Ext. 100' : 'Registrado en Administración')}
               </p>
             </div>
 
             {/* Tarjeta 2: Estado Financiero */}
-            <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl shadow-lg relative overflow-hidden">
+            <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Administración</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
-                  alDia ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'
+                <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Administración</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-md font-semibold border ${
+                  alDia ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25' : 'bg-red-500/15 text-red-400 border-red-500/25'
                 }`}>
                   {alDia ? 'Al Día' : 'Saldo Pendiente'}
                 </span>
               </div>
-              <h3 className="text-xl font-black text-emerald-400">
+              <h3 className="text-xl font-bold text-emerald-400 tabular-nums">
                 ${Number(cuotaMensual).toLocaleString()} <span className="text-xs text-slate-400 font-normal">/mes</span>
               </h3>
               <p className="text-xs text-slate-300 mt-1">
-                {alDia ? '✅ Paz y salvo habilitado' : `⚠️ Saldo en mora: $${Number(saldoPendiente).toLocaleString()}`}
+                {alDia ? 'Paz y salvo habilitado' : `Saldo en mora: $${Number(saldoPendiente).toLocaleString()}`}
               </p>
               <p className="text-[11px] text-slate-400">10% desc. hasta el día 10</p>
             </div>
 
             {/* Tarjeta 3: Paquetes en Portería */}
-            <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl shadow-lg relative overflow-hidden">
+            <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Paquetería</span>
-                <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Paquetería</span>
+                <span className="text-xs bg-amber-500/15 text-amber-400 border border-amber-500/25 px-2 py-0.5 rounded-md font-semibold tabular-nums">
                   {paquetesPendientes.length} Pendiente(s)
                 </span>
               </div>
-              <h3 className="text-xl font-black text-white">
+              <h3 className="text-xl font-bold text-white">
                 {paquetesPendientes.length > 0 ? (
-                  <span className="text-amber-400 font-mono text-base">{paquetesPendientes[0]?.codigoRetiro ? `PIN: ${paquetesPendientes[0].codigoRetiro}` : '🔒 PIN vía WhatsApp'}</span>
+                  <span className="text-amber-400 font-mono text-base">{paquetesPendientes[0]?.codigoRetiro ? `PIN: ${paquetesPendientes[0].codigoRetiro}` : 'PIN vía WhatsApp'}</span>
                 ) : (
                   <span className="text-slate-400">Sin paquetes</span>
                 )}
               </h3>
               <p className="text-xs text-slate-300 mt-1 truncate">
                 {paquetesPendientes.length > 0
-                  ? `📦 ${paquetesPendientes[0]?.empresa || 'Encomienda'} (${paquetesPendientes[0]?.guia || 'Guía'})`
+                  ? `${paquetesPendientes[0]?.empresa || 'Encomienda'} (${paquetesPendientes[0]?.guia || 'Guía'})`
                   : 'No hay correspondencia en portería'}
               </p>
               <button
                 onClick={() => setActiveTab('paquetes')}
-                className="text-[11px] text-amber-400 hover:underline flex items-center gap-0.5 mt-0.5 font-bold"
+                className="text-[11px] text-amber-400 hover:underline flex items-center gap-0.5 mt-0.5 font-semibold"
               >
                 Ver todos los paquetes <ChevronRight className="w-3 h-3" />
               </button>
             </div>
 
             {/* Tarjeta 4: Pases & Pre-autorizaciones */}
-            <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl shadow-lg relative overflow-hidden">
+            <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Pases QR</span>
-                <span className="text-xs bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded-full font-bold">
+                <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Pases QR</span>
+                <span className="text-xs bg-slate-800 text-slate-200 border border-slate-700 px-2 py-0.5 rounded-md font-semibold tabular-nums">
                   {visitasActivas.length} Activo(s)
                 </span>
               </div>
-              <h3 className="text-xl font-black text-white">
+              <h3 className="text-xl font-bold text-white">
                 Pre-autorizaciones
               </h3>
               <p className="text-xs text-slate-300 mt-1 truncate">
-                {visitasActivas.length > 0 ? `👤 ${visitasActivas[0]?.nombre} (${visitasActivas[0]?.paseQR})` : 'Sin visitas programadas'}
+                {visitasActivas.length > 0 ? `${visitasActivas[0]?.nombre} (${visitasActivas[0]?.paseQR})` : 'Sin visitas programadas'}
               </p>
               <button
                 onClick={() => setShowPreautorizarModal(true)}
-                className="text-[11px] text-purple-400 hover:underline flex items-center gap-0.5 mt-0.5 font-bold"
+                className="text-[11px] text-emerald-400 hover:underline flex items-center gap-0.5 mt-0.5 font-semibold"
               >
                 + Pre-autorizar nueva visita <ChevronRight className="w-3 h-3" />
               </button>
@@ -911,7 +913,7 @@ export default function PortalResidenteView({ onSalir }) {
                     } text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md`}
                   >
                     <Download className="w-4 h-4" />{' '}
-                    {alDia ? '📄 Descargar Paz y Salvo Oficial (PDF)' : '⚠️ Descargar Estado de Cartera (Con Mora)'}
+                    {alDia ? 'Descargar Paz y Salvo Oficial (PDF)' : 'Descargar Estado de Cartera (Con Mora)'}
                   </button>
                   <button
                     onClick={() => {
@@ -958,8 +960,8 @@ export default function PortalResidenteView({ onSalir }) {
                     <div key={p.id} className="bg-slate-900/90 border-2 border-amber-500/40 p-5 rounded-2xl shadow-xl space-y-3 relative overflow-hidden">
                       <div className="absolute -right-6 -top-6 w-20 h-20 bg-amber-500/10 rounded-full blur-xl pointer-events-none" />
                       <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                        <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                          {p.categoria === 'recibo_publico' ? '📬 Recibo Público' : '📦 Encomienda'}
+                        <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+                          {p.categoria === 'recibo_publico' ? 'Recibo Público' : 'Encomienda'}
                         </span>
                         <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono">
                           {p.fechaIngreso ? new Date(p.fechaIngreso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Hoy'}
@@ -980,8 +982,8 @@ export default function PortalResidenteView({ onSalir }) {
                             {p.codigoRetiro}
                           </span>
                         ) : (
-                          <span className="text-xs font-bold text-amber-300 block py-1">
-                            🔒 Enviado por WhatsApp / Solicitar en Portería
+                          <span className="text-xs font-semibold text-amber-300 block py-1">
+                            Enviado por WhatsApp / Solicitar en Portería
                           </span>
                         )}
                       </div>
@@ -1289,21 +1291,21 @@ export default function PortalResidenteView({ onSalir }) {
                           <div className="flex flex-wrap items-center gap-2">
                             <button
                               onClick={() => handleVotar(asm.id, v.id, 'si')}
-                              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow"
+                              className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2 rounded-lg transition-colors"
                             >
-                              👍 Votar SÍ
+                              Votar SÍ
                             </button>
                             <button
                               onClick={() => handleVotar(asm.id, v.id, 'no')}
-                              className="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow"
+                              className="bg-red-600 hover:bg-red-500 text-white font-semibold text-xs px-4 py-2 rounded-lg transition-colors"
                             >
-                              👎 Votar NO
+                              Votar NO
                             </button>
                             <button
                               onClick={() => handleVotar(asm.id, v.id, 'blanco')}
-                              className="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow"
+                              className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-xs px-4 py-2 rounded-lg transition-colors"
                             >
-                              ⚪ Voto en Blanco
+                              Voto en Blanco
                             </button>
                             <span className="text-xs text-slate-400 ml-auto">
                               Votado: <strong className="text-white font-mono">{v.totalVotado || 0}%</strong>
@@ -1393,7 +1395,7 @@ export default function PortalResidenteView({ onSalir }) {
                 <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                   <span className="font-bold text-white block">Estado de Autorización de tu Apartamento:</span>
                   <p className={alDia ? 'text-emerald-400 font-semibold' : 'text-red-400 font-semibold'}>
-                    {alDia ? '✅ Tu inmueble cumple los requisitos para programar mudanza.' : '❌ Debes ponerte al día en administración antes de solicitar mudanza.'}
+                    {alDia ? 'Su inmueble cumple los requisitos para programar mudanza.' : 'Debe encontrarse al día en administración antes de solicitar mudanza.'}
                   </p>
                 </div>
               </div>

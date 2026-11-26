@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-  Shield,
   LayoutDashboard,
   MapPin,
   FileText,
@@ -20,7 +19,6 @@ import {
   X,
   Clock,
   Download,
-  Activity,
   ShieldCheck,
   BookOpen,
   Bot,
@@ -234,7 +232,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
   }, [logsOpen, logs.length]);
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 flex">
+    <div className="h-screen w-screen overflow-hidden bg-[#090d16] text-slate-100 flex">
       {/* BACKDROP MOBILE */}
       {mobileOpen && (
         <div
@@ -245,23 +243,28 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
 
       {/* SIDEBAR IZQUIERDO CON ALTURA FIJA 100vh */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 h-screen shrink-0 flex flex-col bg-slate-900 border-r border-slate-800 transition-all duration-300 ${
-          collapsed ? 'w-20' : 'w-72'
+        className={`fixed md:static inset-y-0 left-0 z-50 h-screen shrink-0 flex flex-col bg-[#0b101b] border-r border-slate-800/90 transition-all duration-300 ${
+          collapsed ? 'w-20' : 'w-68'
         } ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
       >
         {/* HEADER DEL SIDEBAR */}
-        <div className="p-4 border-b border-slate-800 shrink-0 flex items-center justify-between">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="p-2.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold flex-shrink-0">
+        <div className="px-4 py-3.5 border-b border-slate-800/90 shrink-0 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="p-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 rounded-lg shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             {!collapsed && (
               <div className="truncate">
-                <h2 className="font-black text-sm tracking-wide text-white flex items-center gap-1.5">
-                  PROYECTO MINUTA
-                </h2>
-                <p className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">
-                  Vigilancia & Control
+                <div className="flex items-center gap-1.5">
+                  <h2 className="font-bold text-sm tracking-tight text-white">
+                    MINUTATECH
+                  </h2>
+                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
+                    P.H.
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-400 font-medium tracking-wider uppercase mt-0.5">
+                  Consola Operativa
                 </p>
               </div>
             )}
@@ -269,7 +272,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
 
           <button
             onClick={toggleCollapse}
-            className="hidden md:flex p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all"
+            className="hidden md:flex p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white transition-colors"
             title={collapsed ? 'Expandir Menú' : 'Colapsar Menú'}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -278,7 +281,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
           {/* BOTÓN CERRAR DRAWER EN MÓVIL */}
           <button
             onClick={() => setMobileOpen(false)}
-            className="md:hidden p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all"
+            className="md:hidden p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white transition-colors"
             title="Cerrar Menú"
           >
             <X className="w-5 h-5" />
@@ -286,15 +289,15 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
         </div>
 
         {/* NAVEGACIÓN AGRUPADA CON SCROLL INTERNO INDEPENDIENTE */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-6 scrollbar-thin scrollbar-thumb-slate-700">
+        <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-5">
           {visibleNavGroups.map((group, gIdx) => (
-            <div key={gIdx} className="space-y-1.5">
+            <div key={gIdx} className="space-y-1">
               {!collapsed ? (
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 px-3 block">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 px-3 pb-1 block">
                   {group.title}
                 </span>
               ) : (
-                <div className="h-px bg-slate-800 my-2 mx-2" />
+                <div className="h-px bg-slate-800/80 my-2 mx-2" />
               )}
 
               {group.items.map((item) => {
@@ -304,13 +307,13 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
                     key={item.key}
                     onClick={() => handleNavigate(item.key)}
                     title={collapsed ? item.label : undefined}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium text-xs transition-colors border ${
                       isActive
-                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 scale-[1.02]'
-                        : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
+                        ? 'bg-emerald-500/12 text-emerald-300 border-emerald-500/25 font-semibold'
+                        : 'border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'
                     } ${collapsed ? 'justify-center' : ''}`}
                   >
-                    <item.icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <item.icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
                     {!collapsed && <span className="truncate">{item.label}</span>}
                   </button>
                 );
@@ -320,15 +323,15 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
         </nav>
 
         {/* FOOTER DEL SIDEBAR SIEMPRE VISIBLE EN LA BASE */}
-        <div className="p-3 border-t border-slate-800 shrink-0 space-y-2 bg-slate-900/90">
+        <div className="p-3 border-t border-slate-800/90 shrink-0 space-y-2 bg-[#090d16]/80">
           {/* RELOJ EN VIVO OFICIAL */}
           {!collapsed ? (
-            <div className="p-2.5 bg-slate-950/80 border border-slate-800/80 rounded-xl space-y-0.5">
+            <div className="px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-lg space-y-0.5">
               <div className="flex items-center justify-between text-[11px] text-slate-400">
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-emerald-400" /> Hora Oficial:
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-emerald-400" /> Hora Oficial
                 </span>
-                <span className="text-emerald-400 font-mono font-black">
+                <span className="text-slate-100 font-mono font-semibold tabular-nums">
                   {horaActual.toLocaleTimeString('es-CO', { hour12: false })}
                 </span>
               </div>
@@ -337,59 +340,51 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
               </p>
             </div>
           ) : (
-            <div className="text-center py-1 text-emerald-400 font-mono text-[10px] font-bold" title="Hora actual">
+            <div className="text-center py-1 text-slate-300 font-mono text-[10px] font-semibold tabular-nums" title="Hora actual">
               {horaActual.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false })}
             </div>
           )}
 
           {/* PERFIL & AUDITORÍA */}
-          <div className="flex items-center justify-between gap-2 pt-1">
+          <div className="flex items-center justify-between gap-2 pt-0.5">
             <button
               onClick={handleToggleLogs}
-              className="flex-1 p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+              className="flex-1 py-2 px-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
               title="Auditoría de Inicios de Sesión"
             >
-              <History className="w-4 h-4 text-emerald-400" />
+              <History className="w-3.5 h-3.5 text-slate-400" />
               {!collapsed && <span>Auditoría</span>}
             </button>
 
             <button
               onClick={onSalir}
-              className="p-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              className="py-2 px-2.5 bg-slate-900 hover:bg-red-950/60 text-slate-400 hover:text-red-300 border border-slate-800 hover:border-red-800/70 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
               title="Cerrar Turno / Sesión"
             >
-              <DoorOpen className="w-4 h-4" />
+              <DoorOpen className="w-3.5 h-3.5" />
               {!collapsed && <span>Salir</span>}
             </button>
           </div>
-
-          {!collapsed && (
-            <div className="pt-1 text-center">
-              <span className="text-[10px] font-mono font-medium text-slate-500 hover:text-emerald-400 transition-colors cursor-default">
-                EcoBosque PH • <span className="text-emerald-500 font-bold">sn2_f_</span>
-              </span>
-            </div>
-          )}
         </div>
       </aside>
 
       {/* CONTENIDO PRINCIPAL: TOPBAR FIJO Y MAIN ESCROLEABLE */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
         {/* TOPBAR FLOTANTE */}
-        <header className="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shrink-0 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+        <header className="bg-[#0b101b]/95 backdrop-blur-md border-b border-slate-800/90 shrink-0 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0"
+              className="md:hidden p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white shrink-0"
               title="Abrir Menú"
             >
               <Menu className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-1.5 sm:gap-2 text-xs truncate">
-              <span className="text-slate-500 font-semibold hidden sm:inline">Minuta</span>
-              <span className="text-slate-600 hidden sm:inline">/</span>
-              <span className="text-white font-bold capitalize truncate">
+              <span className="text-slate-500 font-medium hidden sm:inline">Operaciones</span>
+              <span className="text-slate-700 hidden sm:inline">/</span>
+              <span className="text-slate-100 font-semibold truncate">
                 {activeView === 'porteria' ? 'Tablero Operativo' :
                  activeView === 'mapa' ? 'Plano / Mapa Maestro' :
                  activeView === 'minuta' ? 'Minuta Digital' :
@@ -411,20 +406,21 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => navigate('/residente')}
-              className="hidden sm:flex items-center gap-1.5 text-xs font-bold bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/40 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
             >
-              <span>🏢 Portal Residentes</span>
+              <Building2 className="w-3.5 h-3.5 text-slate-400" />
+              <span>Portal Residentes</span>
             </button>
 
             <button
               onClick={() => setShowPanicModal(true)}
-              className="flex items-center gap-1.5 text-xs font-black bg-red-600 hover:bg-red-500 text-white px-2.5 sm:px-3.5 py-1.5 rounded-full shadow-lg shadow-red-950/60 animate-pulse transition-all hover:scale-105 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-950/80 hover:bg-red-600 text-red-200 hover:text-white border border-red-800/80 hover:border-red-500 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
             >
-              <AlertOctagon className="w-4 h-4 shrink-0" />
-              <span className="hidden sm:inline">🚨 SOS PÁNICO</span>
+              <AlertOctagon className="w-3.5 h-3.5 text-red-400 shrink-0" />
+              <span className="hidden sm:inline">SOS Emergencia</span>
               <span className="sm:hidden">SOS</span>
             </button>
 
@@ -432,7 +428,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
               <button
                 type="button"
                 onClick={triggerOfflineSync}
-                className="flex items-center gap-1.5 text-xs text-amber-300 font-bold bg-amber-950/70 border border-amber-600/60 px-2.5 py-1 rounded-full cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs text-amber-300 font-medium bg-amber-950/60 border border-amber-700/60 px-2.5 py-1.5 rounded-lg cursor-pointer"
                 title="Sincronizar cola offline de IndexedDB"
               >
                 {syncingOffline ? (
@@ -441,13 +437,14 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
                   <WifiOff className="w-3.5 h-3.5 text-amber-400" />
                 )}
                 <span>
-                  {!isOnline ? 'Modo Offline' : 'Sincronizar'}
+                  {!isOnline ? 'Contingencia Offline' : 'Sincronizar'}
                   {offlineCount > 0 ? ` (${offlineCount})` : ''}
                 </span>
               </button>
             ) : (
-              <span className="hidden lg:flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-full">
-                <Activity className="w-3.5 h-3.5 animate-pulse" /> Sistema Conectado
+              <span className="hidden lg:inline-flex items-center gap-1.5 text-xs text-slate-300 font-medium bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-lg">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span>En línea</span>
               </span>
             )}
           </div>

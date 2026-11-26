@@ -114,18 +114,18 @@ export default function MinutaView() {
 
   const getTipoLabel = (tipo) => {
     const tipos = {
-      cambio_turno: '🔄 Cambio de Turno',
-      ronda: '🚶 Ronda de Seguridad',
-      recorrido: '🚶 Recorrido Perimetral',
-      incidente: '🚨 Incidente / Alarma',
-      emergencia: '🚨 Emergencia / SOS',
-      urgente: '🔴 Novedad Urgente',
-      acceso: '🪪 Control de Acceso',
-      mantenimiento: '🔧 Mantenimiento / Daño',
-      novedad: '📝 Novedad',
-      general: '📝 Novedad General'
+      cambio_turno: 'Cambio de Turno',
+      ronda: 'Ronda de Seguridad',
+      recorrido: 'Recorrido Perimetral',
+      incidente: 'Incidente / Alarma',
+      emergencia: 'Emergencia / SOS',
+      urgente: 'Novedad Urgente',
+      acceso: 'Control de Acceso',
+      mantenimiento: 'Mantenimiento / Daño',
+      novedad: 'Novedad',
+      general: 'Novedad General'
     };
-    return tipos[tipo] || tipo || '📝 Novedad';
+    return tipos[tipo] || tipo || 'Novedad';
   };
 
   const handleExportCSV = () => {
@@ -150,40 +150,45 @@ export default function MinutaView() {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-800/80 backdrop-blur border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl">
-            <FileText className="w-8 h-8" />
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-4 md:p-5 rounded-xl">
+        <div className="flex items-center gap-3.5">
+          <div className="p-2.5 bg-amber-500/10 text-amber-400 border border-amber-500/25 rounded-lg">
+            <FileText className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-              Minuta Digital de Vigilancia <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">Libro Oficial ({pagination.total})</span>
-            </h1>
-            <p className="text-slate-400 text-sm">Registro cronológico inmutable de novedades, rondas y cambios de guardia</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg md:text-xl font-bold tracking-tight text-white">
+                Minuta Digital de Vigilancia
+              </h1>
+              <span className="text-[11px] bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-md font-semibold tabular-nums">
+                Libro Oficial ({pagination.total})
+              </span>
+            </div>
+            <p className="text-slate-400 text-xs mt-0.5">Registro cronológico auditable de novedades, rondas y relevos de turno</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3.5 py-2.5 rounded-xl font-bold text-xs transition-all"
+            className="inline-flex items-center gap-1.5 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-200 px-3 py-2 rounded-lg font-medium text-xs transition-colors"
             title="Exportar a Excel"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-3.5 h-3.5 text-slate-400" />
             <span>Exportar CSV</span>
           </button>
           <button
             onClick={() => setShowModal(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-amber-900/30 transition-all hover:scale-[1.02]"
+            className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-lg font-semibold text-xs transition-colors"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             <span>Asentar Novedad</span>
           </button>
           <button
             onClick={loadMinuta}
-            className="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl transition-all"
+            className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors"
           >
-            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
           </button>
         </div>
       </div>
@@ -264,8 +269,8 @@ export default function MinutaView() {
                       </span>
                       <h3 className="font-bold text-white text-base">{item.titulo || getTipoLabel(item.tipo)}</h3>
                       {item.offlinePending && (
-                        <span className="text-[11px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold">
-                          ⏳ En cola offline
+                        <span className="text-[11px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-md font-semibold">
+                          En cola offline
                         </span>
                       )}
                     </div>

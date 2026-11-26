@@ -2,13 +2,16 @@ import { AnimatePresence, motion as Motion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowLeft,
+  Building2,
   CheckCircle,
+  ChevronRight,
   Eye,
   EyeOff,
   Loader,
   Lock,
   LogIn,
   Mail,
+  ShieldCheck,
   UserPlus,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -22,72 +25,44 @@ import {
 import ForgotPasswordScreen from './ForgotPasswordScreen';
 import BrandTitle from './BrandTitle';
 
-// ── Animated Background ──
+// ── Architectural Background ──
 
-function AnimatedBackground() {
+function ArchitecturalBackground() {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
-      <Motion.div
-        className="absolute inset-0 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900"
-        animate={{
-          background: [
-            'linear-gradient(135deg, #020617, #052e16, #0f172a)',
-            'linear-gradient(135deg, #0f172a, #022c22, #020617)',
-            'linear-gradient(135deg, #020617, #064e3b, #0f172a)',
-            'linear-gradient(135deg, #0f172a, #052e16, #020617)',
-          ],
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-[#090d16]">
+      <div
+        className="absolute inset-0 opacity-100"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(148, 163, 184, 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.04) 1px, transparent 1px)',
+          backgroundSize: '36px 36px',
         }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(16,185,129,0.15)_0%,_transparent_60%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(52,211,153,0.1)_0%,_transparent_50%)]" />
-      {[...Array(3)].map((_, i) => (
-        <Motion.div
-          key={i}
-          className="absolute rounded-full blur-3xl opacity-20"
-          style={{
-            width: `${300 + i * 200}px`,
-            height: `${300 + i * 200}px`,
-            background: `radial-gradient(circle, rgba(52,211,153,0.4), transparent)`,
-          }}
-          animate={{
-            x: [0, 100, -50, 0],
-            y: [0, -80, 60, 0],
-            scale: [1, 1.2, 0.9, 1],
-          }}
-          transition={{
-            duration: 15 + i * 5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: i * 3,
-          }}
-        />
-      ))}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_45%_at_50%_-10%,rgba(16,185,129,0.11),transparent)]" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#090d16] to-transparent" />
     </div>
   );
 }
 
-// ── Glass Card ──
+// ── Enterprise Panel ──
 
-function GlassCard({ children, className = '' }) {
+function SurfaceCard({ children, className = '' }) {
   return (
     <Motion.div
-      initial={{ opacity: 0, y: 30, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className={`relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-xl shadow-2xl shadow-black/40 ${className}`}
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className={`relative overflow-hidden rounded-2xl border border-slate-800/90 bg-slate-900/90 backdrop-blur-md shadow-2xl shadow-black/60 ${className}`}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
-      <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-400/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent pointer-events-none" />
       {children}
     </Motion.div>
   );
 }
 
-// ── Animated Input ──
+// ── Form Input ──
 
-function AnimatedInput({
+function FormInput({
   icon: Icon,
   type = 'text',
   value,
@@ -101,18 +76,16 @@ function AnimatedInput({
   return (
     <div>
       {label && (
-        <Motion.label
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="block text-xs font-medium text-white/50 mb-1.5 tracking-wide"
-        >
+        <label className="block text-xs font-medium text-slate-300 mb-1.5">
           {label}
-        </Motion.label>
+        </label>
       )}
-      <div className="relative group">
+      <div className="relative">
         {Icon && (
           <Icon
-            className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focused ? 'text-emerald-400' : 'text-white/30'}`}
+            className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
+              focused ? 'text-emerald-400' : 'text-slate-500'
+            }`}
           />
         )}
         <input
@@ -123,15 +96,13 @@ function AnimatedInput({
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder={placeholder}
-          className={`
-            w-full bg-white/5 border rounded-xl text-white placeholder-white/20
-            focus:outline-none transition-all duration-300
-            ${Icon ? 'pl-10' : 'pl-4'} pr-4 py-3
-            ${focused ? 'border-emerald-500/60 shadow-[0_0_20px_-5px_rgba(52,211,153,0.3)]' : 'border-white/10 hover:border-white/20'}
-          `}
-        />
-        <div
-          className={`absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent scale-x-0 transition-transform duration-500 ${focused ? 'scale-x-100' : ''}`}
+          className={`w-full bg-slate-950/90 border rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-colors ${
+            Icon ? 'pl-10' : 'pl-3.5'
+          } pr-10 py-2.5 ${
+            focused
+              ? 'border-emerald-500 ring-1 ring-emerald-500/25'
+              : 'border-slate-800 hover:border-slate-700'
+          }`}
         />
         {rightElement}
       </div>
@@ -139,58 +110,50 @@ function AnimatedInput({
   );
 }
 
-// ── Animated Button ──
+// ── Primary Button ──
 
-function AnimatedButton({ onClick, disabled, loading, icon: Icon, children }) {
+function PrimaryButton({ onClick, disabled, loading, icon: Icon, children }) {
   return (
-    <Motion.button
+    <button
       onClick={onClick}
       disabled={disabled}
-      whileHover={
-        !disabled
-          ? { scale: 1.02, boxShadow: '0 0 30px -5px rgba(52,211,153,0.4)' }
-          : {}
-      }
-      whileTap={!disabled ? { scale: 0.98 } : {}}
-      className={`
-        relative w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2
-        transition-all duration-300 overflow-hidden group
-        ${
-          disabled
-            ? 'bg-emerald-700/50 text-white/40 cursor-not-allowed'
-            : 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-lg shadow-emerald-900/30'
-        }
-      `}
+      className={`w-full py-2.5 px-4 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
+        disabled
+          ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+          : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+      }`}
     >
-      <span className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.15),transparent_70%)] group-hover:opacity-80 transition-opacity" />
       {loading ? (
         <>
-          <Loader className="w-5 h-5 animate-spin" />
-          <span className="relative z-10">{children}</span>
+          <Loader className="w-4 h-4 animate-spin" />
+          <span>{children}</span>
         </>
       ) : (
         <>
-          {Icon && <Icon className="w-5 h-5 relative z-10" />}
-          <span className="relative z-10">{children}</span>
+          {Icon && <Icon className="w-4 h-4" />}
+          <span>{children}</span>
         </>
       )}
-    </Motion.button>
+    </button>
   );
 }
 
-// ── Link with underline animation ──
+// ── Subtle Text Link ──
 
-function AnimatedLink({ onClick, icon: Icon, children, color = 'white/50' }) {
+function TextLink({ onClick, icon: Icon, children, accent = false }) {
   return (
-    <Motion.button
+    <button
+      type="button"
       onClick={onClick}
-      whileHover={{ x: 3 }}
-      className={`relative text-sm hover:text-white/80 transition-colors duration-200 flex items-center gap-1 group ${color === 'emerald-400' ? 'text-emerald-400' : 'text-white/50'}`}
+      className={`text-xs font-medium transition-colors inline-flex items-center gap-1.5 ${
+        accent
+          ? 'text-emerald-400 hover:text-emerald-300'
+          : 'text-slate-400 hover:text-slate-200'
+      }`}
     >
       {Icon && <Icon className="w-3.5 h-3.5" />}
       <span>{children}</span>
-      <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-emerald-400/50 transition-all duration-300 group-hover:w-full" />
-    </Motion.button>
+    </button>
   );
 }
 
@@ -198,114 +161,86 @@ function AnimatedLink({ onClick, icon: Icon, children, color = 'white/50' }) {
 
 function ErrorBanner({ message }) {
   return (
-    <Motion.div
-      initial={{ opacity: 0, y: -10, height: 0 }}
-      animate={{ opacity: 1, y: 0, height: 'auto' }}
-      exit={{ opacity: 0, y: -10, height: 0 }}
-      className="flex items-start gap-2 text-sm text-red-200 bg-red-500/10 border border-red-500/20 rounded-xl p-3"
-    >
-      <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-300" />
+    <div className="flex items-start gap-2 text-xs text-red-200 bg-red-950/60 border border-red-800/70 rounded-lg p-3 mt-4">
+      <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-400" />
       <span>{message}</span>
-    </Motion.div>
+    </div>
   );
 }
 
-// ── Container variants for staggered children ──
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.07, delayChildren: 0.15 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-  },
-};
-
-// ── Login Routes ──
+// ── Access Module Selector ──
 
 function RoleCards({ onSelectAdmin, onSelectUser }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
-      <AnimatedBackground />
+      <ArchitecturalBackground />
 
-      <Motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-[520px] w-full"
-      >
-        <GlassCard className="p-8 sm:p-10">
-          <div className="text-center mb-8">
-            <BrandTitle variant="login" />
+      <div className="max-w-[500px] w-full">
+        <SurfaceCard className="p-6 sm:p-8">
+          <BrandTitle />
+
+          <div className="flex items-center gap-3 my-5">
+            <div className="h-px flex-1 bg-slate-800" />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+              Seleccione módulo de acceso
+            </span>
+            <div className="h-px flex-1 bg-slate-800" />
           </div>
-          <Motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40 mb-6 text-center"
-          >
-            Sistema de Gestion
-          </Motion.p>
-          <Motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-col gap-3"
-          >
-            <Motion.button
-              variants={itemVariants}
-              whileHover={{ scale: 1.01, y: -2 }}
-              whileTap={{ scale: 0.99 }}
+
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
               onClick={onSelectAdmin}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition-all duration-300 hover:border-emerald-500/30 hover:bg-white/[0.06] hover:shadow-lg hover:shadow-emerald-900/10"
+              className="group w-full rounded-xl border border-slate-800 bg-slate-950/70 p-4 text-left transition-all hover:border-emerald-500/50 hover:bg-slate-900"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-400/10 transition-all duration-500" />
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xl">🛡️</span>
-                <span className="relative block text-lg sm:text-xl font-extrabold text-white">
-                  Administración & Puesto de Portería
-                </span>
+              <div className="flex items-start gap-3.5">
+                <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 shrink-0 mt-0.5">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm sm:text-base font-semibold text-white group-hover:text-emerald-300 transition-colors">
+                      Administración y Puesto de Portería
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                    Consola para guardas y administradores: minuta digital, control de ingresos, correspondencia con PIN, parqueaderos, rondas QR y auditoría.
+                  </p>
+                </div>
               </div>
-              <span className="relative block text-xs sm:text-sm text-white/50 group-hover:text-white/70 transition-colors leading-relaxed">
-                Supervisión & Guardia de Seguridad — Minuta digital, control de accesos, paquetería, bahías de parqueadero, rondas y auditoría
-              </span>
-            </Motion.button>
-            <Motion.button
-              variants={itemVariants}
-              whileHover={{ scale: 1.01, y: -2 }}
-              whileTap={{ scale: 0.99 }}
+            </button>
+
+            <button
+              type="button"
               onClick={onSelectUser}
-              className="group relative overflow-hidden rounded-2xl border border-purple-500/20 bg-purple-500/[0.03] p-5 text-left transition-all duration-300 hover:border-purple-500/40 hover:bg-purple-500/[0.06] hover:shadow-lg hover:shadow-purple-900/20"
+              className="group w-full rounded-xl border border-slate-800 bg-slate-950/70 p-4 text-left transition-all hover:border-slate-600 hover:bg-slate-900"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-purple-400/20 transition-all duration-500" />
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xl">🏢</span>
-                <span className="relative block text-lg sm:text-xl font-extrabold text-white">
-                  Portal de Residentes & Propietarios
-                </span>
+              <div className="flex items-start gap-3.5">
+                <div className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 shrink-0 mt-0.5">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm sm:text-base font-semibold text-white group-hover:text-slate-100 transition-colors">
+                      Portal de Residentes y Propietarios
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-slate-300 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                    Autogestión por unidad residencial: estado de cuenta, paz y salvo PDF, pases QR de visitantes, casillero, reservas de zonas, PQRS y asambleas.
+                  </p>
+                </div>
               </div>
-              <span className="relative block text-xs sm:text-sm text-purple-200/60 group-hover:text-purple-200/80 transition-colors leading-relaxed">
-                Autogestión de Inmuebles — Paquetes con PIN, pre-autorizar visitas con Pase QR, reservas de zonas, MinutaBot IA, asambleas y paz y salvo
-              </span>
-            </Motion.button>
-          </Motion.div>
-          <Motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-xs text-white/30 text-center mt-6"
-          >
-            Sistema Integral de Portería y Vigilancia Residencial
-          </Motion.p>
-        </GlassCard>
-      </Motion.div>
+            </button>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Cumplimiento Ley 675 de 2001</span>
+            <span className="font-mono text-slate-400">Operación 24/7 • PWA Offline</span>
+          </div>
+        </SurfaceCard>
+      </div>
     </div>
   );
 }
@@ -329,12 +264,11 @@ function AdminLogin({ onBack, onRole }) {
 
   const handleLogin = async () => {
     if (!identifier.trim()) return setError('Ingresa tu usuario o correo');
-    if (!password.trim()) return setError('Ingresa tu contrasena');
+    if (!password.trim()) return setError('Ingresa tu contraseña');
     setLoading(true);
     setError('');
     try {
       const result = await loginAdmin(identifier, password);
-      // JWT is set as httpOnly cookie by the server — no localStorage needed
       if (result.usuario) {
         setUserInfo(result.usuario);
         onRole(result.usuario.role || 'admin');
@@ -351,9 +285,9 @@ function AdminLogin({ onBack, onRole }) {
   const handleRegister = async () => {
     if (!username.trim()) return setError('Ingresa un nombre de usuario');
     if (!email.trim()) return setError('Ingresa tu correo');
-    if (!password.trim()) return setError('Ingresa una contrasena');
+    if (!password.trim()) return setError('Ingresa una contraseña');
     if (password.length < 8)
-      return setError('La contrasena debe tener al menos 8 caracteres');
+      return setError('La contraseña debe tener al menos 8 caracteres');
     if (
       !/[A-Z]/.test(password) ||
       !/[a-z]/.test(password) ||
@@ -361,10 +295,10 @@ function AdminLogin({ onBack, onRole }) {
       !/[^A-Za-z0-9]/.test(password)
     )
       return setError(
-        'La contrasena debe incluir mayuscula, minuscula, numero y caracter especial'
+        'La contraseña debe incluir mayúscula, minúscula, número y carácter especial'
       );
     if (password !== confirmPassword)
-      return setError('Las contrasenas no coinciden');
+      return setError('Las contraseñas no coinciden');
 
     setLoading(true);
     setError('');
@@ -387,77 +321,57 @@ function AdminLogin({ onBack, onRole }) {
   if (registered) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <AnimatedBackground />
-        <Motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-[520px] w-full"
-        >
-          <GlassCard className="p-8 sm:p-10 text-center">
-            <Motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-              className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4"
-            >
-              <CheckCircle className="w-8 h-8 text-emerald-400" />
-            </Motion.div>
-            <h2 className="text-xl font-bold text-white mb-2">
-              Registro exitoso
+        <ArchitecturalBackground />
+        <div className="max-w-[440px] w-full">
+          <SurfaceCard className="p-6 sm:p-8 text-center">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-6 h-6 text-emerald-400" />
+            </div>
+            <h2 className="text-lg font-semibold text-white mb-2">
+              Cuenta registrada
             </h2>
-            <p className="text-white/50 mb-6">
-              Se ha enviado un codigo de verificacion a{' '}
-              <strong className="text-white/70">{registeredEmail}</strong>.
-              Revisa tu bandeja de entrada para verificar tu correo.
+            <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+              Se ha enviado un código de verificación a{' '}
+              <strong className="text-slate-200">{registeredEmail}</strong>.
+              Revisa tu bandeja de entrada para activar el acceso.
             </p>
-            <AnimatedButton
+            <PrimaryButton
               onClick={() => {
                 setRegistered(false);
                 setIdentifier(email);
                 setMode('login');
               }}
             >
-              Ir a iniciar sesion
-            </AnimatedButton>
-          </GlassCard>
-        </Motion.div>
+              Ir a iniciar sesión
+            </PrimaryButton>
+          </SurfaceCard>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <AnimatedBackground />
-      <Motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-[420px] w-full"
-      >
-        <GlassCard className="p-6 sm:p-8">
-          <div className="text-center mb-6">
-            <BrandTitle variant="login" />
-          </div>
+      <ArchitecturalBackground />
+      <div className="max-w-[420px] w-full">
+        <SurfaceCard className="p-6 sm:p-8">
+          <BrandTitle subtitle={null} />
 
           <AnimatePresence mode="wait">
             {mode === 'login' ? (
               <Motion.div
                 key="login"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
               >
-                <Motion.p
-                  variants={itemVariants}
-                  className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40 mb-6 text-center"
-                >
-                  Inicio de sesion
-                </Motion.p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 mb-5 text-center">
+                  Autenticación de Personal
+                </p>
 
-                <Motion.div variants={itemVariants} className="space-y-4">
-                  <AnimatedInput
+                <div className="space-y-3.5">
+                  <FormInput
                     icon={Mail}
                     value={identifier}
                     onChange={(e) => {
@@ -466,9 +380,9 @@ function AdminLogin({ onBack, onRole }) {
                     }}
                     onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
                     placeholder="admin@minuta.com"
-                    label="Usuario o correo"
+                    label="Usuario o correo corporativo"
                   />
-                  <AnimatedInput
+                  <FormInput
                     icon={Lock}
                     type={showPassword ? 'text' : 'password'}
                     value={password}
@@ -478,12 +392,12 @@ function AdminLogin({ onBack, onRole }) {
                     }}
                     onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
                     placeholder="••••••••"
-                    label="Contrasena"
+                    label="Contraseña"
                     rightElement={
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                       >
                         {showPassword ? (
                           <EyeOff className="w-4 h-4" />
@@ -493,80 +407,60 @@ function AdminLogin({ onBack, onRole }) {
                       </button>
                     }
                   />
-                </Motion.div>
+                </div>
 
-                <AnimatePresence>
-                  {error && (
-                    <Motion.div
-                      initial={{ opacity: 0, y: -10, height: 0 }}
-                      animate={{ opacity: 1, y: 0, height: 'auto' }}
-                      exit={{ opacity: 0, y: -10, height: 0 }}
-                    >
-                      <ErrorBanner message={error} />
-                    </Motion.div>
-                  )}
-                </AnimatePresence>
+                {error && <ErrorBanner message={error} />}
 
-                <Motion.div variants={itemVariants} className="mt-6">
-                  <AnimatedButton
+                <div className="mt-5">
+                  <PrimaryButton
                     onClick={handleLogin}
                     disabled={loading}
                     loading={loading}
                     icon={LogIn}
                   >
-                    {loading ? 'Autenticando...' : 'Iniciar sesion'}
-                  </AnimatedButton>
-                </Motion.div>
+                    {loading ? 'Verificando credenciales...' : 'Iniciar sesión'}
+                  </PrimaryButton>
+                </div>
 
-                <Motion.div
-                  variants={itemVariants}
-                  className="mt-4 flex flex-col items-center gap-3"
-                >
-                  <AnimatedLink
+                <div className="mt-4 flex items-center justify-between gap-2 pt-1">
+                  <TextLink
                     onClick={() => navigate('/forgot', { replace: true })}
                   >
-                    Olvide mi contrasena
-                  </AnimatedLink>
-                  <AnimatedLink
-                    onClick={switchMode}
-                    icon={UserPlus}
-                    color="emerald-400"
-                  >
-                    Crear nueva cuenta
-                  </AnimatedLink>
-                </Motion.div>
+                    Recuperar contraseña
+                  </TextLink>
+                  <TextLink onClick={switchMode} icon={UserPlus} accent>
+                    Registrar operador
+                  </TextLink>
+                </div>
               </Motion.div>
             ) : (
               <Motion.div
                 key="register"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
               >
-                <Motion.p
-                  variants={itemVariants}
-                  className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40 mb-6 text-center"
-                >
-                  Crear cuenta nueva
-                </Motion.p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 mb-5 text-center">
+                  Registro de Operador
+                </p>
 
-                <Motion.div variants={itemVariants} className="space-y-3">
+                <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
-                    <AnimatedInput
+                    <FormInput
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Juan"
                       label="Nombre"
                     />
-                    <AnimatedInput
+                    <FormInput
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Perez"
+                      placeholder="Pérez"
                       label="Apellido"
                     />
                   </div>
-                  <AnimatedInput
+                  <FormInput
                     icon={Mail}
                     value={username}
                     onChange={(e) => {
@@ -576,7 +470,7 @@ function AdminLogin({ onBack, onRole }) {
                     placeholder="juanperez"
                     label="Nombre de usuario"
                   />
-                  <AnimatedInput
+                  <FormInput
                     icon={Mail}
                     type="email"
                     value={email}
@@ -585,9 +479,9 @@ function AdminLogin({ onBack, onRole }) {
                       setError('');
                     }}
                     placeholder="juan@ejemplo.com"
-                    label="Correo electronico"
+                    label="Correo electrónico"
                   />
-                  <AnimatedInput
+                  <FormInput
                     icon={Lock}
                     type={showPassword ? 'text' : 'password'}
                     value={password}
@@ -595,13 +489,13 @@ function AdminLogin({ onBack, onRole }) {
                       setPassword(e.target.value);
                       setError('');
                     }}
-                    placeholder="Min. 8 caracteres"
-                    label="Contrasena"
+                    placeholder="Mín. 8 caracteres"
+                    label="Contraseña"
                     rightElement={
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                       >
                         {showPassword ? (
                           <EyeOff className="w-4 h-4" />
@@ -611,7 +505,7 @@ function AdminLogin({ onBack, onRole }) {
                       </button>
                     }
                   />
-                  <AnimatedInput
+                  <FormInput
                     icon={Lock}
                     type={showPassword ? 'text' : 'password'}
                     value={confirmPassword}
@@ -619,63 +513,45 @@ function AdminLogin({ onBack, onRole }) {
                       setConfirmPassword(e.target.value);
                       setError('');
                     }}
-                    placeholder="Repite la contrasena"
-                    label="Confirmar contrasena"
+                    placeholder="Repite la contraseña"
+                    label="Confirmar contraseña"
                   />
-                </Motion.div>
+                </div>
 
-                <AnimatePresence>
-                  {error && (
-                    <Motion.div
-                      initial={{ opacity: 0, y: -10, height: 0 }}
-                      animate={{ opacity: 1, y: 0, height: 'auto' }}
-                      exit={{ opacity: 0, y: -10, height: 0 }}
-                    >
-                      <ErrorBanner message={error} />
-                    </Motion.div>
-                  )}
-                </AnimatePresence>
+                {error && <ErrorBanner message={error} />}
 
-                <Motion.div variants={itemVariants} className="mt-6">
-                  <AnimatedButton
+                <div className="mt-5">
+                  <PrimaryButton
                     onClick={handleRegister}
                     disabled={loading}
                     loading={loading}
                     icon={UserPlus}
                   >
                     {loading ? 'Creando cuenta...' : 'Crear cuenta'}
-                  </AnimatedButton>
-                </Motion.div>
+                  </PrimaryButton>
+                </div>
 
-                <Motion.div
-                  variants={itemVariants}
-                  className="mt-4 text-center"
-                >
-                  <AnimatedLink onClick={switchMode} icon={ArrowLeft}>
-                    Ya tengo cuenta
-                  </AnimatedLink>
-                </Motion.div>
+                <div className="mt-4 text-center">
+                  <TextLink onClick={switchMode} icon={ArrowLeft}>
+                    Ya tengo cuenta registrada
+                  </TextLink>
+                </div>
               </Motion.div>
             )}
           </AnimatePresence>
 
-          <Motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-6 pt-4 border-t border-white/5"
-          >
-            <Motion.button
+          <div className="mt-5 pt-4 border-t border-slate-800">
+            <button
+              type="button"
               onClick={onBack}
-              whileHover={{ x: -3 }}
-              className="w-full py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 text-white/30 hover:text-white/60 hover:bg-white/[0.03] transition-all duration-300"
+              className="w-full py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Volver a seleccion de rol
-            </Motion.button>
-          </Motion.div>
-        </GlassCard>
-      </Motion.div>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Volver a selección de módulo
+            </button>
+          </div>
+        </SurfaceCard>
+      </div>
     </div>
   );
 }
@@ -709,7 +585,6 @@ export default function LoginScreen({ onRole }) {
     return <ForgotRoute />;
   }
 
-  // Default: role selection
   return (
     <RoleCards
       onSelectAdmin={() => navigate('/login/admin', { replace: true })}

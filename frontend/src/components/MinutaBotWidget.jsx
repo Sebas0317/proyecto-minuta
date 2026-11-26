@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  MessageSquare,
-  X,
   Send,
   Mic,
   MicOff,
@@ -19,7 +17,6 @@ import {
 import { toast } from 'sonner';
 import { queryChatbot } from '../services/api';
 
-// Web Audio API sintetizador de sonido para respuestas
 function playChime() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -34,22 +31,22 @@ function playChime() {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.3);
-  } catch (e) {
+  } catch {
     // AudioContext silenciado
   }
 }
 
 const INITIAL_SUGGESTIONS = [
-  '📝 Radicar PQRS',
-  '📋 Estado de mi PQRS',
-  '🏊 Horario Piscina',
-  '🏋️ Gimnasio & Aforo',
-  '🗑️ Día de Basuras',
-  '💳 Cuentas de Pago',
-  '📦 Tengo Paquete?',
-  '🚗 Cupos Parqueadero',
-  '🔇 Horario de Silencio',
-  '🚨 Emergencias 24/7'
+  'Radicar PQRS',
+  'Estado de mi PQRS',
+  'Horario Piscina',
+  'Gimnasio y Aforo',
+  'Día de Basuras',
+  'Cuentas de Pago',
+  'Consultar Paquetes',
+  'Cupos Parqueadero',
+  'Horario de Silencio',
+  'Emergencias 24/7'
 ];
 
 export default function MinutaBotWidget() {
@@ -66,7 +63,7 @@ export default function MinutaBotWidget() {
     {
       id: 'welcome-msg',
       sender: 'bot',
-      text: '¡Hola! 👋 Soy **MinutaBot**, tu asistente virtual del condominio.\n\nPuedes consultarme sobre horarios de zonas comunes, rutas de aseo, basuras, manual de convivencia, cuentas bancarias o verificar en tiempo real si tienes paquetes en portería.\n\n¿En qué te puedo colaborar?',
+      text: 'Bienvenido al asistente operativo **MinutaBot**.\n\nConsulte horarios de zonas comunes, cronograma de residuos, reglamento interno, cuentas de recaudo o disponibilidad de correspondencia en portería.\n\n¿Qué información necesita consultar?',
       suggestions: INITIAL_SUGGESTIONS,
       timestamp: new Date()
     }
@@ -124,8 +121,8 @@ export default function MinutaBotWidget() {
       try {
         recognitionRef.current.start();
         setIsListening(true);
-        toast.info('Escuchando... Di tu pregunta');
-      } catch (e) {
+        toast.info('Escuchando... Indique su consulta');
+      } catch {
         setIsListening(false);
       }
     }
@@ -190,7 +187,7 @@ export default function MinutaBotWidget() {
         {
           id: 'err-' + Date.now(),
           sender: 'bot',
-          text: 'Ocurrió un error al consultar el asistente. Por favor intenta de nuevo o comunícate con portería a la **Ext. 100**.',
+          text: 'Ocurrió un error al consultar el asistente. Intente nuevamente o comuníquese con portería a la **Ext. 100**.',
           timestamp: new Date()
         }
       ]);
@@ -213,7 +210,7 @@ export default function MinutaBotWidget() {
       {
         id: 'welcome-msg',
         sender: 'bot',
-        text: '¡Conversación reiniciada! ¿En qué otra consulta te puedo colaborar hoy?',
+        text: 'Conversación reiniciada. ¿Qué consulta desea realizar?',
         suggestions: INITIAL_SUGGESTIONS,
         timestamp: new Date()
       }
@@ -234,8 +231,8 @@ export default function MinutaBotWidget() {
       const formatted = safe
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/```(.*?)```/g, '<code class="bg-slate-900 px-1 py-0.5 rounded text-emerald-400 font-mono text-[11px]">$1</code>')
-        .replace(/`(.*?)`/g, '<code class="bg-slate-900 px-1 py-0.5 rounded text-emerald-400 font-mono text-[11px]">$1</code>');
+        .replace(/```(.*?)```/g, '<code class="bg-slate-950 px-1 py-0.5 rounded text-emerald-400 font-mono text-[11px]">$1</code>')
+        .replace(/`(.*?)`/g, '<code class="bg-slate-950 px-1 py-0.5 rounded text-emerald-400 font-mono text-[11px]">$1</code>');
 
       return (
         <p
@@ -253,41 +250,39 @@ export default function MinutaBotWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-5 right-5 z-50 flex items-center gap-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl shadow-emerald-950/80 transition-all hover:scale-105 active:scale-95 group border border-emerald-400/30"
+          className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 bg-slate-900 hover:bg-slate-800 text-slate-100 p-3 sm:px-4 sm:py-2.5 rounded-xl shadow-2xl shadow-black/70 transition-colors border border-slate-700/90 hover:border-emerald-500/50"
           aria-label="Abrir Asistente Virtual"
         >
-          <div className="relative">
-            <Bot className="w-6 h-6 animate-bounce" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyan-400 rounded-full animate-ping" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyan-400 rounded-full" />
+          <div className="relative p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">
+            <Bot className="w-4 h-4" />
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full" />
           </div>
           <div className="hidden sm:block text-left">
-            <span className="block text-xs font-black tracking-wide leading-none">MinutaBot</span>
-            <span className="text-[10px] text-emerald-200 leading-none">Asistente Virtual 24/7</span>
+            <span className="block text-xs font-semibold tracking-tight leading-none text-white">Asistente P.H.</span>
+            <span className="text-[10px] text-slate-400 leading-none">Consultas 24/7</span>
           </div>
         </button>
       )}
 
       {/* VENTANA DEL CHATBOT */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 z-50 w-[95vw] sm:w-[410px] h-[580px] max-h-[88vh] bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-4 right-4 z-50 w-[95vw] sm:w-[400px] h-[560px] max-h-[88vh] bg-[#0b101b] border border-slate-800 rounded-2xl shadow-2xl shadow-black/80 flex flex-col overflow-hidden">
           {/* HEADER */}
-          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-2xl relative">
-                <Bot className="w-6 h-6" />
-                <span className="absolute bottom-0.5 right-0.5 w-2 h-2 bg-emerald-400 rounded-full" />
+          <div className="bg-slate-900/95 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 rounded-lg relative">
+                <Bot className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-black text-white text-sm flex items-center gap-1.5">
-                  MinutaBot P.H.
-                  <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">
-                    IA Local
+                <h3 className="font-semibold text-white text-sm flex items-center gap-1.5">
+                  Asistente P.H.
+                  <span className="text-[10px] bg-slate-800 text-slate-300 border border-slate-700 px-1.5 py-0.5 rounded font-medium">
+                    Base Normativa
                   </span>
                 </h3>
-                <p className="text-[11px] text-slate-400 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                  En línea • Respuestas Inmediatas
+                <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+                  Operativo • Respuesta inmediata
                 </p>
               </div>
             </div>
@@ -320,23 +315,22 @@ export default function MinutaBotWidget() {
           </div>
 
           {/* CUERPO DE MENSAJES */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/70 text-xs text-slate-200 scrollbar-thin scrollbar-thumb-slate-700">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#090d16] text-xs text-slate-200">
             {messages.map((m) => {
               const isBot = m.sender === 'bot';
               return (
                 <div key={m.id} className={`flex flex-col ${isBot ? 'items-start' : 'items-end'} space-y-1`}>
                   <div
-                    className={`max-w-[88%] p-3.5 rounded-2xl shadow-md ${
+                    className={`max-w-[88%] p-3 rounded-xl ${
                       isBot
-                        ? 'bg-slate-900 border border-slate-700 text-slate-200 rounded-tl-sm'
-                        : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-tr-sm font-medium'
+                        ? 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-sm'
+                        : 'bg-emerald-600 text-white rounded-tr-sm font-medium'
                     }`}
                   >
                     <div className="leading-relaxed">
                       {isBot ? formatBotText(m.text) : m.text}
                     </div>
 
-                    {/* BOTÓN DE ACCIÓN RÁPIDA VINCULADA */}
                     {isBot && m.action?.ruta && (
                       <div className="mt-2.5 pt-2 border-t border-slate-800 flex justify-end">
                         <button
@@ -344,16 +338,15 @@ export default function MinutaBotWidget() {
                             setIsOpen(false);
                             navigate(m.action.ruta);
                           }}
-                          className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl font-bold text-[11px] shadow transition-all"
+                          className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-semibold text-[11px] transition-colors"
                         >
-                          <span>{m.action.label || 'Ver Más'}</span>
+                          <span>{m.action.label || 'Abrir módulo'}</span>
                           <ExternalLink className="w-3 h-3" />
                         </button>
                       </div>
                     )}
                   </div>
 
-                  {/* BARRA DE HERRAMIENTAS POR MENSAJE BOT */}
                   {isBot && (
                     <div className="flex items-center gap-2 text-[10px] text-slate-500 pl-1">
                       <button
@@ -375,14 +368,13 @@ export default function MinutaBotWidget() {
                     </div>
                   )}
 
-                  {/* CHIPS DE SUGERENCIA SI EXISTEN */}
                   {isBot && m.suggestions?.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-2 max-w-[95%]">
+                    <div className="flex flex-wrap gap-1.5 pt-1.5 max-w-[95%]">
                       {m.suggestions.map((sug, i) => (
                         <button
                           key={i}
                           onClick={() => handleSuggestionClick(sug)}
-                          className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all hover:scale-105 active:scale-95 text-left"
+                          className="bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors text-left"
                         >
                           {sug}
                         </button>
@@ -393,11 +385,10 @@ export default function MinutaBotWidget() {
               );
             })}
 
-            {/* INDICADOR DE ESCRITURA */}
             {loading && (
-              <div className="flex items-center gap-2 text-slate-400 bg-slate-900 border border-slate-700 w-fit p-3 rounded-2xl">
-                <Sparkles className="w-4 h-4 text-emerald-400 animate-spin" />
-                <span className="text-xs">MinutaBot está consultando la información...</span>
+              <div className="flex items-center gap-2 text-slate-400 bg-slate-900 border border-slate-800 w-fit p-2.5 rounded-xl">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-spin" />
+                <span className="text-xs">Consultando base documental...</span>
               </div>
             )}
 
@@ -410,15 +401,15 @@ export default function MinutaBotWidget() {
               e.preventDefault();
               handleSend();
             }}
-            className="p-3 bg-slate-900 border-t border-slate-700 flex items-center gap-2"
+            className="p-3 bg-slate-900/95 border-t border-slate-800 flex items-center gap-2"
           >
             <button
               type="button"
               onClick={toggleListening}
-              className={`p-2.5 rounded-xl border transition-all ${
+              className={`p-2.5 rounded-lg border transition-colors ${
                 isListening
-                  ? 'bg-red-500 text-white border-red-400 animate-pulse'
-                  : 'bg-slate-800 text-slate-400 hover:text-white border-slate-700'
+                  ? 'bg-red-600 text-white border-red-500'
+                  : 'bg-slate-950 text-slate-400 hover:text-white border-slate-800'
               }`}
               title="Dictar por voz"
             >
@@ -430,14 +421,14 @@ export default function MinutaBotWidget() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Pregúntame algo (ej: horario piscina, basuras)..."
-              className="flex-1 bg-slate-950 border border-slate-700 text-white px-3.5 py-2.5 rounded-xl text-xs outline-none focus:border-emerald-500 transition-all placeholder:text-slate-500"
+              placeholder="Ej: horario piscina, recolección basuras..."
+              className="flex-1 bg-slate-950 border border-slate-800 text-white px-3 py-2 rounded-lg text-xs outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-500"
             />
 
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="p-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white rounded-xl shadow-md transition-all active:scale-95"
+              className="p-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white rounded-lg transition-colors"
             >
               <Send className="w-4 h-4" />
             </button>
