@@ -1,8 +1,10 @@
 'use strict';
 
-const { getAsambleas, setAsambleas } = require('../data/persistence');
+const { getAsambleas, setAsambleas, getUnidades } = require('../data/persistence');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
+const { hasPermission } = require('../utils/permissions');
+const { getBogotaDateParts } = require('../utils/colombianHolidays');
 
 // ── 1. OBTENER ASAMBLEAS ──
 async function getAsambleasHandler(req, res) {
@@ -28,8 +30,8 @@ async function createAsamblea(req, res) {
 
     const nueva = {
       id: `asmb-${Date.now()}-${generateId(4)}`,
-      titulo: titulo.trim(),
-      fecha: fecha || new Date().toISOString().split('T')[0],
+      titulo: String(titulo).trim(),
+      fecha: fecha || getBogotaDateParts(new Date()).ymd,
       horaInicio: horaInicio || '08:00 AM',
       estado: 'en_curso', // en_curso, finalizada
       totalCoeficiente: Math.min(100, Math.max(0.01, Number(totalCoeficiente) || 100.0)),
@@ -127,24 +129,38 @@ async function castVote(req, res) {
     const { id, votId } = req.params;
     const { opcion, coeficiente, unidadId, apto } = req.body;
 
+    if (req.user && !hasPermission(req.user.role, 'asambleas:vote')) {
+      return res.status(403).json({ error: 'Tu rol no tiene permisos para emitir votos en asambleas' });
+    }
+
     if (!['si', 'no', 'blanco'].includes(opcion)) {
       return res.status(400).json({ error: "La opción de voto debe ser 'si', 'no' o 'blanco'" });
     }
 
-    // Identificador único del votante: staff o consultas de unidad explícita pueden indicar unidadId/apto; usuarios regulares quedan ligados a su cuenta
-    const isStaff = req.user && ['owner', 'admin', 'supervisor', 'guarda'].includes(req.user.role);
-    const votanteId =
+    const isStaff = req.user && ['owner', 'admin', 'supervisor'].includes(req.user.role);
+    const rawIdentifier =
       ((!req.user || isStaff) && (unidadId || apto)) ||
       req.user?.id ||
-      req.body.solicitante ||
-      'unidad-residente';
+      req.body.solicitante;
 
-    const list = await getAsambleas();
+    if (!rawIdentifier || String(rawIdentifier).trim() === '') {
+      return res.status(400).json({ error: 'Se requiere unidadId, apartamento o sesión activa para votar' });
+    }
+
+    const [list, unidadesRaw] = await Promise.all([
+      getAsambleas(),
+      getUnidades().catch(() => []),
+    ]);
     const asambleas = Array.isArray(list) ? list : (list.asambleas || []);
+    const unidades = Array.isArray(unidadesRaw) ? unidadesRaw : [];
     const asmb = asambleas.find(a => a.id === id);
 
     if (!asmb) {
       return res.status(404).json({ error: 'Asamblea no encontrada' });
+    }
+
+    if (asmb.estado && asmb.estado !== 'en_curso') {
+      return res.status(400).json({ error: 'La asamblea no se encuentra en curso' });
     }
 
     const vot = (asmb.votaciones || []).find(v => v.id === votId);
@@ -156,20 +172,32 @@ async function castVote(req, res) {
       return res.status(400).json({ error: 'La votación ya se encuentra cerrada' });
     }
 
-    // Inicializar lista de votantes si no existe
     if (!Array.isArray(vot.votantes)) {
       vot.votantes = [];
     }
 
-    // ── VALIDACIÓN DE UNICIDAD DE VOTO (PREVENCIÓN DE FRAUDE) ──
-    const cleanVotante = String(votanteId).trim().toLowerCase();
+    // Canonicalizar unidad contra censo oficial si existe (evita doble voto por alias '101' vs 't1-101')
+    const lookupKey = String(rawIdentifier).trim().toLowerCase();
+    const matchedUnidad = unidades.find(u =>
+      String(u.id || '').toLowerCase() === lookupKey ||
+      String(u.numero || '').toLowerCase() === lookupKey ||
+      `t${String(u.torre || '').replace(/\D+/g, '')}-${u.numero}`.toLowerCase() === lookupKey
+    );
+    const cleanVotante = matchedUnidad ? String(matchedUnidad.id).toLowerCase() : lookupKey;
+
     if (vot.votantes.includes(cleanVotante)) {
-      return res.status(409).json({ error: `La unidad o usuario '${votanteId}' ya emitió su voto en esta pregunta` });
+      return res.status(409).json({ error: `La unidad o usuario '${rawIdentifier}' ya emitió su voto en esta pregunta` });
     }
 
-    // Validación y ponderación estricta de coeficiente
-    const pesoRaw = Number(coeficiente);
-    const peso = (!isNaN(pesoRaw) && pesoRaw > 0 && pesoRaw <= 100) ? pesoRaw : 1.0;
+    // Ponderación acotada: impide que un cliente manipule coeficiente=100
+    const maxAllowedPeso = isStaff ? 25.0 : 5.0;
+    const pesoRaw = coeficiente !== undefined ? Number(coeficiente) : Number(matchedUnidad?.coeficiente || 1.0);
+    if (Number.isNaN(pesoRaw) || pesoRaw <= 0 || pesoRaw > maxAllowedPeso) {
+      return res.status(400).json({
+        error: `Coeficiente de votación inválido (rango permitido: 0.01 - ${maxAllowedPeso}%)`,
+      });
+    }
+    const peso = Number(pesoRaw.toFixed(4));
 
     if (opcion === 'si') {
       vot.votosSi = Number(((Number(vot.votosSi) || 0) + peso).toFixed(2));

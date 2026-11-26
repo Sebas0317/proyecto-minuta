@@ -3,10 +3,10 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/rondasController');
-const { requirePermissionIfAuthed } = require('../middleware/auth');
+const { requireAuth, requirePermission } = require('../middleware/auth');
 
 router.get('/', controller.getAllRondas);
-router.post('/registrar', requirePermissionIfAuthed('rondas:write'), controller.registrarPuntoRonda);
-router.post('/puntos', requirePermissionIfAuthed('rondas:manage'), controller.createPuntoControl);
+router.post('/registrar', requireAuth, requirePermission('rondas:write'), controller.registrarPuntoRonda);
+router.post('/puntos', requireAuth, requirePermission('rondas:manage'), controller.createPuntoControl);
 
 module.exports = router;

@@ -63,6 +63,7 @@ const PERMISSIONS = {
     'parqueaderos:read',
     'parqueaderos:write',
     'trasteos:read',
+    'trasteos:write',
     'rondas:read',
     'rondas:write',
     'reservas:read',
@@ -112,6 +113,8 @@ const PERMISSIONS = {
   cliente: [
     'reservas:read',
     'reservas:write',
+    'trasteos:read',
+    'trasteos:write',
     'pqrs:read',
     'pqrs:create',
     'mascotas:read',
@@ -124,6 +127,8 @@ const PERMISSIONS = {
   residente: [
     'reservas:read',
     'reservas:write',
+    'trasteos:read',
+    'trasteos:write',
     'pqrs:read',
     'pqrs:create',
     'mascotas:read',

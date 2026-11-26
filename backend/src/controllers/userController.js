@@ -11,7 +11,7 @@ async function listUsers(req, res) {
     users = userStore.sanitizeUsers(users);
 
     if (search) {
-      const q = search.toLowerCase();
+      const q = String(search).toLowerCase();
       users = users.filter(
         (u) =>
           (u.username || '').toLowerCase().includes(q) ||
@@ -31,12 +31,12 @@ async function listUsers(req, res) {
     else if (isActive === 'false') users = users.filter((u) => !u.isActive);
 
     if (sort === 'created')
-      users.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      users.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
     else if (sort === 'login')
       users.sort((a, b) =>
         (b.lastLogin || '') > (a.lastLogin || '') ? 1 : -1
       );
-    else users.sort((a, b) => a.username.localeCompare(b.username));
+    else users.sort((a, b) => (a.username || '').localeCompare(b.username || ''));
 
     return res.json(users);
   } catch (err) {
@@ -176,17 +176,28 @@ async function updateUser(req, res) {
     const changes = {};
 
     const currentUser = await userStore.findUserById(req.params.id);
+    if (!currentUser) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const updaterRole = req.user?.role || 'cliente';
+    if (
+      (currentUser.role === 'owner' || currentUser.role === 'admin') &&
+      updaterRole !== 'owner' &&
+      req.user?.id !== currentUser.id
+    ) {
+      return res.status(403).json({
+        error: 'Solo un owner puede modificar cuentas de otros administradores u owners',
+      });
+    }
 
     if (role !== undefined && userStore.ROLES.includes(role)) {
       // Prevent privilege escalation: non-owners cannot upgrade to admin or owner
-      const updaterRole = req.user?.role || 'cliente';
       if ((role === 'admin' || role === 'owner') && updaterRole !== 'owner') {
         return res
           .status(403)
           .json({ error: 'Solo un owner puede asignar roles admin u owner' });
       }
       updates.role = role;
-      if (currentUser && currentUser.role !== role) {
+      if (currentUser.role !== role) {
         changes.oldRole = currentUser.role;
         changes.newRole = role;
       }
@@ -261,10 +272,28 @@ async function resetUserPassword(req, res) {
     const { newPassword, twoFactorCode } = req.body;
     const meta = auditor.reqMeta(req);
 
-    if (!newPassword || newPassword.length < 8) {
+    if (!newPassword || String(newPassword).length < 8) {
       return res
         .status(400)
         .json({ error: 'La contrasena debe tener al menos 8 caracteres' });
+    }
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(String(newPassword))) {
+      return res.status(400).json({
+        error: 'La contrasena debe contener mayuscula, minuscula y numero',
+      });
+    }
+
+    const user = await userStore.findUserById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    if (
+      (user.role === 'owner' || user.role === 'admin') &&
+      req.user?.role !== 'owner' &&
+      req.user?.id !== user.id
+    ) {
+      return res.status(403).json({
+        error: 'Solo un owner puede restablecer la contrasena de otros administradores u owners',
+      });
     }
 
     // Require 2FA code if the admin has 2FA enabled
@@ -289,9 +318,6 @@ async function resetUserPassword(req, res) {
       }
     }
 
-    const user = await userStore.findUserById(req.params.id);
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
-
     await userStore.changePassword(req.params.id, newPassword);
     logger.info(
       { userId: req.params.id, resetBy: req.user.id },
@@ -309,8 +335,12 @@ async function resetUserPassword(req, res) {
 async function getStats(_req, res) {
   try {
     const users = await userStore.getUsers();
-    const counts = await userStore.countByRole();
-    const activeCount = await userStore.getActiveCount();
+    const counts = {};
+    let activeCount = 0;
+    for (const u of users) {
+      counts[u.role] = (counts[u.role] || 0) + 1;
+      if (u.isActive) activeCount += 1;
+    }
 
     return res.json({
       total: users.length,

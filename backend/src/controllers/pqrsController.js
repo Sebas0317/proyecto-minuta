@@ -3,10 +3,24 @@
 const { getPqrs, savePqrs } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
-const { calcularDiasHabilesColombia } = require('../utils/colombianHolidays');
+const { calcularDiasHabilesColombia, getBogotaDateParts } = require('../utils/colombianHolidays');
 
 function calcular15DiasHabiles(fechaInicio = new Date()) {
   return calcularDiasHabilesColombia(fechaInicio, 15);
+}
+
+function isPqrsStaff(user) {
+  return Boolean(user && ['owner', 'admin', 'supervisor'].includes(user.role));
+}
+
+function serializePqrs(item, isStaff = false) {
+  const norm = normalizePqrsItem(item);
+  if (!norm || typeof norm !== 'object' || isStaff) return norm;
+  const safe = { ...norm };
+  delete safe.notasInternas;
+  delete safe.email;
+  delete safe.telefono;
+  return safe;
 }
 
 function normalizePqrsItem(p) {
@@ -23,7 +37,7 @@ function normalizePqrsItem(p) {
   };
 }
 
-function getNextPqrsRadicado(lista, year = new Date().getFullYear()) {
+function getNextPqrsRadicado(lista, year = getBogotaDateParts(new Date()).year) {
   const prefix = `PQR-${year}-`;
   let maxSeq = 0;
   for (const item of lista || []) {
@@ -54,7 +68,7 @@ async function getAllPqrs(req, res) {
       filtered = filtered.filter(p => p.categoria === categoria);
     }
     if (torre && torre !== 'todas') {
-      filtered = filtered.filter(p => p.torre && p.torre.toLowerCase() === torre.toLowerCase());
+      filtered = filtered.filter(p => String(p.torre || '').toLowerCase() === String(torre).toLowerCase());
     }
     if (apto) {
       filtered = filtered.filter(p => String(p.apto) === String(apto));
@@ -62,16 +76,17 @@ async function getAllPqrs(req, res) {
     if (search) {
       const q = String(search).toLowerCase();
       filtered = filtered.filter(p =>
-        (p.radicado && p.radicado.toLowerCase().includes(q)) ||
-        (p.asunto && p.asunto.toLowerCase().includes(q)) ||
-        (p.solicitante && p.solicitante.toLowerCase().includes(q)) ||
-        (p.descripcion && p.descripcion.toLowerCase().includes(q)) ||
+        (p.radicado && String(p.radicado).toLowerCase().includes(q)) ||
+        (p.asunto && String(p.asunto).toLowerCase().includes(q)) ||
+        (p.solicitante && String(p.solicitante).toLowerCase().includes(q)) ||
+        (p.descripcion && String(p.descripcion).toLowerCase().includes(q)) ||
         (p.apto && String(p.apto).includes(q))
       );
     }
 
     filtered.sort((a, b) => new Date(b.fechaRadicado || b.fecha || 0) - new Date(a.fechaRadicado || a.fecha || 0));
-    res.json(filtered);
+    const isStaff = isPqrsStaff(req.user);
+    res.json(filtered.map((p) => serializePqrs(p, isStaff)));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener PQRS');
     res.status(500).json({ error: 'Error interno al obtener PQRS' });
@@ -86,7 +101,7 @@ async function getPqrsById(req, res) {
     if (!item) {
       return res.status(404).json({ error: 'PQRS no encontrada' });
     }
-    res.json(normalizePqrsItem(item));
+    res.json(serializePqrs(item, isPqrsStaff(req.user)));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener detalle de PQRS');
     res.status(500).json({ error: 'Error interno' });
@@ -143,12 +158,13 @@ async function createPqrs(req, res) {
 
 async function responderPqrs(req, res) {
   try {
-    const lista = await getPqrs();
+    const raw = await getPqrs();
+    const lista = Array.isArray(raw) ? [...raw] : [];
     const { id } = req.params;
     const { mensaje, respuesta, nuevoEstado, respondidoPor } = req.body;
-    const textoRespuesta = respuesta || mensaje;
+    const textoRespuesta = String(respuesta || mensaje || '').trim();
 
-    if (!textoRespuesta || !textoRespuesta.trim()) {
+    if (!textoRespuesta) {
       return res.status(400).json({ error: 'El mensaje de respuesta es obligatorio' });
     }
 
@@ -163,12 +179,12 @@ async function responderPqrs(req, res) {
       id: `resp-${Date.now()}-${generateId(3)}`,
       autor: autorNombre,
       respondidoPor: autorNombre,
-      fecha: new Date().toISOString().slice(0, 10),
-      mensaje: textoRespuesta.trim(),
-      respuesta: textoRespuesta.trim()
+      fecha: getBogotaDateParts(new Date()).ymd,
+      mensaje: textoRespuesta,
+      respuesta: textoRespuesta
     };
 
-    pqr.respuestas = pqr.respuestas || [];
+    pqr.respuestas = Array.isArray(pqr.respuestas) ? pqr.respuestas : [];
     pqr.respuestas.push(respuestaObj);
     pqr.estado = nuevoEstado || 'respondido';
     pqr.fechaUltimaRespuesta = new Date().toISOString();
@@ -184,7 +200,8 @@ async function responderPqrs(req, res) {
 
 async function updatePqrsEstado(req, res) {
   try {
-    const lista = await getPqrs();
+    const raw = await getPqrs();
+    const lista = Array.isArray(raw) ? [...raw] : [];
     const { id } = req.params;
     const { estado, prioridad, notasInternas } = req.body;
 
@@ -208,7 +225,8 @@ async function updatePqrsEstado(req, res) {
 
 async function deletePqrs(req, res) {
   try {
-    let lista = await getPqrs();
+    const raw = await getPqrs();
+    const lista = Array.isArray(raw) ? [...raw] : [];
     const { id } = req.params;
 
     const index = lista.findIndex(p => p.id === id || p.radicado === id);

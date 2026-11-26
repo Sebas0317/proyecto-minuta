@@ -107,7 +107,7 @@ class UpstashStore {
     try {
       await r.zremrangebyrank(fullKey, -1, -1);
     } catch {
-      /* */
+      redisCircuitOpenUntil = Date.now() + 30000;
     }
   }
 
@@ -118,7 +118,7 @@ class UpstashStore {
       try {
         await r.del(fullKey);
       } catch {
-        /* */
+        redisCircuitOpenUntil = Date.now() + 30000;
       }
     }
     this.memoryFallback.delete(fullKey);

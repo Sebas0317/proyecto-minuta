@@ -95,6 +95,8 @@ const STATE_KEY = 'data:state';
 // ── In-memory fallback (for serverless where Redis is unavailable) ──
 const memoryStore = new Map();
 const initializedKeys = new Set();
+const dirtyKeys = new Set();
+const deletedKeys = new Set();
 
 // Track which keys have been lazily bootstrapped from files
 const bootstrapped = new Map();
@@ -121,6 +123,15 @@ async function getData(key, defaultVal = null) {
   const r = getRedis();
   if (r) {
     try {
+      if (deletedKeys.has(key)) {
+        await r.del(key);
+        deletedKeys.delete(key);
+      } else if (dirtyKeys.has(key) && memoryStore.has(key)) {
+        const localFresh = memoryStore.get(key);
+        await r.set(key, localFresh);
+        dirtyKeys.delete(key);
+        return cloneValue(localFresh);
+      }
       const val = await r.get(key);
       if (val !== null && val !== undefined) {
         memoryStore.set(key, val);
@@ -202,6 +213,12 @@ async function _setData(key, data) {
   if (redisOk || fileOk || (!r && file)) {
     memoryStore.set(key, snapshot);
     initializedKeys.add(key);
+    deletedKeys.delete(key);
+    if (redisOk) {
+      dirtyKeys.delete(key);
+    } else if (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL) {
+      dirtyKeys.add(key);
+    }
   } else if (memoryStore.has(key)) {
     logger.warn(
       { key },
@@ -217,13 +234,18 @@ async function setData(key, data) {
 async function _delData(key) {
   memoryStore.delete(key);
   initializedKeys.delete(key);
+  dirtyKeys.delete(key);
   const r = getRedis();
   if (r) {
     try {
       await r.del(key);
+      deletedKeys.delete(key);
     } catch (err) {
+      deletedKeys.add(key);
       tripRedisCircuit(err, key);
     }
+  } else if (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL) {
+    deletedKeys.add(key);
   }
 }
 

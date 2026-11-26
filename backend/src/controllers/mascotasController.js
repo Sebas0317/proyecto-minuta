@@ -2,6 +2,8 @@
 
 const persistence = require('../data/persistence');
 const { logger } = require('../utils/logger');
+const { generateId } = require('../utils/idGenerator');
+const { getBogotaDateParts } = require('../utils/colombianHolidays');
 
 exports.getMascotas = async (req, res) => {
   try {
@@ -25,7 +27,16 @@ exports.getMascotas = async (req, res) => {
         (m.propietario || m.propietarioNombre || '').toLowerCase().includes(q)
       );
     }
-    res.json(items);
+    const isStaff = Boolean(req.user && ['owner', 'admin', 'supervisor', 'guarda', 'operator'].includes(req.user.role));
+    const serialized = isStaff
+      ? items
+      : items.map((m) => {
+          const safe = { ...m };
+          delete safe.telefono;
+          delete safe.telefonoContacto;
+          return safe;
+        });
+    res.json(serialized);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener censo de mascotas');
     res.status(500).json({ error: 'Error interno al obtener mascotas' });
@@ -60,7 +71,7 @@ exports.createMascota = async (req, res) => {
     const ownerPhone = telefono || telefonoContacto || '';
     const cleanTorre = String(torre).replace(/torre\s*/i, '').trim() || String(torre);
     const nueva = {
-      id: 'pet-' + Date.now(),
+      id: `pet-${Date.now()}-${generateId(4)}`,
       nombre: String(nombre).trim(),
       especie: especie || 'perro',
       raza: raza || 'Mestizo',
@@ -72,10 +83,10 @@ exports.createMascota = async (req, res) => {
       telefonoContacto: ownerPhone,
       color: color || '',
       vacunaAntirrabica: vacunaAntirrabica !== false,
-      fechaVacuna: fechaVacuna || new Date().toISOString().split('T')[0],
+      fechaVacuna: fechaVacuna || getBogotaDateParts(new Date()).ymd,
       manejoEspecial: Boolean(manejoEspecial),
       polizaResponsabilidad: polizaResponsabilidad || '',
-      qrToken: 'PET-' + String(nombre).trim().toUpperCase().replace(/\s+/g, '') + '-' + String(apto).trim() + '-T' + cleanTorre,
+      qrToken: `PET-${String(nombre).trim().toUpperCase().replace(/\s+/g, '')}-${String(apto).trim()}-T${cleanTorre}-${generateId(4).toUpperCase()}`,
       observaciones: observaciones || ''
     };
     items.unshift(nueva);
@@ -94,7 +105,34 @@ exports.updateMascota = async (req, res) => {
     const items = Array.isArray(raw) ? [...raw] : [];
     const idx = items.findIndex((m) => m.id === id);
     if (idx === -1) return res.status(404).json({ error: 'Mascota no encontrada' });
-    items[idx] = { ...items[idx], ...req.body, id };
+
+    const current = items[idx];
+    const nextOwner = req.body.propietario ?? req.body.propietarioNombre ?? current.propietario;
+    const nextPhone = req.body.telefono ?? req.body.telefonoContacto ?? current.telefono;
+    const nextTorre = req.body.torre !== undefined
+      ? String(req.body.torre).replace(/torre\s*/i, '').trim() || String(req.body.torre)
+      : current.torre;
+
+    items[idx] = {
+      ...current,
+      nombre: req.body.nombre !== undefined ? String(req.body.nombre).trim() : current.nombre,
+      especie: req.body.especie ?? current.especie,
+      raza: req.body.raza ?? current.raza,
+      apto: req.body.apto !== undefined ? String(req.body.apto).trim() : current.apto,
+      torre: nextTorre,
+      propietario: nextOwner,
+      propietarioNombre: nextOwner,
+      telefono: nextPhone,
+      telefonoContacto: nextPhone,
+      color: req.body.color ?? current.color,
+      vacunaAntirrabica: req.body.vacunaAntirrabica ?? current.vacunaAntirrabica,
+      fechaVacuna: req.body.fechaVacuna ?? current.fechaVacuna,
+      manejoEspecial: req.body.manejoEspecial !== undefined ? Boolean(req.body.manejoEspecial) : current.manejoEspecial,
+      polizaResponsabilidad: req.body.polizaResponsabilidad ?? current.polizaResponsabilidad,
+      observaciones: req.body.observaciones ?? current.observaciones,
+      id: current.id,
+      qrToken: current.qrToken,
+    };
     await persistence.setMascotas(items);
     res.json(items[idx]);
   } catch (err) {

@@ -60,9 +60,13 @@ const BUNDLED_DATA = {
   'security-events.json': () => require('../../security-events.json'),
 };
 
+function isWithinDir(baseDir, targetPath) {
+  return targetPath === baseDir || targetPath.startsWith(baseDir + path.sep);
+}
+
 function validatePath(filePath) {
   const resolved = path.resolve(filePath);
-  if (!resolved.startsWith(DATA_DIR) && !resolved.startsWith(DEPLOY_DIR)) {
+  if (!isWithinDir(DATA_DIR, resolved) && !isWithinDir(DEPLOY_DIR, resolved)) {
     throw new Error('Path traversal detected');
   }
   return resolved;

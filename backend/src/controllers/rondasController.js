@@ -37,7 +37,11 @@ async function getRondasData() {
 }
 
 async function saveRondasData(data) {
-  return await persistence.setRondas(data);
+  const compact = {
+    puntosControl: Array.isArray(data.puntosControl) ? data.puntosControl : [],
+    registrosRondas: Array.isArray(data.registrosRondas) ? data.registrosRondas.slice(0, 1000) : [],
+  };
+  return await persistence.setRondas(compact);
 }
 
 // ── OBTENER PUNTOS DE CONTROL Y REGISTROS ──
@@ -69,13 +73,14 @@ async function registrarPuntoRonda(req, res) {
       return res.status(404).json({ error: 'Punto de control o código QR no reconocido' });
     }
 
+    const guardaAuth = req.user?.username || req.user?.firstName || guarda || 'Guarda de Turno';
     const nuevoRegistro = {
       id: 'rd-' + Date.now() + '-' + generateId(4),
       fecha: new Date().toISOString(),
       puntoId: punto.id,
       nombrePunto: punto.nombre,
       ubicacion: punto.ubicacion,
-      guarda: guarda || 'Guarda de Turno',
+      guarda: guardaAuth,
       estado: estado || 'normal', // 'normal' | 'novedad'
       observaciones: observaciones || (estado === 'novedad' ? 'Novedad detectada en punto de control' : 'Punto verificado sin novedades.')
     };
@@ -84,9 +89,6 @@ async function registrarPuntoRonda(req, res) {
       data.registrosRondas = [];
     }
     data.registrosRondas.unshift(nuevoRegistro);
-    if (Array.isArray(data.historialRondas)) {
-      data.historialRondas.unshift(nuevoRegistro);
-    }
     await saveRondasData(data);
 
     logger.info({ registroId: nuevoRegistro.id, punto: punto.nombre }, 'Punto de ronda registrado');
@@ -105,16 +107,17 @@ async function registrarPuntoRonda(req, res) {
 async function createPuntoControl(req, res) {
   try {
     const { nombre, ubicacion } = req.body;
-    if (!nombre) {
+    const nombreStr = String(nombre || '').trim();
+    if (!nombreStr) {
       return res.status(400).json({ error: 'El nombre del punto de control es obligatorio' });
     }
 
     const data = await getRondasData();
-    const token = 'QR-' + nombre.slice(0, 4).toUpperCase().replace(/\s+/g, '') + '-' + generateId(6).toUpperCase();
+    const token = 'QR-' + nombreStr.slice(0, 4).toUpperCase().replace(/\s+/g, '') + '-' + generateId(6).toUpperCase();
 
     const nuevoPunto = {
       id: 'pc-' + Date.now() + '-' + generateId(4),
-      nombre,
+      nombre: nombreStr,
       ubicacion: ubicacion || 'Área General',
       qrToken: token,
       orden: data.puntosControl.length + 1

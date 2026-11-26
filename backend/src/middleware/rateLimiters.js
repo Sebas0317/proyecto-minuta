@@ -108,24 +108,25 @@ async function pinCompoundRateLimiter(req, res, next) {
     const ipKey = String(ip).trim();
     const targetKey = String(target).trim();
 
-    const [ipResult, targetResult] = await Promise.all([
-      pinIpStore.increment(ipKey),
-      pinTargetStore.increment(targetKey),
-    ]);
-
-    if (ipResult.totalHits > MAX_PIN_ATTEMPTS || targetResult.totalHits > MAX_PIN_ATTEMPTS) {
+    const ipResult = await pinIpStore.increment(ipKey);
+    if (ipResult.totalHits > MAX_PIN_ATTEMPTS) {
       return res.status(429).json({
         error: 'Demasiados intentos de PIN. Bloqueado temporalmente por seguridad.',
         retryAfterMinutes: 15
       });
     }
 
-    // Helper en caso de que el intento sea exitoso para resetear contadores
+    const targetResult = await pinTargetStore.increment(targetKey);
+    if (targetResult.totalHits > MAX_PIN_ATTEMPTS) {
+      return res.status(429).json({
+        error: 'Demasiados intentos de PIN. Bloqueado temporalmente por seguridad.',
+        retryAfterMinutes: 15
+      });
+    }
+
+    // Al acertar el PIN solo se libera el contador del recurso específico, nunca el contador de fuerza bruta por IP
     req.onPinSuccess = async () => {
-      await Promise.all([
-        pinIpStore.resetKey(ipKey),
-        pinTargetStore.resetKey(targetKey)
-      ]).catch(() => {});
+      await pinTargetStore.resetKey(targetKey).catch(() => {});
     };
 
     next();

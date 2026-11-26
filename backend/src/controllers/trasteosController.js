@@ -3,6 +3,16 @@
 const { getTrasteos, saveTrasteos } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
+const { isHolidaySync } = require('../utils/colombianHolidays');
+
+const VALID_TRASTEO_ESTADOS = [
+  'pendiente_aprobacion',
+  'aprobado',
+  'rechazado',
+  'en_curso',
+  'completado',
+  'cancelado',
+];
 
 async function getAllTrasteos(req, res) {
   try {
@@ -38,22 +48,36 @@ async function getAllTrasteos(req, res) {
 
 async function createTrasteo(req, res) {
   try {
-    const trasteos = await getTrasteos();
+    const raw = await getTrasteos();
+    const trasteos = Array.isArray(raw) ? [...raw] : [];
     const { tipo, unidadId, torre, apto, solicitante, telefono, fechaProgramada, horario, empresaMudanza, placaVehiculo, pazYSalvo, depositoGarantia, observaciones } = req.body;
 
     if (!torre || !apto || !solicitante || !fechaProgramada) {
       return res.status(400).json({ error: 'Torre, Apto, Solicitante y Fecha programada son obligatorios' });
     }
 
+    const fechaStr = String(fechaProgramada).trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {
+      return res.status(400).json({ error: 'Formato de fecha programada inválido (use YYYY-MM-DD)' });
+    }
+    const [yy, mm, dd] = fechaStr.split('-').map(Number);
+    const utcNoon = new Date(Date.UTC(yy, mm - 1, dd, 12, 0, 0));
+    if (Number.isNaN(utcNoon.getTime()) || utcNoon.getUTCDay() === 0 || isHolidaySync(fechaStr)) {
+      return res.status(400).json({
+        error: 'Art. 24 Manual de Convivencia: Las mudanzas no están permitidas en domingos ni días festivos oficiales',
+      });
+    }
+
+    const torreStr = String(torre);
     const nuevoTrasteo = {
       id: `tra-${Date.now()}-${generateId(4)}`,
       tipo: tipo || 'ingreso', // ingreso, salida
-      unidadId: unidadId || `${torre.toLowerCase().replace(/\s+/g, '')}-${apto}`,
-      torre,
+      unidadId: unidadId || `${torreStr.toLowerCase().replace(/\s+/g, '')}-${apto}`,
+      torre: torreStr,
       apto: String(apto),
       solicitante,
       telefono: telefono || 'Sin teléfono',
-      fechaProgramada,
+      fechaProgramada: fechaStr,
       horario: horario || '08:00 a 12:00',
       empresaMudanza: empresaMudanza || 'Particular',
       placaVehiculo: placaVehiculo || 'No registrada',
@@ -68,7 +92,7 @@ async function createTrasteo(req, res) {
     trasteos.push(nuevoTrasteo);
     await saveTrasteos(trasteos);
 
-    logger.info({ id: nuevoTrasteo.id, torre, apto }, 'Trasteo programado exitosamente');
+    logger.info({ id: nuevoTrasteo.id, torre: torreStr, apto }, 'Trasteo programado exitosamente');
     res.status(201).json(nuevoTrasteo);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al crear trasteo');
@@ -78,9 +102,14 @@ async function createTrasteo(req, res) {
 
 async function updateTrasteoEstado(req, res) {
   try {
-    const trasteos = await getTrasteos();
+    const raw = await getTrasteos();
+    const trasteos = Array.isArray(raw) ? [...raw] : [];
     const { id } = req.params;
     const { estado, observaciones, pazYSalvo, depositoGarantia } = req.body;
+
+    if (estado && !VALID_TRASTEO_ESTADOS.includes(estado)) {
+      return res.status(400).json({ error: 'Estado de mudanza inválido' });
+    }
 
     const trasteo = trasteos.find(t => t.id === id);
     if (!trasteo) {

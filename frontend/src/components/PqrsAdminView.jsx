@@ -5,7 +5,7 @@ import {
   Building2, Calendar, CheckCircle2, ChevronRight, Tag, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchPqrs, createPqrs, responderPqrs, updatePqrsEstado, deletePqrs } from '../services/api';
+import { fetchPqrs, createPqrs, responderPqrs, updatePqrsEstado, deletePqrs, downloadSafeCSV, getLocalDateISO } from '../services/api';
 
 const CATEGORIAS = [
   'Petición',
@@ -217,18 +217,10 @@ export default function PqrsAdminView() {
       t.apto || '',
       t.solicitante || '',
       t.estado || '',
-      `"${(t.asunto || '').replace(/"/g, '""')}"`
+      t.asunto || ''
     ]);
 
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `PQRS_EcoBosque_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadSafeCSV(`PQRS_EcoBosque_${getLocalDateISO()}.csv`, headers, rows);
     toast.success('Reporte CSV descargado');
   };
 

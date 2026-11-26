@@ -11,19 +11,21 @@ const path = require('node:path');
 const os = require('node:os');
 const { logger } = require('./logger');
 
+const { DATA_DIR: ACTIVE_DATA_DIR, DEPLOY_DIR } = require('../data/jsonStoreHelper');
 const IS_VERCEL = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
 
-// Simple in-process mutex to serialize backup runs
+// Simple in-process mutex to serialize backup runs without double-executing on error
 let backupLock = Promise.resolve();
 function queueBackup(fn) {
-  backupLock = backupLock.then(() => fn()).catch(() => fn());
-  return backupLock;
+  const next = backupLock.then(fn, fn);
+  backupLock = next.catch(() => {});
+  return next;
 }
 
 const BACKUP_DIR = IS_VERCEL
   ? path.join(os.tmpdir(), 'ecobosque-backups')
   : path.join(__dirname, '../../backups');
-const DATA_DIR = path.join(__dirname, '../..');
+const DATA_DIR = ACTIVE_DATA_DIR || DEPLOY_DIR;
 const DATA_FILES = [
   'unidades.json',
   'minuta.json',
@@ -31,6 +33,12 @@ const DATA_FILES = [
   'accesos.json',
   'parqueaderos.json',
   'trasteos.json',
+  'asambleas.json',
+  'pqrs.json',
+  'rondas.json',
+  'equipos_emergencia.json',
+  'mascotas.json',
+  'reservas_zonas.json',
   'users.json',
   'chatbot_knowledge.json',
   'codes.json',
@@ -103,7 +111,10 @@ async function listBackups() {
 
 async function restoreBackup(timestamp) {
   try {
-    const backupDir = path.join(BACKUP_DIR, timestamp);
+    if (!timestamp || !/^\d{4}-\d{2}-\d{2}T[\d-]+$/.test(String(timestamp))) {
+      throw new Error('Identificador de backup inválido');
+    }
+    const backupDir = path.join(BACKUP_DIR, String(timestamp));
     await fs.access(backupDir);
 
     const results = [];

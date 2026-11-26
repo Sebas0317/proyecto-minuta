@@ -137,21 +137,26 @@ async function createPaquete(req, res) {
 async function notificarPaquete(req, res) {
   try {
     const { id } = req.params;
-    const updated = await withKeyLock('data:paquetes', async () => {
-      const paquetes = await getPaquetes();
+    const result = await withKeyLock('data:paquetes', async () => {
+      const raw = await getPaquetes();
+      const paquetes = Array.isArray(raw) ? [...raw] : [];
       const paquete = paquetes.find(p => p.id === id);
-      if (!paquete) return null;
+      if (!paquete) return { status: 404 };
+      if (paquete.estado === 'entregado') return { status: 400 };
       paquete.estado = 'notificado';
       await savePaquetes(paquetes);
-      return paquete;
+      return { status: 200, paquete };
     });
 
-    if (!updated) {
+    if (result.status === 404) {
       return res.status(404).json({ error: 'Paquete no encontrado' });
+    }
+    if (result.status === 400) {
+      return res.status(400).json({ error: 'Este paquete ya fue entregado previamente' });
     }
 
     logger.info({ id }, 'Paquete marcado como notificado');
-    res.json(serializePaquete(updated, true));
+    res.json(serializePaquete(result.paquete, true));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al notificar paquete');
     res.status(500).json({ error: 'Error interno al notificar paquete' });
@@ -160,7 +165,8 @@ async function notificarPaquete(req, res) {
 
 async function entregarPaquete(req, res) {
   try {
-    const initialList = await getPaquetes();
+    const rawInitial = await getPaquetes();
+    const initialList = Array.isArray(rawInitial) ? rawInitial : [];
     const { id } = req.params;
     const { retiradoPor, guardaEntrega, codigoRetiro } = req.body;
 
@@ -194,7 +200,8 @@ async function entregarPaquete(req, res) {
     }
 
     const result = await withKeyLock('data:paquetes', async () => {
-      const paquetes = await getPaquetes();
+      const raw = await getPaquetes();
+      const paquetes = Array.isArray(raw) ? [...raw] : [];
       const paquete = paquetes.find(p => p.id === id);
       if (!paquete) return { status: 404 };
       if (paquete.estado === 'entregado') return { status: 400 };
@@ -224,13 +231,13 @@ async function getPaquetesByApto(req, res) {
     const { apto } = req.params;
     const { torre } = req.query;
 
-    const list = (paquetes || []).filter(p => {
+    const list = (Array.isArray(paquetes) ? paquetes : []).filter(p => {
       const matchApto = String(p.apto) === String(apto) || p.unidadId === apto;
-      const matchTorre = torre ? p.torre?.toLowerCase() === torre.toLowerCase() : true;
+      const matchTorre = torre ? String(p.torre || '').toLowerCase() === String(torre).toLowerCase() : true;
       return matchApto && matchTorre;
     });
 
-    list.sort((a, b) => new Date(b.fechaIngreso) - new Date(a.fechaIngreso));
+    list.sort((a, b) => new Date(b.fechaIngreso || 0) - new Date(a.fechaIngreso || 0));
 
     // NUNCA devolver el PIN de retiro en consultas públicas/listados de apartamento
     const isStaff = req.user && ['owner', 'admin', 'supervisor', 'guarda', 'superadmin'].includes(req.user.role);

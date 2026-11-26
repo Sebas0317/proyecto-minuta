@@ -200,7 +200,7 @@ export default function ReservasZonasView() {
             className="bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold outline-none focus:border-emerald-500"
           />
           <button
-            onClick={() => setSelectedFecha(new Date().toISOString().split('T')[0])}
+            onClick={() => setSelectedFecha(getLocalDateISO())}
             className="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-2 rounded-xl text-xs font-semibold"
           >
             Hoy

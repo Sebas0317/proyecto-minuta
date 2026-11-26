@@ -6,6 +6,21 @@ const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 const { sendPaginatedOrArray } = require('../utils/pagination');
 
+function isStaffUser(user) {
+  return Boolean(user && ['owner', 'admin', 'supervisor', 'guarda', 'operator'].includes(user.role));
+}
+
+function serializeAcceso(acceso, isStaff = false) {
+  if (!acceso || typeof acceso !== 'object' || isStaff) return acceso;
+  const safe = { ...acceso };
+  delete safe.documento;
+  delete safe.paseQR;
+  if (safe.vehiculo && typeof safe.vehiculo === 'object') {
+    safe.vehiculo = { tipo: safe.vehiculo.tipo || 'peatonal' };
+  }
+  return safe;
+}
+
 async function getAllAccesos(req, res) {
   try {
     const raw = await getAccesos();
@@ -23,7 +38,7 @@ async function getAllAccesos(req, res) {
     }
 
     if (torre) {
-      filtered = filtered.filter(a => (a.torre || '').toLowerCase() === String(torre).toLowerCase());
+      filtered = filtered.filter(a => String(a.torre || '').toLowerCase() === String(torre).toLowerCase());
     }
 
     if (apto) {
@@ -42,7 +57,8 @@ async function getAllAccesos(req, res) {
     }
 
     filtered.sort((a, b) => new Date(b.fechaIngreso || b.fechaCreacion || 0) - new Date(a.fechaIngreso || a.fechaCreacion || 0));
-    return sendPaginatedOrArray(req, res, filtered);
+    const isStaff = isStaffUser(req.user);
+    return sendPaginatedOrArray(req, res, filtered.map((a) => serializeAcceso(a, isStaff)));
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener accesos');
     res.status(500).json({ error: 'Error interno al obtener accesos' });
@@ -67,13 +83,14 @@ async function registrarIngreso(req, res) {
 
     const guardaResponsable = guarda || req.user?.username || req.user?.firstName || 'Guarda de Turno';
 
+    const torreStr = String(torre);
     const nuevoAcceso = {
       id: `acc-${Date.now()}-${generateId(4)}`,
       tipo: tipo || 'visitante', // visitante, domicilio, contratista, servicio
       nombre,
       documento: documento || 'Sin documento',
-      unidadId: unidadId || `${torre.toLowerCase().replace(/\s+/g, '')}-${apto}`,
-      torre,
+      unidadId: unidadId || `${torreStr.toLowerCase().replace(/\s+/g, '')}-${apto}`,
+      torre: torreStr,
       apto: String(apto),
       motivo: motivo || 'Visita general',
       vehiculo: vehiculo || null, // { placa, tipo }
@@ -90,18 +107,22 @@ async function registrarIngreso(req, res) {
     if (necesitaParqueadero && Array.isArray(rawParqueaderos)) {
       const parqueaderos = [...rawParqueaderos];
       const pIndex = parqueaderos.findIndex(p => p.id === parqueaderoAsignado);
-      if (pIndex !== -1) {
-        parqueaderos[pIndex] = {
-          ...parqueaderos[pIndex],
-          estado: 'ocupado',
-          placa: vehiculo.placa,
-          unidadId: nuevoAcceso.unidadId,
-          torre: nuevoAcceso.torre,
-          apto: nuevoAcceso.apto,
-          horaIngreso: nuevoAcceso.fechaIngreso,
-        };
-        writeTasks.push(saveParqueaderos(parqueaderos));
+      if (pIndex === -1) {
+        return res.status(404).json({ error: 'Bahía de parqueadero asignada no existe' });
       }
+      if (parqueaderos[pIndex].estado === 'ocupado' || parqueaderos[pIndex].estado === 'invadido') {
+        return res.status(409).json({ error: 'La bahía de parqueadero seleccionada ya se encuentra ocupada' });
+      }
+      parqueaderos[pIndex] = {
+        ...parqueaderos[pIndex],
+        estado: 'ocupado',
+        placa: String(vehiculo.placa).toUpperCase().trim(),
+        unidadId: nuevoAcceso.unidadId,
+        torre: nuevoAcceso.torre,
+        apto: nuevoAcceso.apto,
+        horaIngreso: nuevoAcceso.fechaIngreso,
+      };
+      writeTasks.push(saveParqueaderos(parqueaderos));
     }
 
     accesos.unshift(nuevoAcceso);
@@ -150,6 +171,12 @@ async function registrarSalida(req, res) {
     if (!acceso) {
       return res.status(404).json({ error: 'Registro de acceso no encontrado' });
     }
+    if (acceso.estado === 'finalizado') {
+      return res.status(400).json({ error: 'La salida de este visitante ya fue registrada previamente' });
+    }
+    if (acceso.estado !== 'en_conjunto' && acceso.estado !== 'activo') {
+      return res.status(400).json({ error: 'El visitante aún no ha ingresado al conjunto' });
+    }
 
     const guardaResponsable = req.user?.username || req.user?.firstName || acceso.guarda || 'Guarda de Turno';
     acceso.estado = 'finalizado';
@@ -166,9 +193,13 @@ async function registrarSalida(req, res) {
     const writeTasks = [];
 
     if (acceso.parqueaderoAsignado) {
-      const parqueaderos = await getParqueaderos();
+      const rawPrq = await getParqueaderos();
+      const parqueaderos = Array.isArray(rawPrq) ? [...rawPrq] : [];
       const pIndex = parqueaderos.findIndex(p => p.id === acceso.parqueaderoAsignado);
-      if (pIndex !== -1) {
+      if (
+        pIndex !== -1 &&
+        (!parqueaderos[pIndex].unidadId || parqueaderos[pIndex].unidadId === acceso.unidadId)
+      ) {
         parqueaderos[pIndex] = {
           ...parqueaderos[pIndex],
           estado: 'disponible',
@@ -311,27 +342,35 @@ async function aprobarPreautorizado(req, res) {
     }
 
     const acceso = accesos[index];
+    if (acceso.estado !== 'preautorizado') {
+      return res.status(400).json({ error: 'Esta pre-autorización ya fue utilizada o finalizada' });
+    }
     const guardaResponsable = guarda || req.user?.username || req.user?.firstName || 'Guarda de Turno';
+
+    // Si ingresa con carro y se asigna bahía, verificar disponibilidad antes de mutar estado
+    if (parqueaderoAsignado && acceso.vehiculo?.placa) {
+      const rawPrq = await getParqueaderos();
+      const parqueaderos = Array.isArray(rawPrq) ? [...rawPrq] : [];
+      const pIndex = parqueaderos.findIndex(p => p.id === parqueaderoAsignado);
+      if (pIndex === -1) {
+        return res.status(404).json({ error: 'Bahía de parqueadero asignada no existe' });
+      }
+      if (parqueaderos[pIndex].estado === 'ocupado' || parqueaderos[pIndex].estado === 'invadido') {
+        return res.status(409).json({ error: 'La bahía de parqueadero seleccionada ya se encuentra ocupada' });
+      }
+      parqueaderos[pIndex].estado = 'ocupado';
+      parqueaderos[pIndex].placa = String(acceso.vehiculo.placa).toUpperCase().trim();
+      parqueaderos[pIndex].unidadId = acceso.unidadId;
+      parqueaderos[pIndex].torre = acceso.torre;
+      parqueaderos[pIndex].apto = acceso.apto;
+      parqueaderos[pIndex].horaIngreso = new Date().toISOString();
+      await saveParqueaderos(parqueaderos);
+    }
 
     acceso.estado = 'en_conjunto';
     acceso.fechaIngreso = new Date().toISOString();
     acceso.guarda = guardaResponsable;
     acceso.parqueaderoAsignado = parqueaderoAsignado || null;
-
-    // Si ingresa con carro y se asigna bahía
-    if (parqueaderoAsignado && acceso.vehiculo?.placa) {
-      const parqueaderos = await getParqueaderos();
-      const pIndex = parqueaderos.findIndex(p => p.id === parqueaderoAsignado);
-      if (pIndex !== -1) {
-        parqueaderos[pIndex].estado = 'ocupado';
-        parqueaderos[pIndex].placa = acceso.vehiculo.placa;
-        parqueaderos[pIndex].unidadId = acceso.unidadId;
-        parqueaderos[pIndex].torre = acceso.torre;
-        parqueaderos[pIndex].apto = acceso.apto;
-        parqueaderos[pIndex].horaIngreso = acceso.fechaIngreso;
-        await saveParqueaderos(parqueaderos);
-      }
-    }
 
     await saveAccesos(accesos);
 

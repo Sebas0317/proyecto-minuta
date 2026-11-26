@@ -6,7 +6,7 @@ const { requireAuth, optionalAuth, requirePermission } = require('../middleware/
 
 // Rutas del Portal del Residente
 router.get('/public/list', controller.getPublicUnidadesSummary);
-router.get('/portal/:id', controller.getUnidadPortalData);
+router.get('/portal/:id', optionalAuth, controller.getUnidadPortalData);
 
 router.get('/', optionalAuth, controller.getAllUnidades);
 router.get('/:id', optionalAuth, controller.getUnidadById);

@@ -251,7 +251,7 @@ async function apiFetch(endpoint, options = {}, timeout = 10000) {
     }
     throw new ApiError(
       normalizeErrorMessage(err?.message ?? err, 'Error de red'),
-      500
+      0
     );
   }
 }
@@ -951,6 +951,21 @@ export function downloadLoginLogsCSV(logs) {
 // ── PROYECTO MINUTA: API DE PORTERÍA Y CONJUNTOS ──
 // ══════════════════════════════════════════════════════════
 
+export function downloadSafeCSV(filename, headers, rows) {
+  const csv = [headers, ...rows]
+    .map((r) => r.map(sanitizeCSV).join(','))
+    .join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+}
+
 // ── UNIDADES / APARTAMENTOS ──
 export async function fetchUnidades(params = {}) {
   const qs = new URLSearchParams();
@@ -1005,7 +1020,11 @@ export async function fetchMinutaStats() {
 function isOfflineNetworkFailure(err) {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
   if (!err) return false;
-  return err.status === 0 || err.status === 408 || /Error de red|Failed to fetch|NetworkError/i.test(String(err.message || ''));
+  return (
+    err.status === 0 ||
+    err.status === 408 ||
+    /Error de red|Failed to fetch|NetworkError|Load failed|fetch failed/i.test(String(err.message || ''))
+  );
 }
 
 export async function createMinutaEntry(data) {

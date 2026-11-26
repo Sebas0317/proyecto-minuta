@@ -3,16 +3,36 @@
 const { getParqueaderos, saveParqueaderos, getMinuta, saveMinuta } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 
+function isAvailableState(estado) {
+  return estado === 'disponible' || estado === 'libre';
+}
+
 async function getAllParqueaderos(req, res) {
   try {
     const { categoria, estado } = req.query;
-    let parqueaderos = await getParqueaderos();
+    const raw = await getParqueaderos();
+    let parqueaderos = Array.isArray(raw) ? [...raw] : [];
 
     if (categoria) {
       parqueaderos = parqueaderos.filter(p => p.categoria === categoria);
     }
     if (estado) {
-      parqueaderos = parqueaderos.filter(p => p.estado === estado);
+      if (isAvailableState(estado)) {
+        parqueaderos = parqueaderos.filter(p => isAvailableState(p.estado));
+      } else {
+        parqueaderos = parqueaderos.filter(p => p.estado === estado);
+      }
+    }
+
+    const isStaff = Boolean(req.user && ['owner', 'admin', 'supervisor', 'guarda', 'operator'].includes(req.user.role));
+    if (!isStaff) {
+      parqueaderos = parqueaderos.map((p) => {
+        const safe = { ...p, placa: p.placa ? '***' : null };
+        if (safe.invasion && typeof safe.invasion === 'object') {
+          safe.invasion = { ...safe.invasion, telefonoResponsable: undefined, placa: '***' };
+        }
+        return safe;
+      });
     }
 
     res.json(parqueaderos);
@@ -24,7 +44,8 @@ async function getAllParqueaderos(req, res) {
 
 async function ocuparParqueadero(req, res) {
   try {
-    const parqueaderos = await getParqueaderos();
+    const raw = await getParqueaderos();
+    const parqueaderos = Array.isArray(raw) ? [...raw] : [];
     const { id } = req.params;
     const { placa, tipo, unidadId, torre, apto } = req.body;
 
@@ -37,13 +58,19 @@ async function ocuparParqueadero(req, res) {
       return res.status(400).json({ error: 'Placa, Torre y Apartamento son requeridos' });
     }
 
+    if (parqueaderos[index].estado === 'ocupado' || parqueaderos[index].estado === 'invadido') {
+      return res.status(409).json({ error: 'La bahía seleccionada ya se encuentra ocupada' });
+    }
+
+    const torreStr = String(torre);
+    const placaStr = String(placa).toUpperCase().trim();
     parqueaderos[index] = {
       ...parqueaderos[index],
       estado: 'ocupado',
-      placa: placa.toUpperCase().trim(),
+      placa: placaStr,
       tipo: tipo || parqueaderos[index].tipo || 'carro',
-      unidadId: unidadId || `${torre.toLowerCase().replace(/\s+/g, '')}-${apto}`,
-      torre,
+      unidadId: unidadId || `${torreStr.toLowerCase().replace(/\s+/g, '')}-${apto}`,
+      torre: torreStr,
       apto: String(apto),
       horaIngreso: new Date().toISOString()
     };
@@ -108,9 +135,10 @@ async function reportarInvasion(req, res) {
       return res.status(404).json({ error: 'Bahía privada no encontrada' });
     }
 
+    const placaStr = String(placa).toUpperCase().trim();
     parqueaderos[index].estado = 'invadido';
     parqueaderos[index].invasion = {
-      placa: placa.toUpperCase().trim(),
+      placa: placaStr,
       vehiculoTipo: 'carro',
       aptoResponsable: String(aptoResponsable),
       torreResponsable: torreResponsable || 'Torre 1',
@@ -129,7 +157,7 @@ async function reportarInvasion(req, res) {
         fecha: new Date().toISOString(),
         tipo: 'incidente',
         titulo: `⚠️ Vehículo parqueado en bahía privada ajena (${bahiaId})`,
-        descripcion: `El vehículo placa ${placa.toUpperCase()} se estacionó en la bahía ${bahiaId} (pertenece al Apto ${parqueaderos[index].aptoAsignado || parqueaderos[index].apto || 'Privado'}). Responsable: Apto ${aptoResponsable} (${nombreResponsable || 'Visitante'} - Tel: ${telefonoResponsable || 'N/D'}).`,
+        descripcion: `El vehículo placa ${placaStr} se estacionó en la bahía ${bahiaId} (pertenece al Apto ${parqueaderos[index].aptoAsignado || parqueaderos[index].apto || 'Privado'}). Responsable: Apto ${aptoResponsable} (${nombreResponsable || 'Visitante'} - Tel: ${telefonoResponsable || 'N/D'}).`,
         severidad: 'advertencia',
         guarda: req.user?.username || 'Guarda de Turno'
       });
@@ -138,7 +166,7 @@ async function reportarInvasion(req, res) {
 
     await Promise.all(writeTasks);
 
-    logger.info({ bahiaId, placa, aptoResponsable }, 'Invasión / Préstamo de bahía registrado');
+    logger.info({ bahiaId, placa: placaStr, aptoResponsable }, 'Invasión / Préstamo de bahía registrado');
     res.json(parqueaderos[index]);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al reportar parqueo en bahía ajena');
@@ -149,7 +177,8 @@ async function reportarInvasion(req, res) {
 // ── REUBICAR VEHÍCULO INTRUSO A BAHÍA DE VISITANTES LIBRE ──
 async function reubicarInvasion(req, res) {
   try {
-    const parqueaderos = await getParqueaderos();
+    const raw = await getParqueaderos();
+    const parqueaderos = Array.isArray(raw) ? [...raw] : [];
     const { bahiaPrivadaId, bahiaVisitanteDestinoId } = req.body;
 
     const privIdx = parqueaderos.findIndex(p => p.id === bahiaPrivadaId);
@@ -159,12 +188,17 @@ async function reubicarInvasion(req, res) {
 
     const invasionData = { ...parqueaderos[privIdx].invasion };
 
-    // Buscar bahía de visitantes destino
+    // Buscar bahía de visitantes destino verificando disponibilidad
     let visIdx = -1;
     if (bahiaVisitanteDestinoId) {
-      visIdx = parqueaderos.findIndex(p => p.id === bahiaVisitanteDestinoId && p.categoria === 'visitantes');
+      visIdx = parqueaderos.findIndex(
+        p => p.id === bahiaVisitanteDestinoId && p.categoria === 'visitantes' && isAvailableState(p.estado)
+      );
+      if (visIdx === -1) {
+        return res.status(409).json({ error: 'La bahía de visitantes destino no está disponible' });
+      }
     } else {
-      visIdx = parqueaderos.findIndex(p => p.categoria === 'visitantes' && p.estado === 'disponible');
+      visIdx = parqueaderos.findIndex(p => p.categoria === 'visitantes' && isAvailableState(p.estado));
     }
 
     if (visIdx === -1) {
@@ -181,8 +215,8 @@ async function reubicarInvasion(req, res) {
       horaIngreso: new Date().toISOString()
     };
 
-    // Liberar bahía privada
-    parqueaderos[privIdx].estado = 'libre';
+    // Liberar bahía privada con estado unificado
+    parqueaderos[privIdx].estado = 'disponible';
     parqueaderos[privIdx].invasion = null;
 
     await saveParqueaderos(parqueaderos);
@@ -202,7 +236,8 @@ async function reubicarInvasion(req, res) {
 // ── LIBERAR BAHÍA PRIVADA INVADIDA (CUANDO SALE EL VEHÍCULO) ──
 async function liberarInvasion(req, res) {
   try {
-    const parqueaderos = await getParqueaderos();
+    const raw = await getParqueaderos();
+    const parqueaderos = Array.isArray(raw) ? [...raw] : [];
     const { id } = req.params;
 
     const index = parqueaderos.findIndex(p => p.id === id);
@@ -210,7 +245,7 @@ async function liberarInvasion(req, res) {
       return res.status(404).json({ error: 'Bahía no encontrada' });
     }
 
-    parqueaderos[index].estado = 'libre';
+    parqueaderos[index].estado = 'disponible';
     parqueaderos[index].invasion = null;
 
     await saveParqueaderos(parqueaderos);

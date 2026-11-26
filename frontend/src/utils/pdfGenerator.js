@@ -38,17 +38,21 @@ export function generarPazYSalvoPDF(unidadInput, options = {}) {
   const nit = options.nit || 'NIT: 901.458.712-3';
   const adminName = options.adminName || 'ADMINISTRACIÓN GENERAL';
   const torreClean = String(unidad.torre || '1').replace(/^Torre\s*/i, '');
-  const radicado = `PYS-T${torreClean}${unidad.numero || '101'}-${Date.now().toString().slice(-6)}`;
+  const finAdmin = unidad.estadoFinanciero?.administracion;
+  const saldoPend = Number(finAdmin?.saldoPendiente ?? unidad.saldoPendiente ?? 0);
+  const alDia = finAdmin ? finAdmin.alDia !== false && saldoPend <= 0 : saldoPend <= 0;
+
+  const radicado = `${alDia ? 'PYS' : 'CAR'}-T${torreClean}${unidad.numero || '101'}-${Date.now().toString().slice(-6)}`;
   const fechaExpedicion = getLongDate();
   const fechaVencimiento = new Date();
   fechaVencimiento.setDate(fechaVencimiento.getDate() + 30);
   const fechaVencimientoStr = getLongDate(fechaVencimiento);
 
-  // Decorative Header Bar (Emerald Green gradient simulation)
-  doc.setFillColor(16, 85, 53); // #105535
+  // Decorative Header Bar (Emerald Green if alDia, Amber/Crimson if overdue)
+  doc.setFillColor(alDia ? 16 : 153, alDia ? 85 : 27, alDia ? 53 : 27);
   doc.rect(0, 0, 210, 22, 'F');
 
-  doc.setFillColor(34, 197, 94); // Accent line #22c55e
+  doc.setFillColor(alDia ? 34 : 245, alDia ? 197 : 158, alDia ? 94 : 11);
   doc.rect(0, 22, 210, 2, 'F');
 
   // Header Title
@@ -64,8 +68,13 @@ export function generarPazYSalvoPDF(unidadInput, options = {}) {
   // Document Badge & Radicado
   doc.setTextColor(30, 41, 59); // Slate 800
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.text('CERTIFICADO OFICIAL DE PAZ Y SALVO', 105, 40, { align: 'center' });
+  doc.setFontSize(15);
+  doc.text(
+    alDia ? 'CERTIFICADO OFICIAL DE PAZ Y SALVO' : 'ESTADO DE CARTERA — SALDO PENDIENTE',
+    105,
+    40,
+    { align: 'center' }
+  );
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
@@ -114,9 +123,6 @@ export function generarPazYSalvoPDF(unidadInput, options = {}) {
   const coefLabel = !isNaN(coefNum) && coefNum > 0
     ? `${(coefNum < 0.1 ? coefNum * 100 : coefNum).toFixed(3)}%`
     : '0.850%';
-  const finAdmin = unidad.estadoFinanciero?.administracion;
-  const saldoPend = Number(finAdmin?.saldoPendiente ?? unidad.saldoPendiente ?? 0);
-  const alDia = finAdmin ? finAdmin.alDia !== false && saldoPend <= 0 : saldoPend <= 0;
 
   const rows = [
     ['Inmueble / Unidad:', `Torre ${torreClean} - Apartamento ${unidad.numero || 'N/A'}`],
@@ -149,15 +155,18 @@ export function generarPazYSalvoPDF(unidadInput, options = {}) {
   doc.setFontSize(9.5);
   doc.setTextColor(51, 65, 85);
 
-  const legalBody = 
-    `Se hace constar que a la fecha y hora de emisión del presente certificado, la unidad antes mencionada no presenta saldos pendientes por concepto de expensas comunes ordinarias ni extraordinarias, intereses de mora, multas o servicios comunales con la administración de la copropiedad.\n\n` +
-    `Este documento es válido para trámites notariales, escrituración pública, promesas de compraventa, arrendamientos o trámites bancarios ante entidades financieras de conformidad con el Artículo 29 de la Ley 675 de 2001.\n\n` +
-    `VALIDEZ: Este certificado tiene una vigencia legal de treinta (30) días calendario, con vencimiento el ${fechaVencimientoStr}.`;
+  const legalBody = alDia
+    ? `Se hace constar que a la fecha y hora de emisión del presente certificado, la unidad antes mencionada no presenta saldos pendientes por concepto de expensas comunes ordinarias ni extraordinarias, intereses de mora, multas o servicios comunales con la administración de la copropiedad.\n\n` +
+      `Este documento es válido para trámites notariales, escrituración pública, promesas de compraventa, arrendamientos o trámites bancarios ante entidades financieras de conformidad con el Artículo 29 de la Ley 675 de 2001.\n\n` +
+      `VALIDEZ: Este certificado tiene una vigencia legal de treinta (30) días calendario, con vencimiento el ${fechaVencimientoStr}.`
+    : `CONSTANCIA DE OBLIGACIÓN PENDIENTE: Se deja constancia de que a la fecha de expedición la unidad presenta un saldo en mora de ${formatCOP(saldoPend)} COP por concepto de expensas comunes de administración.\n\n` +
+      `ADVERTENCIA LEGAL (Art. 29 Ley 675 de 2001): ESTE DOCUMENTO NO CONSTITUYE PAZ Y SALVO ADMINISTRATIVO NI AUTORIZA MUDANZAS O ESCRITURACIÓN SIN SOLIDARIDAD HASTA EL PAGO TOTAL DE LA OBLIGACIÓN.\n\n` +
+      `Una vez efectuado el pago, remita el soporte a administración para actualizar su estado de cuenta.`;
 
   const splitLegal = doc.splitTextToSize(legalBody, 170);
   doc.text(splitLegal, 20, curY);
 
-  // Digital Security Box / Watermark Hash
+  // Document Control Box
   curY += 45;
   doc.setFillColor(241, 245, 249); // Slate 100
   doc.setDrawColor(226, 232, 240);
@@ -166,14 +175,13 @@ export function generarPazYSalvoPDF(unidadInput, options = {}) {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
-  doc.text('FIRMA DIGITAL Y SEGURIDAD CRIPTOGRÁFICA ECOBOSQUE SAAS', 25, curY + 6);
+  doc.text('TRAZABILIDAD Y CONTROL DOCUMENTAL INTERNO ECOBOSQUE P.H.', 25, curY + 6);
 
   doc.setFont('courier', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(100, 116, 139);
-  const fakeHash = Array.from({ length: 48 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
-  doc.text(`HASH SHA-256: ${fakeHash.toUpperCase()}`, 25, curY + 12);
-  doc.text(`TOKEN VERIFICACIÓN: ECO-AUTH-${Math.random().toString(36).substring(2, 10).toUpperCase()} • VÁLIDO EN SERVIDOR`, 25, curY + 16);
+  doc.text(`RADICADO IMPRESIÓN: ${radicado} • UNIDAD: T${torreClean}-${unidad.numero || 'N/A'}`, 25, curY + 12);
+  doc.text(`EMITIDO DESDE CLIENTE WEB • SUJETO A VALIDACIÓN EN ADMINISTRACIÓN`, 25, curY + 16);
 
   // Signature line
   curY += 42;

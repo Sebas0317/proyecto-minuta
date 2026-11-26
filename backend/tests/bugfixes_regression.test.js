@@ -78,16 +78,21 @@ describe('Regresión de correcciones integrales MinutaTech', () => {
     expect(filterRes.status).toBe(200);
     expect(filterRes.body.some((m) => m.id === createRes.body.id)).toBe(true);
 
-    const delRes = await request(app).delete(`/v1/mascotas/${createRes.body.id}`);
+    const delRes = await request(app)
+      .delete(`/v1/mascotas/${createRes.body.id}`)
+      .set('Cookie', ['token=' + adminToken]);
     expect(delRes.status).toBe(200);
 
-    const notFoundDel = await request(app).delete('/v1/mascotas/id-inexistente-999');
+    const notFoundDel = await request(app)
+      .delete('/v1/mascotas/id-inexistente-999')
+      .set('Cookie', ['token=' + adminToken]);
     expect(notFoundDel.status).toBe(404);
   });
 
   it('Equipos de emergencia: crea, lista, elimina y devuelve 404 si no existe', async () => {
     const createRes = await request(app)
       .post('/v1/equipos')
+      .set('Cookie', ['token=' + adminToken])
       .send({
         nombre: 'Extintor Prueba QA',
         tipo: 'Extintor',
@@ -96,10 +101,14 @@ describe('Regresión de correcciones integrales MinutaTech', () => {
       });
     expect(createRes.status).toBe(201);
 
-    const delRes = await request(app).delete(`/v1/equipos/${createRes.body.id}`);
+    const delRes = await request(app)
+      .delete(`/v1/equipos/${createRes.body.id}`)
+      .set('Cookie', ['token=' + adminToken]);
     expect(delRes.status).toBe(200);
 
-    const delMissing = await request(app).delete('/v1/equipos/eq-inexistente-999');
+    const delMissing = await request(app)
+      .delete('/v1/equipos/eq-inexistente-999')
+      .set('Cookie', ['token=' + adminToken]);
     expect(delMissing.status).toBe(404);
   });
 
@@ -112,6 +121,7 @@ describe('Regresión de correcciones integrales MinutaTech', () => {
 
     const regRes = await request(app)
       .post('/v1/rondas/registrar')
+      .set('Cookie', ['token=' + adminToken])
       .send({
         puntoId: punto.id,
         guarda: 'Guarda QA',
@@ -144,12 +154,14 @@ describe('Regresión de correcciones integrales MinutaTech', () => {
   it('Asambleas: cerrar votación calcula resultado APROBADA / RECHAZADA / EMPATE', async () => {
     const asmbRes = await request(app)
       .post('/v1/asambleas')
+      .set('Cookie', ['token=' + adminToken])
       .send({ titulo: 'Asamblea QA Regresión' });
     expect(asmbRes.status).toBe(201);
     const asmbId = asmbRes.body.id;
 
     const votRes = await request(app)
       .post(`/v1/asambleas/${asmbId}/votaciones`)
+      .set('Cookie', ['token=' + adminToken])
       .send({ pregunta: '¿Aprobar mantenimiento de ascensores?' });
     expect(votRes.status).toBe(201);
     const votId = votRes.body.id;
@@ -159,9 +171,9 @@ describe('Regresión de correcciones integrales MinutaTech', () => {
       .send({ opcion: 'si', coeficiente: 1.5, apto: '101' });
     expect(castRes.status).toBe(200);
 
-    const closeRes = await request(app).patch(
-      `/v1/asambleas/${asmbId}/votaciones/${votId}/cerrar`
-    );
+    const closeRes = await request(app)
+      .patch(`/v1/asambleas/${asmbId}/votaciones/${votId}/cerrar`)
+      .set('Cookie', ['token=' + adminToken]);
     expect(closeRes.status).toBe(200);
     expect(closeRes.body.estado).toBe('cerrada');
     expect(closeRes.body.resultado).toBe('APROBADA');
@@ -261,5 +273,55 @@ describe('Regresión de correcciones integrales MinutaTech', () => {
       .set('Cookie', [`token=${clienteToken}`])
       .send({ torre: 'Torre 1', apto: '101', destinatario: 'Test' });
     expect(pkgCliente.status).toBe(403);
+  });
+
+  it('Alibaba OCR Hardening: cierra bypass sin cookie (401), manip. de coeficiente 100%, formato HH:MM y fuga PII en PQRS', async () => {
+    // 1. Peticiones sin cookie sobre rutas administrativas devuelven 401
+    const noAuthAsmb = await request(app)
+      .post('/v1/asambleas')
+      .send({ titulo: 'Bypass Sin Cookie' });
+    expect(noAuthAsmb.status).toBe(401);
+
+    const noAuthKb = await request(app)
+      .post('/v1/chatbot/knowledge')
+      .send({ titulo: 'Fake KB', respuesta: 'Cuenta falsa' });
+    expect(noAuthKb.status).toBe(401);
+
+    // 2. Coeficiente 100% desde cliente no autenticado es rechazado con 400
+    const asambleas = (await request(app).get('/v1/asambleas')).body;
+    const activa = asambleas.find((a) => Array.isArray(a.votaciones) && a.votaciones.some((v) => v.estado !== 'cerrada'));
+    if (activa) {
+      const vot = activa.votaciones.find((v) => v.estado !== 'cerrada');
+      const fraudVote = await request(app)
+        .post(`/v1/asambleas/${activa.id}/votaciones/${vot.id}/votar`)
+        .send({ opcion: 'si', coeficiente: 100, unidadId: 'fraude-999' });
+      expect(fraudVote.status).toBe(400);
+    }
+
+    // 3. Formato de hora no rellenado ("9:00") rechazado con 400 para evitar bypass lexicográfico
+    const badTime = await request(app)
+      .post('/v1/reservas-zonas')
+      .send({
+        espacio: 'Salón Social',
+        apto: '101',
+        torre: 'Torre 1',
+        fechaReserva: '2026-12-22',
+        horaInicio: '9:00',
+        horaFin: '10:30',
+      });
+    expect(badTime.status).toBe(400);
+
+    // 4. Año fuera de rango en /v1/integraciones/festivos rechazado con 400
+    const badYear = await request(app).get('/v1/integraciones/festivos?year=99999');
+    expect(badYear.status).toBe(400);
+
+    // 5. Lectura pública de PQRS oculta notasInternas, email y telefono
+    const pubPqrs = await request(app).get('/v1/pqrs');
+    expect(pubPqrs.status).toBe(200);
+    for (const item of pubPqrs.body) {
+      expect(item.notasInternas).toBeUndefined();
+      expect(item.email).toBeUndefined();
+      expect(item.telefono).toBeUndefined();
+    }
   });
 });

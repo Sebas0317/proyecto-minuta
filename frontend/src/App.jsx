@@ -17,6 +17,7 @@ import {
   getUserInfo,
   setUserInfo,
 } from './services/api';
+import { clearOfflineQueue } from './services/offlineQueue';
 import './App.css';
 
 // Autenticación
@@ -76,10 +77,15 @@ class ErrorBoundary extends Component {
     window.location.href = '/';
   };
 
-  handleHardReset = () => {
+  handleHardReset = async () => {
     try {
       localStorage.clear();
       sessionStorage.clear();
+      await clearOfflineQueue();
+      if (typeof caches !== 'undefined') {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
     } catch {
       // Storage may be unavailable in restricted contexts
     }
@@ -396,15 +402,42 @@ export default function App() {
               <Route path="mascotas" element={<MascotasView />} />
               <Route path="pqrs" element={<PqrsAdminView />} />
               <Route path="info" element={<InfoCondominioView />} />
-              <Route path="chatbot" element={<ChatbotAdminView />} />
-              <Route path="users" element={<PantallaUsuarios userRole={rol} />} />
-              <Route path="security" element={<SecurityView />} />
+              <Route
+                path="chatbot"
+                element={
+                  rol === 'guarda' || rol === 'operator' ? (
+                    <SafeNavigate to="/admin" replace />
+                  ) : (
+                    <ChatbotAdminView />
+                  )
+                }
+              />
+              <Route
+                path="users"
+                element={
+                  rol === 'guarda' || rol === 'operator' ? (
+                    <SafeNavigate to="/admin" replace />
+                  ) : (
+                    <PantallaUsuarios userRole={rol} />
+                  )
+                }
+              />
+              <Route
+                path="security"
+                element={
+                  rol === 'guarda' || rol === 'operator' ? (
+                    <SafeNavigate to="/admin" replace />
+                  ) : (
+                    <SecurityView />
+                  )
+                }
+              />
             </Route>
 
             {/* Portal de Residentes (Propietarios & Arrendatarios) */}
             <Route
               path="/residente"
-              element={<PortalResidenteView />}
+              element={<PortalResidenteView onSalir={handleExit} />}
             />
 
             {/* Redirección por defecto */}

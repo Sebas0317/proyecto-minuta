@@ -2,6 +2,8 @@
 
 const persistence = require('../data/persistence');
 const { logger } = require('../utils/logger');
+const { generateId } = require('../utils/idGenerator');
+const { getBogotaDateParts } = require('../utils/colombianHolidays');
 
 exports.getEquipos = async (req, res) => {
   try {
@@ -26,7 +28,7 @@ exports.createEquipo = async (req, res) => {
     const raw = await persistence.getEquipos();
     const items = Array.isArray(raw) ? [...raw] : [];
     const nuevo = {
-      id: 'eq-' + Date.now(),
+      id: `eq-${Date.now()}-${generateId(4)}`,
       tipo: tipo || 'extintor',
       nombre: String(nombre).trim(),
       ubicacion: String(ubicacion).trim(),
@@ -34,8 +36,8 @@ exports.createEquipo = async (req, res) => {
       piso: Number(piso) || 1,
       capacidad: capacidad || '20 Lbs',
       agente: agente || 'PQS',
-      fechaRecarga: fechaRecarga || new Date().toISOString().split('T')[0],
-      fechaVencimiento: fechaVencimiento || new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().split('T')[0],
+      fechaRecarga: fechaRecarga || getBogotaDateParts(new Date()).ymd,
+      fechaVencimiento: fechaVencimiento || getBogotaDateParts(new Date(Date.now() + 365 * 24 * 3600 * 1000)).ymd,
       estado: 'operativo',
       observaciones: observaciones || ''
     };
@@ -55,7 +57,28 @@ exports.updateEquipo = async (req, res) => {
     const items = Array.isArray(raw) ? [...raw] : [];
     const idx = items.findIndex((e) => e.id === id);
     if (idx === -1) return res.status(404).json({ error: 'Equipo no encontrado' });
-    items[idx] = { ...items[idx], ...req.body, id };
+
+    const allowed = [
+      'tipo',
+      'nombre',
+      'ubicacion',
+      'torre',
+      'piso',
+      'capacidad',
+      'agente',
+      'fechaRecarga',
+      'fechaVencimiento',
+      'estado',
+      'observaciones',
+    ];
+    const updated = { ...items[idx] };
+    for (const k of allowed) {
+      if (req.body[k] !== undefined) {
+        updated[k] = k === 'piso' ? Number(req.body[k]) || 1 : req.body[k];
+      }
+    }
+    updated.id = items[idx].id;
+    items[idx] = updated;
     await persistence.setEquipos(items);
     res.json(items[idx]);
   } catch (err) {

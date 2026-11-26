@@ -37,10 +37,31 @@ function mutationLock(domain) {
     }
 
     const { wait, release } = acquireDomainLock(domain);
+    let closedWhileWaiting = false;
+    const onEarlyDone = () => {
+      closedWhileWaiting = true;
+    };
+    res.once('finish', onEarlyDone);
+    res.once('close', onEarlyDone);
+
     try {
       await wait;
     } catch {
       // Previous holder errored; safe to proceed
+    }
+
+    res.removeListener('finish', onEarlyDone);
+    res.removeListener('close', onEarlyDone);
+
+    if (
+      closedWhileWaiting ||
+      req.timedOut ||
+      res.destroyed ||
+      res.writableEnded ||
+      res.headersSent
+    ) {
+      release();
+      return;
     }
 
     const safetyTimer = setTimeout(release, LOCK_TIMEOUT_MS);
@@ -54,7 +75,12 @@ function mutationLock(domain) {
     res.once('finish', cleanup);
     res.once('close', cleanup);
 
-    next();
+    try {
+      next();
+    } catch (err) {
+      cleanup();
+      return next(err);
+    }
   };
 }
 

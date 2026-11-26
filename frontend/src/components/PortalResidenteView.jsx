@@ -54,7 +54,8 @@ import {
   createMascota,
   queryChatbot,
   fetchPqrs,
-  createPqrs
+  createPqrs,
+  getLocalDateISO
 } from '../services/api';
 import CertificadosModal from './CertificadosModal';
 
@@ -70,7 +71,7 @@ const TABS = [
   { id: 'chatbot', label: 'MinutaBot IA', icon: Bot },
 ];
 
-export default function PortalResidenteView() {
+export default function PortalResidenteView({ onSalir }) {
   const navigate = useNavigate();
 
   // Selector y navegación lateral de apartamentos
@@ -99,7 +100,7 @@ export default function PortalResidenteView() {
     nombre: '',
     documento: '',
     tipo: 'familiar',
-    fechaEsperada: new Date().toISOString().split('T')[0],
+    fechaEsperada: getLocalDateISO(),
     motivo: 'Visita autorizada por residente',
     tipoVehiculo: 'peatonal',
     placa: '',
@@ -111,7 +112,7 @@ export default function PortalResidenteView() {
   const [showReservaModal, setShowReservaModal] = useState(false);
   const [formReserva, setFormReserva] = useState({
     espacio: '⚽ Cancha Sintética Fútbol 5',
-    fechaReserva: new Date().toISOString().split('T')[0],
+    fechaReserva: getLocalDateISO(),
     horaInicio: '18:00',
     horaFin: '19:30',
     observaciones: ''
@@ -130,7 +131,7 @@ export default function PortalResidenteView() {
     color: '',
     edad: '',
     vacunaAntirrabica: true,
-    fechaVacuna: new Date().toISOString().split('T')[0]
+    fechaVacuna: getLocalDateISO()
   });
 
   // Chatbot Embebido
@@ -277,7 +278,7 @@ export default function PortalResidenteView() {
         nombre: '',
         documento: '',
         tipo: 'familiar',
-        fechaEsperada: new Date().toISOString().split('T')[0],
+        fechaEsperada: getLocalDateISO(),
         motivo: 'Visita autorizada por residente',
         tipoVehiculo: 'peatonal',
         placa: '',
@@ -384,7 +385,7 @@ export default function PortalResidenteView() {
         color: '',
         edad: '',
         vacunaAntirrabica: true,
-        fechaVacuna: new Date().toISOString().split('T')[0]
+        fechaVacuna: getLocalDateISO()
       });
     } catch (err) {
       toast.error(err.message || 'Error al registrar mascota');
@@ -506,9 +507,9 @@ export default function PortalResidenteView() {
           </button>
 
           <button
-            onClick={() => navigate('/', { replace: true })}
+            onClick={() => (onSalir ? onSalir() : navigate('/', { replace: true }))}
             className="p-2 bg-slate-800 hover:bg-red-500/20 hover:text-red-400 text-slate-400 border border-slate-700 hover:border-red-500/40 rounded-xl text-xs transition-all"
-            title="Volver a Selección de Rol"
+            title="Volver a Selección de Rol / Cerrar Sesión"
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -897,11 +898,20 @@ export default function PortalResidenteView() {
                     onClick={async () => {
                       const { generarPazYSalvoPDF } = await import('../utils/pdfGenerator');
                       generarPazYSalvoPDF(unidadData);
-                      toast.success('Paz y Salvo Oficial generado y descargado en PDF');
+                      toast.success(
+                        alDia
+                          ? 'Paz y Salvo Oficial generado y descargado en PDF'
+                          : 'Estado de Cartera con Saldo Pendiente descargado en PDF'
+                      );
                     }}
-                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-950/40"
+                    className={`w-full ${
+                      alDia
+                        ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-950/40'
+                        : 'bg-amber-600 hover:bg-amber-500 shadow-amber-950/40'
+                    } text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md`}
                   >
-                    <Download className="w-4 h-4" /> 📄 Descargar Paz y Salvo Oficial (PDF)
+                    <Download className="w-4 h-4" />{' '}
+                    {alDia ? '📄 Descargar Paz y Salvo Oficial (PDF)' : '⚠️ Descargar Estado de Cartera (Con Mora)'}
                   </button>
                   <button
                     onClick={() => {

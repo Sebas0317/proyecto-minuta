@@ -67,7 +67,8 @@ export default function PorteriaDashboard() {
     (updater) => {
       queryClient.setQueryData(queryKeys.accesos({}), (old) => {
         const list = Array.isArray(old) ? old : old?.data || [];
-        return typeof updater === 'function' ? updater(list) : updater;
+        const next = typeof updater === 'function' ? updater(list) : updater;
+        return old && !Array.isArray(old) ? { ...old, data: next } : next;
       });
     },
     [queryClient]
@@ -76,7 +77,8 @@ export default function PorteriaDashboard() {
     (updater) => {
       queryClient.setQueryData(queryKeys.paquetes({}), (old) => {
         const list = Array.isArray(old) ? old : old?.data || [];
-        return typeof updater === 'function' ? updater(list) : updater;
+        const next = typeof updater === 'function' ? updater(list) : updater;
+        return old && !Array.isArray(old) ? { ...old, data: next } : next;
       });
     },
     [queryClient]
@@ -85,7 +87,8 @@ export default function PorteriaDashboard() {
     (updater) => {
       queryClient.setQueryData(queryKeys.minuta({}), (old) => {
         const list = Array.isArray(old) ? old : old?.data || [];
-        return typeof updater === 'function' ? updater(list) : updater;
+        const next = typeof updater === 'function' ? updater(list) : updater;
+        return old && !Array.isArray(old) ? { ...old, data: next } : next;
       });
     },
     [queryClient]
@@ -234,7 +237,12 @@ export default function PorteriaDashboard() {
           );
         }
       }
-      toast.success(`Ingreso de ${ingresoForm.nombre} registrado correctamente`);
+      if (created?.offlinePending) {
+        toast.warning(`Ingreso de ${ingresoForm.nombre} guardado en cola offline`);
+      } else {
+        toast.success(`Ingreso de ${ingresoForm.nombre} registrado correctamente`);
+        loadData();
+      }
       setShowIngresoModal(false);
       setIngresoForm({
         tipo: 'visitante',
@@ -248,7 +256,6 @@ export default function PorteriaDashboard() {
         parqueaderoAsignado: '',
         autorizadoPor: ''
       });
-      loadData(true);
     } catch (err) {
       toast.error(err.message || 'Error al registrar ingreso');
     }
@@ -303,6 +310,7 @@ export default function PorteriaDashboard() {
         setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
         setPinGeneradoModal(created);
       }
+      queryClient.invalidateQueries({ queryKey: ['paquetes'] });
       toast.success(`Recibo de ${reciboForm.tipoRecibo} para ${reciboForm.torre} Apto ${reciboForm.apto} registrado • PIN: ${created?.codigoRetiro || 'Generado'}`);
       setShowReciboModal(false);
       setReciboForm({
@@ -340,6 +348,7 @@ export default function PorteriaDashboard() {
         setPinCache((prev) => ({ ...prev, [created.id]: created.codigoRetiro }));
         setPinGeneradoModal(created);
       }
+      queryClient.invalidateQueries({ queryKey: ['paquetes'] });
       toast.success(`Paquete para ${paqueteForm.torre} - Apto ${paqueteForm.apto} registrado • PIN: ${created?.codigoRetiro || 'Generado'}`);
       setShowPaqueteModal(false);
       setPaqueteForm({
@@ -363,10 +372,11 @@ export default function PorteriaDashboard() {
     const msg = encodeURIComponent(`Hola, le informamos desde la Portería que ha llegado correspondencia a su nombre (${paquete.empresa || paquete.tipoRecibo}, Guía: ${paquete.guia || 'S/N'}). ${pinText} Por favor pasar a reclamarlo.`);
     
     if (tel) {
-      window.open(`https://wa.me/57${tel.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
+      window.open(`https://wa.me/57${tel.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank', 'noopener,noreferrer');
       notificarPaquete(paquete.id)
         .then((updated) => {
           setPaquetes((prev) => prev.map((p) => (p.id === paquete.id ? (updated?.id ? updated : { ...p, estado: 'notificado' }) : p)));
+          queryClient.invalidateQueries({ queryKey: ['paquetes'] });
         })
         .catch(() => {});
     } else {
@@ -395,6 +405,7 @@ export default function PorteriaDashboard() {
       setPaquetes((prev) =>
         prev.map((p) => (p.id === showEntregaModal.id ? (updated?.id ? updated : { ...p, estado: 'entregado' }) : p))
       );
+      queryClient.invalidateQueries({ queryKey: ['paquetes'] });
       toast.success('Paquete entregado satisfactoriamente');
       setShowEntregaModal(null);
       setEntregaForm({ retiradoPor: '', codigoRetiro: '' });
@@ -409,10 +420,13 @@ export default function PorteriaDashboard() {
       const created = await createMinutaEntry(minutaForm);
       if (created?.id) {
         setMinuta((prev) => [created, ...prev.filter((m) => m.id !== created.id)]);
-      } else {
-        await loadData(true);
       }
-      toast.success('Novedad asentada en la minuta digital');
+      if (created?.offlinePending) {
+        toast.warning('Novedad guardada en cola offline (sincronizará al reconectar)');
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['minuta'] });
+        toast.success('Novedad asentada en la minuta digital');
+      }
       setShowMinutaModal(false);
       setMinutaForm({
         tipo: 'general',

@@ -126,25 +126,24 @@ export async function clearOfflineQueue() {
   notifyListeners(0, false);
 }
 
-let isFlushing = false;
+let activeFlushPromise = null;
 
-export async function flushOfflineQueue(apiBase = '/v1') {
-  if (isFlushing) return { synced: 0, remaining: (await getOfflineQueue()).length };
+async function runFlushOfflineQueue(apiBase = '/v1') {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     const items = await getOfflineQueue();
     notifyListeners(items.length, false);
-    return { synced: 0, remaining: items.length };
+    return { synced: 0, dropped: 0, remaining: items.length };
   }
 
   const items = await getOfflineQueue();
   if (!items.length) {
     notifyListeners(0, false);
-    return { synced: 0, remaining: 0 };
+    return { synced: 0, dropped: 0, remaining: 0 };
   }
 
-  isFlushing = true;
   notifyListeners(items.length, true);
   let synced = 0;
+  let dropped = 0;
 
   try {
     for (const item of items) {
@@ -156,10 +155,22 @@ export async function flushOfflineQueue(apiBase = '/v1') {
           cache: 'no-store',
           body: typeof item.body === 'string' ? item.body : JSON.stringify(item.body),
         });
-        // Remove if succeeded or if server rejected payload as invalid 4xx (except 401/408/429)
-        if (res.ok || (res.status >= 400 && res.status < 500 && ![401, 408, 429].includes(res.status))) {
+
+        if (res.status === 401) {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(
+              new CustomEvent('minuta:unauthorized', { detail: { endpoint: item.endpoint } })
+            );
+          }
+          break;
+        }
+
+        if (res.ok) {
           await removeOfflineMutation(item.queueId);
-          if (res.ok) synced += 1;
+          synced += 1;
+        } else if (res.status >= 400 && res.status < 500 && ![408, 429].includes(res.status)) {
+          await removeOfflineMutation(item.queueId);
+          dropped += 1;
         }
       } catch {
         // Network still unreachable — stop flushing and retry on next online event
@@ -167,13 +178,22 @@ export async function flushOfflineQueue(apiBase = '/v1') {
       }
     }
   } finally {
-    isFlushing = false;
     const remaining = (await getOfflineQueue()).length;
     notifyListeners(remaining, false);
-    if (synced > 0 && typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('minuta:offline-synced', { detail: { synced, remaining } }));
+    if ((synced > 0 || dropped > 0) && typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('minuta:offline-synced', { detail: { synced, dropped, remaining } })
+      );
     }
   }
 
-  return { synced, remaining: (await getOfflineQueue()).length };
+  return { synced, dropped, remaining: (await getOfflineQueue()).length };
+}
+
+export function flushOfflineQueue(apiBase = '/v1') {
+  if (activeFlushPromise) return activeFlushPromise;
+  activeFlushPromise = runFlushOfflineQueue(apiBase).finally(() => {
+    activeFlushPromise = null;
+  });
+  return activeFlushPromise;
 }

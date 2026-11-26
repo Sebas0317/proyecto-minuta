@@ -41,6 +41,7 @@ describe('Pruebas de Estrés, Concurrencia y Resiliencia Anti-DoS', () => {
       responses.map((r) =>
         request(app)
           .delete(`/v1/mascotas/${r.body.id}`)
+          .set('Cookie', [`token=${adminToken}`])
           .set('X-Forwarded-For', '192.0.2.250')
       )
     );
@@ -98,11 +99,13 @@ describe('Pruebas de Estrés, Concurrencia y Resiliencia Anti-DoS', () => {
     const asmb = (
       await request(app)
         .post('/v1/asambleas')
+        .set('Cookie', [`token=${adminToken}`])
         .send({ titulo: 'Asamblea Anti-Race QA' })
     ).body;
     const vot = (
       await request(app)
         .post(`/v1/asambleas/${asmb.id}/votaciones`)
+        .set('Cookie', [`token=${adminToken}`])
         .send({ pregunta: '¿Validar control concurrente de voto único?' })
     ).body;
 

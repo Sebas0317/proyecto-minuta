@@ -9,16 +9,18 @@ function sendPaginatedOrArray(req, res, items) {
   const total = list.length;
   res.setHeader('X-Total-Count', String(total));
 
-  const hasPageParam = req.query.page !== undefined || req.query.paginate === 'true';
-  const rawLimit = parseInt(req.query.limit, 10);
-  const rawPage = parseInt(req.query.page, 10);
+  const query = req?.query || {};
+  const hasPageParam = query.page !== undefined || query.paginate === 'true';
+  const rawLimit = parseInt(query.limit, 10);
+  const rawPage = parseInt(query.page, 10);
+  const hasValidLimit = !Number.isNaN(rawLimit) && rawLimit > 0;
 
-  if (!hasPageParam && isNaN(rawLimit)) {
+  if (!hasPageParam && !hasValidLimit) {
     return res.json(list);
   }
 
-  const limit = Math.min(200, Math.max(1, isNaN(rawLimit) ? 50 : rawLimit));
-  const page = Math.max(1, isNaN(rawPage) ? 1 : rawPage);
+  const limit = Math.min(200, hasValidLimit ? rawLimit : 50);
+  const page = Math.max(1, Number.isNaN(rawPage) ? 1 : rawPage);
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const start = (page - 1) * limit;
   const data = list.slice(start, start + limit);

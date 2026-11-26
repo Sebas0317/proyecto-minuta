@@ -5,16 +5,11 @@ const crypto = require('node:crypto');
 const persistence = require('./persistence');
 const logger = require('../utils/logger');
 
-const ROLES = ['owner', 'admin', 'supervisor', 'guarda', 'operator', 'analyst', 'cliente'];
+const ROLES = ['owner', 'admin', 'supervisor', 'guarda', 'operator', 'analyst', 'residente', 'cliente'];
 
-// Write lock to serialize read-modify-write cycles (C27, C28)
-const userWriteLocks = new Map();
-function withUserLock(key, fn) {
-  if (!userWriteLocks.has(key)) userWriteLocks.set(key, Promise.resolve());
-  const prev = userWriteLocks.get(key);
-  const next = prev.then(fn, fn);
-  userWriteLocks.set(key, next);
-  return next;
+// Unified write lock over persistence.USERS_KEY to prevent lost updates across all user mutations
+function withUserLock(_key, fn) {
+  return persistence.withKeyLock(persistence.USERS_KEY, fn);
 }
 
 async function getUsers() {
@@ -146,27 +141,29 @@ async function updateUser(id, updates) {
 }
 
 async function deleteUser(id, callerRole = null) {
-  const users = await getUsers();
-  const index = users.findIndex((u) => u.id === id);
-  if (index === -1) return { deleted: false, reason: 'not_found' };
+  return withUserLock('users', async () => {
+    const users = await getUsers();
+    const index = users.findIndex((u) => u.id === id);
+    if (index === -1) return { deleted: false, reason: 'not_found' };
 
-  const targetRole = users[index].role;
+    const targetRole = users[index].role;
 
-  // owner can delete anyone
-  if (callerRole === 'owner') {
+    // owner can delete anyone
+    if (callerRole === 'owner') {
+      users.splice(index, 1);
+      await saveUsers(users);
+      return { deleted: true };
+    }
+
+    // admin cannot delete other admins or owners
+    if (targetRole === 'admin' || targetRole === 'owner') {
+      return { deleted: false, reason: 'protected' };
+    }
+
     users.splice(index, 1);
     await saveUsers(users);
     return { deleted: true };
-  }
-
-  // admin cannot delete other admins or owners
-  if (targetRole === 'admin' || targetRole === 'owner') {
-    return { deleted: false, reason: 'protected' };
-  }
-
-  users.splice(index, 1);
-  await saveUsers(users);
-  return { deleted: true };
+  });
 }
 
 // Dummy bcrypt hash for constant-time comparison when user doesn't exist.
@@ -195,14 +192,17 @@ async function verifyPassword(identifier, password) {
 }
 
 async function changePassword(id, newPassword) {
-  const users = await getUsers();
-  const index = users.findIndex((u) => u.id === id);
-  if (index === -1) return false;
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  return withUserLock('users', async () => {
+    const users = await getUsers();
+    const index = users.findIndex((u) => u.id === id);
+    if (index === -1) return false;
 
-  users[index].passwordHash = await bcrypt.hash(newPassword, 12);
-  users[index].updatedAt = new Date().toISOString();
-  await saveUsers(users);
-  return true;
+    users[index].passwordHash = passwordHash;
+    users[index].updatedAt = new Date().toISOString();
+    await saveUsers(users);
+    return true;
+  });
 }
 
 async function seedAdminUser() {
@@ -257,14 +257,16 @@ async function seedAdminUser() {
 }
 
 async function updateLastLogin(id, ip) {
-  const users = await getUsers();
-  const index = users.findIndex((u) => u.id === id);
-  if (index === -1) return;
+  return withUserLock('users', async () => {
+    const users = await getUsers();
+    const index = users.findIndex((u) => u.id === id);
+    if (index === -1) return;
 
-  users[index].lastLogin = new Date().toISOString();
-  users[index].lastIp = ip || null;
-  users[index].updatedAt = new Date().toISOString();
-  await saveUsers(users);
+    users[index].lastLogin = new Date().toISOString();
+    users[index].lastIp = ip || null;
+    users[index].updatedAt = new Date().toISOString();
+    await saveUsers(users);
+  });
 }
 
 function sanitizeUser(user) {

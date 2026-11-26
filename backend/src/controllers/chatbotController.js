@@ -9,10 +9,25 @@ const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 const { calcularDiasHabilesColombia, calcularPicoYPlacaBogota, getColombianHolidays, getBogotaDateParts } = require('../utils/colombianHolidays');
 const { fetchBogotaWeather } = require('./integracionesController');
+const { acquireDomainLock } = require('../middleware/mutationLock');
 
 const MANUAL_FILE = path.resolve(__dirname, '..', '..', 'manual_convivencia.json');
 
-function getNextPqrsRadicado(lista, year = new Date().getFullYear()) {
+async function withDomainMutex(domain, fn) {
+  const { wait, release } = acquireDomainLock(domain);
+  try {
+    await wait;
+  } catch {
+    // Previous holder errored
+  }
+  try {
+    return await fn();
+  } finally {
+    release();
+  }
+}
+
+function getNextPqrsRadicado(lista, year = getBogotaDateParts(new Date()).year) {
   const prefix = `PQR-${year}-`;
   let maxSeq = 0;
   for (const item of lista || []) {
@@ -102,38 +117,41 @@ async function getManual() {
 
 async function logAnalytics(pregunta, categoria = 'general', respondida = true) {
   try {
-    const raw = await persistence.getConsultasAnalytics();
-    const analytics = (raw && typeof raw === 'object')
-      ? {
-          totalConsultas: Number(raw.totalConsultas) || 0,
-          consultasConRespuesta: Number(raw.consultasConRespuesta ?? raw.totalConsultas) || 0,
-          categorias: { ...(raw.categorias || {}) },
-          historico: Array.isArray(raw.historico) ? [...raw.historico] : [],
-        }
-      : { totalConsultas: 0, consultasConRespuesta: 0, categorias: {}, historico: [] };
+    await persistence.withKeyLock('data:consultas_analytics', async () => {
+      const raw = await persistence.getConsultasAnalytics();
+      const analytics = (raw && typeof raw === 'object')
+        ? {
+            totalConsultas: Number(raw.totalConsultas) || 0,
+            consultasConRespuesta: Number(raw.consultasConRespuesta ?? raw.totalConsultas) || 0,
+            categorias: { ...(raw.categorias || {}) },
+            historico: Array.isArray(raw.historico) ? [...raw.historico] : [],
+          }
+        : { totalConsultas: 0, consultasConRespuesta: 0, categorias: {}, historico: [] };
 
-    analytics.totalConsultas += 1;
-    if (respondida) {
-      analytics.consultasConRespuesta += 1;
-    }
-    analytics.categorias[categoria] = (analytics.categorias[categoria] || 0) + 1;
-    analytics.historico.unshift({
-      pregunta,
-      categoria,
-      respondida,
-      fecha: new Date().toISOString()
+      analytics.totalConsultas += 1;
+      if (respondida) {
+        analytics.consultasConRespuesta += 1;
+      }
+      analytics.categorias[categoria] = (analytics.categorias[categoria] || 0) + 1;
+      analytics.historico.unshift({
+        pregunta,
+        categoria,
+        respondida,
+        fecha: new Date().toISOString()
+      });
+      if (analytics.historico.length > 300) {
+        analytics.historico = analytics.historico.slice(0, 300);
+      }
+      await persistence.setConsultasAnalytics(analytics);
     });
-    if (analytics.historico.length > 300) {
-      analytics.historico = analytics.historico.slice(0, 300);
-    }
-    await persistence.setConsultasAnalytics(analytics);
   } catch (e) {
     logger.debug({ error: e.message }, 'Analytics logging skipped');
   }
 }
 
 // ── MOTOR AVANZADO DE ACCIONES Y CONSULTAS EN TIEMPO REAL ──
-async function responderConsultaDinamica(textoOriginal, textoNormalizado, context = {}) {
+async function responderConsultaDinamica(textoOriginal, textoNormalizado, context = {}, reqUser = null) {
+  const isStaff = Boolean(reqUser && ['owner', 'admin', 'supervisor', 'guarda'].includes(reqUser.role));
   // Extraer apartamento de la frase o del contexto en memoria
   const aptoMatch = textoOriginal.match(/(?:apto|apartamento|unidad)\s*#?\s*(\d{2,4})/i) || textoOriginal.match(/\b(\d{3,4})\b/);
   const aptoNumero = aptoMatch ? aptoMatch[1] : context.apto;
@@ -141,22 +159,25 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
   // 1. 🚨 DETECCIÓN DE AMENAZAS / EMERGENCIAS (THREAT NLP & PROTOCOLO SOS)
   const esAmenaza = /auxilio|fuego|incendio|humo|ladron|intruso|robo|asalto|arma|herido|ambulancia|fuga de gas|atraco|violencia|pelea fuerte|colapso/i.test(textoNormalizado);
   if (esAmenaza) {
-    const minuta = (await getMinuta()) || [];
     const radicadoSOS = 'SOS-' + crypto.randomInt(1000, 10000);
-    minuta.unshift({
-      id: 'min-sos-' + Date.now(),
-      fecha: new Date().toISOString(),
-      tipo: 'emergencia',
-      titulo: `🚨 ALERTA SOS (${radicadoSOS}) - ${aptoNumero ? 'Apto ' + aptoNumero : 'Zonas Comunes'}`,
-      radicado: radicadoSOS,
-      aptoAfectado: aptoNumero || 'Zonas Comunes',
-      guarda: 'MinutaBot (Alerta Automática SOS)',
-      guardaTurno: 'MinutaBot (Alerta Automática SOS)',
-      descripcion: `🚨 [ALERTA SOS EMITIDA POR CHATBOT]: "${textoOriginal}"`,
-      severidad: 'peligro',
-      estado: 'abierta'
+    await withDomainMutex('porteria', async () => {
+      const rawMin = await getMinuta();
+      const minuta = Array.isArray(rawMin) ? [...rawMin] : [];
+      minuta.unshift({
+        id: 'min-sos-' + Date.now() + '-' + generateId(4),
+        fecha: new Date().toISOString(),
+        tipo: 'emergencia',
+        titulo: `🚨 ALERTA SOS (${radicadoSOS}) - ${aptoNumero ? 'Apto ' + aptoNumero : 'Zonas Comunes'}`,
+        radicado: radicadoSOS,
+        aptoAfectado: aptoNumero || 'Zonas Comunes',
+        guarda: 'MinutaBot (Alerta Automática SOS)',
+        guardaTurno: 'MinutaBot (Alerta Automática SOS)',
+        descripcion: `🚨 [ALERTA SOS EMITIDA POR CHATBOT]: "${textoOriginal}"`,
+        severidad: 'peligro',
+        estado: 'abierta'
+      });
+      await saveMinuta(minuta);
     });
-    await saveMinuta(minuta);
     await logAnalytics(textoOriginal, 'emergencias');
     return {
       tipo: 'alerta_sos',
@@ -222,31 +243,57 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
   // 4. ⚡ ACCIÓN DIRECTA: RESERVAR CANCHA O ZONA COMÚN POR CHAT
   if (/reserva|apartar|separar/i.test(textoNormalizado) && /cancha|futbol|sintetica|bbq|salon/i.test(textoNormalizado) && aptoNumero) {
     try {
-      const rawReservas = await persistence.getReservasZonas();
-      const reservasList = Array.isArray(rawReservas)
-        ? [...rawReservas]
-        : Array.isArray(rawReservas?.reservas)
-          ? [...rawReservas.reservas]
-          : [];
       const esFutbol = /cancha|futbol|sintetica/i.test(textoNormalizado);
       const esBBQ = /bbq|asador/i.test(textoNormalizado);
       const espacio = esFutbol
         ? '⚽ Cancha Sintética Fútbol 5'
         : (esBBQ ? '🍖 Zona BBQ & Asador 1' : '🎉 Salón Social de Eventos');
-      const fechaHoy = new Date().toISOString().split('T')[0];
+      const fechaHoy = getBogotaDateParts(new Date()).ymd;
       const horaInicio = '18:00';
       const horaFin = '19:30';
 
-      const traslape = reservasList.find(r =>
-        r.espacio === espacio &&
-        r.fechaReserva === fechaHoy &&
-        r.estado === 'confirmada' &&
-        ((horaInicio >= r.horaInicio && horaInicio < r.horaFin) ||
-         (horaFin > r.horaInicio && horaFin <= r.horaFin) ||
-         (horaInicio <= r.horaInicio && horaFin >= r.horaFin))
-      );
+      const resultadoReserva = await withDomainMutex('reservas-zonas', async () => {
+        const rawReservas = await persistence.getReservasZonas();
+        const reservasList = Array.isArray(rawReservas)
+          ? [...rawReservas]
+          : Array.isArray(rawReservas?.reservas)
+            ? [...rawReservas.reservas]
+            : [];
 
-      if (traslape) {
+        const traslape = reservasList.find(r =>
+          r.espacio === espacio &&
+          r.fechaReserva === fechaHoy &&
+          r.estado === 'confirmada' &&
+          ((horaInicio >= r.horaInicio && horaInicio < r.horaFin) ||
+           (horaFin > r.horaInicio && horaFin <= r.horaFin) ||
+           (horaInicio <= r.horaInicio && horaFin >= r.horaFin))
+        );
+
+        if (traslape) return { conflict: traslape };
+
+        const nuevaReserva = {
+          id: 'res-' + Date.now() + '-' + generateId(4),
+          espacio,
+          torre: 'Torre 1',
+          apto: String(aptoNumero),
+          solicitante: `Residente Apto ${aptoNumero}`,
+          telefono: '',
+          fechaReserva: fechaHoy,
+          horaInicio,
+          horaFin,
+          deposito: esFutbol ? 0 : (esBBQ ? 50000 : 200000),
+          estado: 'confirmada',
+          observaciones: 'Reserva creada automáticamente por MinutaBot mediante comando de chat.',
+          fechaCreacion: new Date().toISOString()
+        };
+
+        reservasList.unshift(nuevaReserva);
+        await persistence.setReservasZonas(reservasList);
+        return { created: nuevaReserva };
+      });
+
+      if (resultadoReserva.conflict) {
+        const traslape = resultadoReserva.conflict;
         await logAnalytics(textoOriginal, 'recreacion');
         return {
           tipo: 'reserva_conflicto',
@@ -257,24 +304,6 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
         };
       }
 
-      const nuevaReserva = {
-        id: 'res-' + Date.now() + '-' + generateId(4),
-        espacio,
-        torre: 'Torre 1',
-        apto: String(aptoNumero),
-        solicitante: `Residente Apto ${aptoNumero}`,
-        telefono: '',
-        fechaReserva: fechaHoy,
-        horaInicio,
-        horaFin,
-        deposito: esFutbol ? 0 : (esBBQ ? 50000 : 200000),
-        estado: 'confirmada',
-        observaciones: 'Reserva creada automáticamente por MinutaBot mediante comando de chat.',
-        fechaCreacion: new Date().toISOString()
-      };
-
-      reservasList.unshift(nuevaReserva);
-      await persistence.setReservasZonas(reservasList);
       await logAnalytics(textoOriginal, 'recreacion');
 
       return {
@@ -289,28 +318,30 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
     }
   }
 
-  // 5. GENERADOR ASISTIDO DE NOVEDADES PARA LA MINUTA DIGITAL POR VOZ / TEXTO
+  // 5. GENERADOR ASISTIDO DE NOVEDADES PARA LA MINUTA DIGITAL POR VOZ / TEXTO (Solo personal autenticado)
   const esComandoMinuta = /anota|registra|escribe|guarda|asienta|reporta/i.test(textoNormalizado) && /minuta|bitacora|novedad|incidente/i.test(textoNormalizado);
-  if (esComandoMinuta) {
-    const minuta = (await getMinuta()) || [];
+  if (esComandoMinuta && isStaff) {
     const esUrgente = /urgente|pelea|robo|emergencia|alarma|fuga|accidente/i.test(textoNormalizado);
     const radicado = 'NOV-' + crypto.randomInt(1000, 10000);
-    const nuevaNovedad = {
-      id: 'min-' + Date.now() + '-' + generateId(4),
-      fecha: new Date().toISOString(),
-      tipo: esUrgente ? 'urgente' : 'novedad',
-      titulo: `${esUrgente ? 'Novedad Urgente' : 'Novedad MinutaBot'} (${radicado})`,
-      radicado,
-      aptoAfectado: aptoNumero || 'Zonas Comunes',
-      guarda: 'MinutaBot AI (Asistente)',
-      guardaTurno: 'MinutaBot AI (Asistente)',
-      descripcion: `[Generado Asistido por MinutaBot]: ${textoOriginal}`,
-      severidad: esUrgente ? 'advertencia' : 'info',
-      estado: 'abierta'
-    };
-
-    minuta.unshift(nuevaNovedad);
-    await saveMinuta(minuta);
+    await withDomainMutex('porteria', async () => {
+      const rawMin = await getMinuta();
+      const minuta = Array.isArray(rawMin) ? [...rawMin] : [];
+      const nuevaNovedad = {
+        id: 'min-' + Date.now() + '-' + generateId(4),
+        fecha: new Date().toISOString(),
+        tipo: esUrgente ? 'urgente' : 'novedad',
+        titulo: `${esUrgente ? 'Novedad Urgente' : 'Novedad MinutaBot'} (${radicado})`,
+        radicado,
+        aptoAfectado: aptoNumero || 'Zonas Comunes',
+        guarda: reqUser?.username || 'MinutaBot AI (Asistente)',
+        guardaTurno: reqUser?.username || 'MinutaBot AI (Asistente)',
+        descripcion: `[Generado Asistido por MinutaBot]: ${textoOriginal}`,
+        severidad: esUrgente ? 'advertencia' : 'info',
+        estado: 'abierta'
+      };
+      minuta.unshift(nuevaNovedad);
+      await saveMinuta(minuta);
+    });
     await logAnalytics(textoOriginal, 'minuta');
 
     return {
@@ -323,7 +354,6 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
   }
 
   // 2. CONSULTA DE SALDO, EXPENSAS Y CUOTA DE ADMINISTRACIÓN
-  // Ej: "cuanto debe el apto 204", "saldo de administracion apto 101", "estado de cuenta 302"
   const esConsultaSaldo = /saldo|debe|deuda|cuota|administracion|estado de cuenta|expensa|recibo|pago/i.test(textoNormalizado) && aptoNumero;
   if (esConsultaSaldo) {
     const unidades = (await getUnidades()) || [];
@@ -338,11 +368,15 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
     const saldoTotal = saldoPendiente > 0 ? saldoPendiente : (mesesMora > 0 ? expensaBase * mesesMora : 0);
 
     await logAnalytics(textoOriginal, 'pagos');
+    const detalleEstado = isStaff
+      ? (estaEnMora ? `⚠️ Presenta saldo en mora ($${saldoTotal.toLocaleString('es-CO')} COP${mesesMora ? ` • ${mesesMora} mes(es)` : ''})` : '✅ Al Día en Expensas Comunes')
+      : '🔒 *Por protección de datos financieros (Habeas Data), consulta el detalle exacto de saldos en el Portal del Residente o con Administración.*';
+
     return {
       tipo: 'consulta_saldo',
-      titulo: `Estado de Cuenta - Apto ${aptoNumero}`,
-      respuesta: `💳 **Estado de Cuenta & Administración - Apto ${aptoNumero}**\n\n• **Cuota Mensual Plena:** $${expensaBase.toLocaleString('es-CO')} COP\n• **🌟 Con Pronto Pago (1-10 de cada mes):** **$${prontoPago.toLocaleString('es-CO')} COP** (Ahorro del 10%)\n• **Estado Actual:** ${estaEnMora ? `⚠️ Presenta saldo en mora ($${saldoTotal.toLocaleString('es-CO')} COP${mesesMora ? ` • ${mesesMora} mes(es)` : ''})` : '✅ Al Día en Expensas Comunes'}\n\n**Canales de Pago Oficiales:**\n• Cuenta de Ahorros Bancolombia / Davivienda: \`458-992145-02\`\n• NIT: 901.458.772-1 • Titular: CONDOMINIO MINUTA P.H.`,
-      accionRapida: { tipo: 'link', label: 'Ver Censo de Inmuebles', ruta: '/admin/unidades' },
+      titulo: `Información de Expensas - Apto ${aptoNumero}`,
+      respuesta: `💳 **Información de Expensas & Administración - Apto ${aptoNumero}**\n\n• **Cuota Mensual Referencia:** $${expensaBase.toLocaleString('es-CO')} COP\n• **🌟 Con Pronto Pago (1-10 de cada mes):** **$${prontoPago.toLocaleString('es-CO')} COP** (Ahorro del 10%)\n• **Estado de Cartera:** ${detalleEstado}\n\n**Canales de Pago Oficiales:**\n• Cuenta de Ahorros Bancolombia / Davivienda: \`458-992145-02\`\n• NIT: 901.458.772-1 • Titular: CONDOMINIO MINUTA P.H.`,
+      accionRapida: { tipo: 'link', label: 'Ir al Portal del Residente', ruta: '/residente' },
       updatedContext: { ...context, apto: aptoNumero }
     };
   }
@@ -445,7 +479,7 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
     if (radicadoMatch) {
       const radCod = radicadoMatch[0].toUpperCase();
       pqrEncontrada = listaPqrs.find(p => p.radicado && p.radicado.toUpperCase() === radCod);
-    } else if (aptoNumero) {
+    } else if (aptoNumero && isStaff) {
       pqrEncontrada = listaPqrs.find(p => String(p.apto) === String(aptoNumero));
     }
 
@@ -489,7 +523,6 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
   if (esIntencionRadicarPqrs) {
     if (aptoNumero && textoOriginal.length > 20) {
       try {
-        const listaPqrs = (await getPqrs()) || [];
         let categoriaDetectada = 'Petición';
         if (/ruido|musica|fiesta|vecino|perro|mascota|olor|convivencia|gritos/i.test(textoNormalizado)) {
           categoriaDetectada = 'Queja';
@@ -503,36 +536,40 @@ async function responderConsultaDinamica(textoOriginal, textoNormalizado, contex
           categoriaDetectada = 'Reclamo';
         }
 
-        const radicado = getNextPqrsRadicado(listaPqrs);
         const fechaActual = new Date().toISOString();
         const fechaLimite = calcular15DiasHabiles(new Date());
-
         const asuntoLimpio = textoOriginal.length > 60 ? textoOriginal.slice(0, 57) + '...' : textoOriginal;
 
-        const nuevaPqr = {
-          id: `pqr-${Date.now()}-${generateId(4)}`,
-          radicado: radicado,
-          tipo: categoriaDetectada.toLowerCase(),
-          categoria: categoriaDetectada,
-          torre: 'Torre 1',
-          apto: String(aptoNumero),
-          solicitante: `Residente Apto ${aptoNumero}`,
-          telefono: 'Registrado en Bot',
-          asunto: asuntoLimpio,
-          descripcion: textoOriginal,
-          estado: 'radicado',
-          prioridad: 'media',
-          fecha: fechaActual,
-          fechaRadicado: fechaActual,
-          fechaLimiteRespuesta: fechaLimite,
-          fechaVencimiento: fechaLimite,
-          respuestas: [],
-          notasInternas: 'Radicada automáticamente por MinutaBot mediante comando en chat.',
-          creadoPor: 'MinutaBot IA'
-        };
+        const radicado = await withDomainMutex('pqrs', async () => {
+          const rawPqrs = await getPqrs();
+          const listaPqrs = Array.isArray(rawPqrs) ? [...rawPqrs] : [];
+          const nextRad = getNextPqrsRadicado(listaPqrs);
+          const nuevaPqr = {
+            id: `pqr-${Date.now()}-${generateId(4)}`,
+            radicado: nextRad,
+            tipo: categoriaDetectada.toLowerCase(),
+            categoria: categoriaDetectada,
+            torre: 'Torre 1',
+            apto: String(aptoNumero),
+            solicitante: `Residente Apto ${aptoNumero}`,
+            telefono: 'Registrado en Bot',
+            asunto: asuntoLimpio,
+            descripcion: textoOriginal,
+            estado: 'radicado',
+            prioridad: 'media',
+            fecha: fechaActual,
+            fechaRadicado: fechaActual,
+            fechaLimiteRespuesta: fechaLimite,
+            fechaVencimiento: fechaLimite,
+            respuestas: [],
+            notasInternas: 'Radicada automáticamente por MinutaBot mediante comando en chat.',
+            creadoPor: 'MinutaBot IA'
+          };
+          listaPqrs.push(nuevaPqr);
+          await savePqrs(listaPqrs);
+          return nextRad;
+        });
 
-        listaPqrs.push(nuevaPqr);
-        await savePqrs(listaPqrs);
         await logAnalytics(textoOriginal, 'pqrs');
 
         return {
@@ -632,7 +669,7 @@ async function queryChatbot(req, res) {
     }
 
     // 1. Intentar resolver con motor dinámico y memoria contextual
-    const resDinamica = await responderConsultaDinamica(textoOriginal, textoNorm, context);
+    const resDinamica = await responderConsultaDinamica(textoOriginal, textoNorm, context, req.user);
     if (resDinamica) {
       return res.json({
         success: true,
@@ -701,21 +738,23 @@ async function queryChatbot(req, res) {
 
     // 3. Fallback: Registrar pregunta no respondida para entrenar al bot
     await logAnalytics(textoOriginal, 'sin_respuesta', false);
-    const unanswered = await getUnanswered();
-    const yaExiste = unanswered.find(u => normalizarTexto(u.pregunta) === textoNorm);
-    if (yaExiste) {
-      yaExiste.conteo = (yaExiste.conteo || 1) + 1;
-      yaExiste.ultimaFecha = new Date().toISOString();
-    } else {
-      unanswered.unshift({
-        id: 'unans-' + Date.now() + '-' + generateId(4),
-        pregunta: textoOriginal,
-        fecha: new Date().toISOString(),
-        conteo: 1,
-        resuelta: false
-      });
-    }
-    await saveUnanswered(unanswered);
+    await persistence.withKeyLock('data:unanswered_questions', async () => {
+      const unanswered = await getUnanswered();
+      const yaExiste = unanswered.find(u => normalizarTexto(u.pregunta) === textoNorm);
+      if (yaExiste) {
+        yaExiste.conteo = (yaExiste.conteo || 1) + 1;
+        yaExiste.ultimaFecha = new Date().toISOString();
+      } else {
+        unanswered.unshift({
+          id: 'unans-' + Date.now() + '-' + generateId(4),
+          pregunta: textoOriginal,
+          fecha: new Date().toISOString(),
+          conteo: 1,
+          resuelta: false
+        });
+      }
+      await saveUnanswered(unanswered);
+    });
 
     return res.json({
       success: true,
@@ -754,7 +793,7 @@ async function addKnowledgeItem(req, res) {
       id: 'kb-' + Date.now() + '-' + generateId(4),
       categoria: categoria || 'general',
       titulo,
-      keywords: Array.isArray(keywords) ? keywords : (keywords || '').split(',').map(s => s.trim()),
+      keywords: Array.isArray(keywords) ? keywords : String(keywords || '').split(',').map(s => s.trim()).filter(Boolean),
       preguntasFrecuentes: Array.isArray(preguntasFrecuentes) ? preguntasFrecuentes : [],
       respuesta,
       accionRapida: accionRapida || { tipo: 'link', label: 'Ver Guía', ruta: '/admin/info' },
@@ -849,13 +888,15 @@ async function getAnalytics(req, res) {
       ? Number(analytics.consultasConRespuesta)
       : Math.max(0, totalConsultas - (Array.isArray(unanswered) ? unanswered.length : 0));
 
+    const isAdminOrOwner = Boolean(req.user && ['owner', 'admin'].includes(req.user.role));
+
     res.json({
       ...analytics,
       totalConsultas,
       consultasConRespuesta,
       categorias,
       categoriasMasConsultadas: categorias,
-      historico: Array.isArray(analytics.historico) ? analytics.historico : []
+      historico: isAdminOrOwner && Array.isArray(analytics.historico) ? analytics.historico : []
     });
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener analítica del chatbot' });

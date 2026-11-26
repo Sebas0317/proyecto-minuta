@@ -26,6 +26,23 @@ async function getAllReservas(req, res) {
   }
 }
 
+const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+function parseTimeToMinutes(hhmm) {
+  const m = String(hhmm || '').trim().match(TIME_RE);
+  if (!m) return null;
+  return Number(m[1]) * 60 + Number(m[2]);
+}
+
+function hasTimeOverlap(startA, endA, startB, endB) {
+  const sA = parseTimeToMinutes(startA);
+  const eA = parseTimeToMinutes(endA);
+  const sB = parseTimeToMinutes(startB);
+  const eB = parseTimeToMinutes(endB);
+  if (sA === null || eA === null || sB === null || eB === null) return false;
+  return sA < eB && eA > sB;
+}
+
 // ── CREAR NUEVA RESERVA DE ZONA COMÚN ──
 async function createReserva(req, res) {
   try {
@@ -35,20 +52,25 @@ async function createReserva(req, res) {
       return res.status(400).json({ error: 'Todos los campos de la reserva son obligatorios' });
     }
 
-    if (horaFin <= horaInicio) {
+    const startMin = parseTimeToMinutes(horaInicio);
+    const endMin = parseTimeToMinutes(horaFin);
+    if (startMin === null || endMin === null) {
+      return res.status(400).json({ error: 'Formato de hora inválido. Usa HH:MM (ej: 09:00 a 10:30)' });
+    }
+
+    if (endMin <= startMin) {
       return res.status(400).json({ error: 'La hora de fin debe ser posterior a la hora de inicio' });
     }
 
     const list = await getReservas();
+    const espacioStr = String(espacio).trim();
 
-    // Validar traslape horario en el mismo espacio y misma fecha
-    const traslape = list.find(r => 
-      r.espacio === espacio &&
+    // Validar traslape horario numérico en el mismo espacio y misma fecha
+    const traslape = list.find(r =>
+      r.espacio === espacioStr &&
       r.fechaReserva === fechaReserva &&
       r.estado === 'confirmada' &&
-      ((horaInicio >= r.horaInicio && horaInicio < r.horaFin) ||
-       (horaFin > r.horaInicio && horaFin <= r.horaFin) ||
-       (horaInicio <= r.horaInicio && horaFin >= r.horaFin))
+      hasTimeOverlap(horaInicio, horaFin, r.horaInicio, r.horaFin)
     );
 
     if (traslape) {
@@ -59,19 +81,19 @@ async function createReserva(req, res) {
 
     // Depósitos de garantía según zona
     let deposito = 0;
-    if (espacio.includes('Salón Social')) deposito = 200000;
-    if (espacio.includes('BBQ')) deposito = 50000;
+    if (espacioStr.includes('Salón Social')) deposito = 200000;
+    if (espacioStr.includes('BBQ')) deposito = 50000;
 
     const nueva = {
       id: 'res-' + Date.now() + '-' + generateId(4),
-      espacio,
-      apto,
-      torre: torre || '1',
+      espacio: espacioStr,
+      apto: String(apto),
+      torre: String(torre || '1'),
       solicitante: solicitante || `Residente Apto ${apto}`,
       telefono: telefono || '',
       fechaReserva,
-      horaInicio,
-      horaFin,
+      horaInicio: String(horaInicio).trim(),
+      horaFin: String(horaFin).trim(),
       estado: 'confirmada',
       deposito,
       observaciones: observaciones || '',
@@ -81,7 +103,7 @@ async function createReserva(req, res) {
     list.unshift(nueva);
     await saveReservas(list);
 
-    logger.info({ id: nueva.id, espacio, apto }, 'Reserva de zona común creada');
+    logger.info({ id: nueva.id, espacio: espacioStr, apto }, 'Reserva de zona común creada');
     res.status(201).json(nueva);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al crear reserva');
@@ -95,10 +117,30 @@ async function updateEstadoReserva(req, res) {
     const { id } = req.params;
     const { estado } = req.body; // 'cancelada' | 'finalizada' | 'confirmada'
 
+    if (estado && !['confirmada', 'cancelada', 'finalizada'].includes(estado)) {
+      return res.status(400).json({ error: 'Estado de reserva inválido' });
+    }
+
     const list = await getReservas();
     const index = list.findIndex(r => r.id === id);
     if (index === -1) {
       return res.status(404).json({ error: 'Reserva no encontrada' });
+    }
+
+    const target = list[index];
+    if (estado === 'confirmada' && target.estado !== 'confirmada') {
+      const traslape = list.find((r, idx) =>
+        idx !== index &&
+        r.espacio === target.espacio &&
+        r.fechaReserva === target.fechaReserva &&
+        r.estado === 'confirmada' &&
+        hasTimeOverlap(target.horaInicio, target.horaFin, r.horaInicio, r.horaFin)
+      );
+      if (traslape) {
+        return res.status(409).json({
+          error: `No se puede reactivar: horario ocupado por Apto ${traslape.apto}`,
+        });
+      }
     }
 
     list[index].estado = estado || list[index].estado;

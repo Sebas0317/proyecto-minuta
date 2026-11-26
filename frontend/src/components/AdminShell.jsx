@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Shield,
@@ -100,12 +101,26 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
   );
   const [offlineCount, setOfflineCount] = useState(0);
   const [syncingOffline, setSyncingOffline] = useState(false);
+  const queryClient = useQueryClient();
 
   const isGuardRole = rol === 'guarda' || rol === 'operator';
   const visibleNavGroups = NAV_GROUPS.map((group) => ({
     ...group,
     items: group.items.filter((item) => !(isGuardRole && ADMIN_ONLY_KEYS.has(item.key))),
   })).filter((g) => g.items.length > 0);
+
+  const triggerOfflineSync = useCallback(() => {
+    flushOfflineQueue(API_BASE)
+      .then(({ synced, dropped }) => {
+        if (synced > 0) {
+          toast.success(`${synced} registro(s) offline sincronizados con el servidor`);
+        }
+        if (dropped > 0) {
+          toast.error(`${dropped} registro(s) offline fueron rechazados por validación del servidor`);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Reloj digital en vivo para portería
   useEffect(() => {
@@ -119,13 +134,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
 
     const handleOnline = () => {
       setIsOnline(true);
-      flushOfflineQueue(API_BASE)
-        .then(({ synced }) => {
-          if (synced > 0) {
-            toast.success(`${synced} registro(s) offline sincronizados con el servidor`);
-          }
-        })
-        .catch(() => {});
+      triggerOfflineSync();
     };
     const handleOffline = () => {
       setIsOnline(false);
@@ -135,16 +144,24 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
       if (typeof e.detail?.count === 'number') setOfflineCount(e.detail.count);
       if (typeof e.detail?.syncing === 'boolean') setSyncingOffline(e.detail.syncing);
     };
+    const handleOfflineSynced = () => {
+      queryClient.invalidateQueries({ queryKey: ['minuta'] });
+      queryClient.invalidateQueries({ queryKey: ['accesos'] });
+      queryClient.invalidateQueries({ queryKey: ['parqueaderos'] });
+      queryClient.invalidateQueries({ queryKey: ['rondas'] });
+    };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     window.addEventListener('minuta:offline-queue', handleQueueUpdate);
+    window.addEventListener('minuta:offline-synced', handleOfflineSynced);
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('minuta:offline-queue', handleQueueUpdate);
+      window.removeEventListener('minuta:offline-synced', handleOfflineSynced);
     };
-  }, []);
+  }, [queryClient, triggerOfflineSync]);
 
   const toggleCollapse = () => {
     const nextState = !collapsed;
@@ -414,7 +431,7 @@ export default function AdminShell({ rol = 'admin', onSalir }) {
             {!isOnline || offlineCount > 0 ? (
               <button
                 type="button"
-                onClick={() => flushOfflineQueue(API_BASE)}
+                onClick={triggerOfflineSync}
                 className="flex items-center gap-1.5 text-xs text-amber-300 font-bold bg-amber-950/70 border border-amber-600/60 px-2.5 py-1 rounded-full cursor-pointer"
                 title="Sincronizar cola offline de IndexedDB"
               >

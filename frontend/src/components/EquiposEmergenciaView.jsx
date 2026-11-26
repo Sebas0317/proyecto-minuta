@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Flame, Plus, Search, RefreshCw, Download, X, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchEquipos, createEquipo, deleteEquipo, getLocalDateISO } from '../services/api';
+import { fetchEquipos, createEquipo, deleteEquipo, downloadSafeCSV, getLocalDateISO } from '../services/api';
 
 export default function EquiposEmergenciaView() {
   const [equipos, setEquipos] = useState([]);
@@ -111,26 +111,21 @@ export default function EquiposEmergenciaView() {
 
   const handleExportCSV = () => {
     if (!equipos.length) return toast.info('No hay equipos para exportar');
-    const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const headers = ['ID', 'Tipo', 'Nombre', 'Ubicación', 'Torre', 'Piso', 'Capacidad', 'Agente', 'Última Recarga', 'Vencimiento', 'Días Restantes'];
     const rows = equipos.map(e => [
       e.id,
       e.tipo,
-      esc(e.nombre),
-      esc(e.ubicacion),
-      esc(e.torre),
+      e.nombre || '',
+      e.ubicacion || '',
+      e.torre || '',
       e.piso,
-      esc(e.capacidad),
-      esc(e.agente),
+      e.capacidad || '',
+      e.agente || '',
       e.fechaRecarga || '',
       e.fechaVencimiento || '',
       calcularDias(e.fechaVencimiento)
     ]);
-    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const link = document.createElement('a');
-    link.href = encodeURI(csvContent);
-    link.download = 'Inventario_Equipos_Emergencia_' + new Date().toISOString().slice(0, 10) + '.csv';
-    link.click();
+    downloadSafeCSV(`Inventario_Equipos_Emergencia_${getLocalDateISO()}.csv`, headers, rows);
     toast.success('Inventario exportado a CSV');
   };
 

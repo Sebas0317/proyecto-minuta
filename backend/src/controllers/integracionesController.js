@@ -9,6 +9,8 @@ const { logger } = require('../utils/logger');
 
 let weatherCache = { data: null, fetchedAt: 0 };
 let trmCache = { value: 4150, source: 'referencia_local', fetchedAt: 0 };
+let inflightWeather = null;
+let inflightTrm = null;
 
 const WEATHER_TTL_MS = 10 * 60 * 1000; // 10 min
 const TRM_TTL_MS = 60 * 60 * 1000; // 1 hora
@@ -48,72 +50,87 @@ async function fetchBogotaWeather() {
   if (weatherCache.data && Date.now() - weatherCache.fetchedAt < WEATHER_TTL_MS) {
     return weatherCache.data;
   }
+  if (inflightWeather) return inflightWeather;
 
-  if (process.env.NODE_ENV !== 'test') {
-    try {
-      const url =
-        'https://api.open-meteo.com/v1/forecast?latitude=4.6097&longitude=-74.0817&current=temperature_2m,precipitation,weather_code,wind_speed_10m&hourly=precipitation_probability&forecast_days=1&timezone=America%2FBogota';
-      const res = await fetch(url, { signal: AbortSignal.timeout(2500) });
-      if (res.ok) {
-        const json = await res.json();
-        const current = json.current || {};
-        const probs = Array.isArray(json.hourly?.precipitation_probability)
-          ? json.hourly.precipitation_probability
-          : [];
-        const maxRainProb = probs.length ? Math.max(...probs.slice(0, 12)) : 20;
-        const desc = describeWeatherCode(current.weather_code ?? 2, current.precipitation ?? 0);
+  inflightWeather = (async () => {
+    if (process.env.NODE_ENV !== 'test') {
+      try {
+        const url =
+          'https://api.open-meteo.com/v1/forecast?latitude=4.6097&longitude=-74.0817&current=temperature_2m,precipitation,weather_code,wind_speed_10m&hourly=precipitation_probability&forecast_days=1&timezone=America%2FBogota';
+        const res = await fetch(url, { signal: AbortSignal.timeout(2500) });
+        if (res.ok) {
+          const json = await res.json();
+          const current = json.current || {};
+          const probs = Array.isArray(json.hourly?.precipitation_probability)
+            ? json.hourly.precipitation_probability
+            : [];
+          const maxRainProb = probs.length ? Math.max(...probs.slice(0, 12)) : 20;
+          const desc = describeWeatherCode(current.weather_code ?? 2, current.precipitation ?? 0);
 
-        const payload = {
-          ciudad: 'Bogotá D.C.',
-          temperaturaC: Math.round((current.temperature_2m ?? 15) * 10) / 10,
-          precipitacionMm: current.precipitation ?? 0,
-          vientoKmh: Math.round(current.wind_speed_10m ?? 8),
-          probabilidadLluviaPct: maxRainProb,
-          ...desc,
-          fuente: 'open-meteo.com',
-        };
-        weatherCache = { data: payload, fetchedAt: Date.now() };
-        return payload;
+          const payload = {
+            ciudad: 'Bogotá D.C.',
+            temperaturaC: Math.round((current.temperature_2m ?? 15) * 10) / 10,
+            precipitacionMm: current.precipitation ?? 0,
+            vientoKmh: Math.round(current.wind_speed_10m ?? 8),
+            probabilidadLluviaPct: maxRainProb,
+            ...desc,
+            fuente: 'open-meteo.com',
+          };
+          weatherCache = { data: payload, fetchedAt: Date.now() };
+          return payload;
+        }
+      } catch (err) {
+        logger.debug({ err: err?.message }, 'Open-Meteo fallback activated');
       }
-    } catch (err) {
-      logger.debug({ err: err?.message }, 'Open-Meteo fallback activated');
     }
-  }
 
-  const fallback = {
-    ciudad: 'Bogotá D.C.',
-    temperaturaC: 15,
-    precipitacionMm: 0,
-    vientoKmh: 9,
-    probabilidadLluviaPct: 25,
-    ...describeWeatherCode(2, 0),
-    fuente: 'contingencia_local',
-  };
-  weatherCache = { data: fallback, fetchedAt: Date.now() };
-  return fallback;
+    const fallback = {
+      ciudad: 'Bogotá D.C.',
+      temperaturaC: 15,
+      precipitacionMm: 0,
+      vientoKmh: 9,
+      probabilidadLluviaPct: 25,
+      ...describeWeatherCode(2, 0),
+      fuente: 'contingencia_local',
+    };
+    weatherCache = { data: fallback, fetchedAt: Date.now() };
+    return fallback;
+  })().finally(() => {
+    inflightWeather = null;
+  });
+
+  return inflightWeather;
 }
 
 async function fetchTrmCop() {
   if (Date.now() - trmCache.fetchedAt < TRM_TTL_MS) {
     return trmCache;
   }
-  if (process.env.NODE_ENV !== 'test') {
-    try {
-      const res = await fetch('https://open.er-api.com/v6/latest/USD', {
-        signal: AbortSignal.timeout(2000),
-      });
-      if (res.ok) {
-        const json = await res.json();
-        const cop = Math.round(Number(json?.rates?.COP) || 4150);
-        trmCache = { value: cop, source: 'open.er-api.com', fetchedAt: Date.now() };
-        return trmCache;
+  if (inflightTrm) return inflightTrm;
+
+  inflightTrm = (async () => {
+    if (process.env.NODE_ENV !== 'test') {
+      try {
+        const res = await fetch('https://open.er-api.com/v6/latest/USD', {
+          signal: AbortSignal.timeout(2000),
+        });
+        if (res.ok) {
+          const json = await res.json();
+          const cop = Math.round(Number(json?.rates?.COP) || 4150);
+          trmCache = { value: cop, source: 'open.er-api.com', fetchedAt: Date.now() };
+          return trmCache;
+        }
+      } catch {
+        // Keep fallback
       }
-    } catch {
-      // Keep fallback
     }
-  }
-  trmCache = { ...trmCache, fetchedAt: Date.now() };
-  return trmCache;
+    trmCache = { ...trmCache, fetchedAt: Date.now() };
+    return trmCache;
+  })().finally(() => {
+    inflightTrm = null;
+  });
+
+  return inflightTrm;
 }
 
 async function getContextoOperativo(_req, res) {
@@ -164,7 +181,15 @@ async function getContextoOperativo(_req, res) {
 
 async function getFestivosHandler(req, res) {
   try {
-    const year = Number(req.query.year) || getBogotaDateParts(new Date()).year;
+    const defaultYear = getBogotaDateParts(new Date()).year;
+    let year = defaultYear;
+    if (req.query.year !== undefined && req.query.year !== '') {
+      const parsed = Number(req.query.year);
+      if (!Number.isInteger(parsed) || parsed < 1970 || parsed > 2100) {
+        return res.status(400).json({ error: 'El año debe ser un entero entre 1970 y 2100' });
+      }
+      year = parsed;
+    }
     const festivos = await getColombianHolidays(year);
     const { ymd } = getBogotaDateParts(new Date());
     res.json({

@@ -78,13 +78,13 @@ async function getAllUnidades(req, res) {
     }
 
     if (search) {
-      const q = search.toLowerCase().trim();
-      filtered = filtered.filter(u => 
-        u.numero?.toLowerCase().includes(q) ||
-        u.torre?.toLowerCase().includes(q) ||
-        u.propietario?.nombre?.toLowerCase().includes(q) ||
-        u.residentes?.some(r => r.nombre?.toLowerCase().includes(q) || r.documento?.includes(q)) ||
-        u.vehiculos?.some(v => v.placa?.toLowerCase().includes(q))
+      const q = String(search).toLowerCase().trim();
+      filtered = filtered.filter(u =>
+        String(u.numero || '').toLowerCase().includes(q) ||
+        String(u.torre || '').toLowerCase().includes(q) ||
+        String(u.propietario?.nombre || '').toLowerCase().includes(q) ||
+        u.residentes?.some(r => String(r.nombre || '').toLowerCase().includes(q) || String(r.documento || '').includes(q)) ||
+        u.vehiculos?.some(v => String(v.placa || '').toLowerCase().includes(q))
       );
     }
 
@@ -125,7 +125,8 @@ async function createUnidad(req, res) {
       return res.status(400).json({ error: 'Torre y número de apartamento son obligatorios' });
     }
 
-    const id = `${torre.toLowerCase().replace(/\s+/g, '')}-${numero}`;
+    const torreStr = String(torre);
+    const id = `${torreStr.toLowerCase().replace(/\s+/g, '')}-${numero}`;
     if (unidades.some(u => u.id === id)) {
       return res.status(409).json({ error: 'Ya existe una unidad con esta Torre y Número' });
     }
@@ -171,11 +172,34 @@ async function updateUnidad(req, res) {
     }
 
     const unidadExistente = unidades[index];
-    const updateData = { ...req.body };
+    const allowedFields = [
+      'torre',
+      'numero',
+      'piso',
+      'tipoOcupacion',
+      'estadoComercial',
+      'estado',
+      'coeficiente',
+      'propietario',
+      'residentes',
+      'vehiculos',
+      'parqueaderosPrivados',
+      'mascotas',
+      'estadoFinanciero',
+      'observaciones',
+      'bodega',
+      'bicicletero',
+      'contratoArriendo',
+    ];
+    const updateData = {};
+    for (const k of allowedFields) {
+      if (req.body[k] !== undefined) {
+        updateData[k] = req.body[k];
+      }
+    }
 
-    if (updateData.pinAcceso && String(updateData.pinAcceso).trim()) {
-      updateData.pinAccesoHash = await bcrypt.hash(String(updateData.pinAcceso).trim(), 10);
-      delete updateData.pinAcceso;
+    if (req.body.pinAcceso && String(req.body.pinAcceso).trim()) {
+      updateData.pinAccesoHash = await bcrypt.hash(String(req.body.pinAcceso).trim(), 10);
     }
 
     const unidadActualizada = {
@@ -220,16 +244,23 @@ async function deleteUnidad(req, res) {
 async function getPublicUnidadesSummary(req, res) {
   try {
     const unidades = await getUnidades();
-    const summary = (unidades || []).map(u => ({
-      id: u.id,
-      torre: u.torre,
-      numero: u.numero,
-      piso: u.piso,
-      tipoOcupacion: u.tipoOcupacion || 'propietario',
-      estado: u.estado || u.estadoComercial || (u.propietario?.nombre ? 'habitado' : 'vacio'),
-      propietarioNombre: u.propietario?.nombre || 'Inmueble Desocupado / Vacío',
-      alDia: u.estadoFinanciero?.administracion?.alDia ?? true
-    }));
+    const summary = (unidades || []).map(u => {
+      const estado = u.estado || u.estadoComercial || (u.propietario?.nombre ? 'habitado' : 'vacio');
+      const isVacant =
+        estado === 'vacio' ||
+        !u.propietario?.nombre ||
+        String(u.propietario.nombre).includes('Vacío') ||
+        String(u.propietario.nombre).includes('Desocupado');
+      return {
+        id: u.id,
+        torre: u.torre,
+        numero: u.numero,
+        piso: u.piso,
+        tipoOcupacion: u.tipoOcupacion || 'propietario',
+        estado,
+        propietarioNombre: isVacant ? 'Inmueble Desocupado / Vacío' : 'Unidad Habitada',
+      };
+    });
     res.json(summary);
   } catch (err) {
     logger.error({ error: err.message }, 'Error al obtener resumen de unidades');

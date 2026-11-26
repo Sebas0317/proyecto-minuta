@@ -3,15 +3,16 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/chatbotController');
-const { requirePermissionIfAuthed } = require('../middleware/auth');
+const { requireAuth, optionalAuth, requirePermission } = require('../middleware/auth');
+const { writeRateLimiter } = require('../middleware/rateLimiters');
 
-router.post('/query', controller.queryChatbot);
+router.post('/query', optionalAuth, writeRateLimiter, controller.queryChatbot);
 router.get('/knowledge', controller.getAllKnowledge);
-router.post('/knowledge', requirePermissionIfAuthed('chatbot:write'), controller.addKnowledgeItem);
-router.put('/knowledge/:id', requirePermissionIfAuthed('chatbot:write'), controller.updateKnowledgeItem);
-router.delete('/knowledge/:id', requirePermissionIfAuthed('chatbot:delete'), controller.deleteKnowledgeItem);
-router.get('/unanswered', controller.getUnansweredList);
-router.delete('/unanswered/:id', requirePermissionIfAuthed('chatbot:delete'), controller.deleteUnanswered);
-router.get('/analytics', controller.getAnalytics);
+router.post('/knowledge', requireAuth, requirePermission('chatbot:write'), controller.addKnowledgeItem);
+router.put('/knowledge/:id', requireAuth, requirePermission('chatbot:write'), controller.updateKnowledgeItem);
+router.delete('/knowledge/:id', requireAuth, requirePermission('chatbot:delete'), controller.deleteKnowledgeItem);
+router.get('/unanswered', requireAuth, requirePermission('chatbot:read'), controller.getUnansweredList);
+router.delete('/unanswered/:id', requireAuth, requirePermission('chatbot:delete'), controller.deleteUnanswered);
+router.get('/analytics', optionalAuth, controller.getAnalytics);
 
 module.exports = router;

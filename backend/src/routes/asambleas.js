@@ -3,13 +3,14 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/asambleasController');
-const { requirePermissionIfAuthed } = require('../middleware/auth');
+const { requireAuth, optionalAuth, requirePermission } = require('../middleware/auth');
+const { writeRateLimiter } = require('../middleware/rateLimiters');
 
 router.get('/', controller.getAsambleas);
-router.post('/', requirePermissionIfAuthed('asambleas:manage'), controller.createAsamblea);
-router.patch('/:id/quorum', requirePermissionIfAuthed('asambleas:manage'), controller.updateQuorum);
-router.post('/:id/votaciones', requirePermissionIfAuthed('asambleas:manage'), controller.addVotacion);
-router.post('/:id/votaciones/:votId/votar', requirePermissionIfAuthed('asambleas:vote'), controller.castVote);
-router.patch('/:id/votaciones/:votId/cerrar', requirePermissionIfAuthed('asambleas:manage'), controller.closeVotacion);
+router.post('/', requireAuth, requirePermission('asambleas:manage'), controller.createAsamblea);
+router.patch('/:id/quorum', requireAuth, requirePermission('asambleas:manage'), controller.updateQuorum);
+router.post('/:id/votaciones', requireAuth, requirePermission('asambleas:manage'), controller.addVotacion);
+router.post('/:id/votaciones/:votId/votar', optionalAuth, writeRateLimiter, controller.castVote);
+router.patch('/:id/votaciones/:votId/cerrar', requireAuth, requirePermission('asambleas:manage'), controller.closeVotacion);
 
 module.exports = router;

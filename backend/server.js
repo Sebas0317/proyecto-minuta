@@ -131,16 +131,28 @@ app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
-    if (process.env.VERCEL) {
-      const host = origin.replace(/^https?:\/\//, '');
-      if (host.endsWith('.vercel.app') || host === process.env.VERCEL_URL) return callback(null, true);
+    if (process.env.VERCEL || process.env.VERCEL_ENV) {
+      try {
+        const parsed = new URL(origin);
+        if (parsed.protocol === 'https:') {
+          const host = parsed.hostname.toLowerCase();
+          if (
+            host === process.env.VERCEL_URL ||
+            /^(proyecto-)?minuta(-[a-z0-9-]+)?\.vercel\.app$/i.test(host)
+          ) {
+            return callback(null, true);
+          }
+        }
+      } catch {
+        // Invalid origin URL
+      }
     }
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Protection'],
-  exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+  exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset', 'X-Total-Count', 'X-Total-Pages'],
   maxAge: 600,
 }));
 
@@ -243,9 +255,9 @@ app.use('/v1/trasteos', mutationLock('trasteos'), trasteosRoutes);
 app.use('/trasteos', mutationLock('trasteos'), trasteosRoutes);
 app.use('/v1/parqueaderos', mutationLock('porteria'), parqueaderosRoutes);
 app.use('/parqueaderos', mutationLock('porteria'), parqueaderosRoutes);
-app.use('/v1/chatbot', chatbotRoutes);
-app.use('/chatbot', chatbotRoutes);
-app.use('/api/chatbot', chatbotRoutes);
+app.use('/v1/chatbot', mutationLock('chatbot'), chatbotRoutes);
+app.use('/chatbot', mutationLock('chatbot'), chatbotRoutes);
+app.use('/api/chatbot', mutationLock('chatbot'), chatbotRoutes);
 app.use('/v1/rondas', mutationLock('rondas'), rondasRoutes);
 app.use('/rondas', mutationLock('rondas'), rondasRoutes);
 app.use('/v1/reservas-zonas', mutationLock('reservas-zonas'), reservasZonasRoutes);

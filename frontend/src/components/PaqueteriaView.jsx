@@ -5,7 +5,7 @@ import {
   FileText, Download
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { createPaquete, notificarPaquete, entregarPaquete } from '../services/api';
+import { createPaquete, notificarPaquete, entregarPaquete, downloadSafeCSV, getLocalDateISO } from '../services/api';
 import { usePaquetesQuery, useUnidadesQuery } from '../hooks/useCondominioQueries';
 import { queryKeys } from '../hooks/useQueryKeys';
 
@@ -211,7 +211,7 @@ export default function PaqueteriaView() {
     const msg = encodeURIComponent(`Hola, le informamos desde la Portería que tiene correspondencia pendiente (${paquete.empresa || paquete.tipoRecibo}). ${pinText} Por favor pasar a reclamarlo.`);
     
     if (tel) {
-      window.open(`https://wa.me/57${tel.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
+      window.open(`https://wa.me/57${tel.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank', 'noopener,noreferrer');
       notificarPaquete(paquete.id)
         .then((updated) => {
           upsertPaqueteCache(updated?.id ? updated : { ...paquete, estado: 'notificado' });
@@ -250,22 +250,15 @@ export default function PaqueteriaView() {
       p.categoria === 'recibo_publico' ? 'Recibo Público' : 'Encomienda',
       p.torre,
       p.apto,
-      `"${(p.destinatario || '').replace(/"/g, '""')}"`,
-      `"${(p.empresa || p.tipoRecibo || '').replace(/"/g, '""')}"`,
+      p.destinatario || '',
+      p.empresa || p.tipoRecibo || '',
       p.guia || '',
       p.codigoRetiro || pinCache[p.id] || 'Protegido',
       (p.estado || 'recibido').toUpperCase(),
       p.fechaIngreso ? new Date(p.fechaIngreso).toLocaleString('es-CO') : '',
       p.fechaEntrega ? new Date(p.fechaEntrega).toLocaleString('es-CO') : ''
     ]);
-    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Inventario_Paquetes_Recibos_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadSafeCSV(`Inventario_Paquetes_Recibos_${getLocalDateISO()}.csv`, headers, rows);
     toast.success('Paquetería y facturas exportadas a Excel (CSV)');
   };
 

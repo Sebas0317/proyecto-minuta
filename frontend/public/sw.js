@@ -26,26 +26,28 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
-  // NEVER cache API calls — API freshness is handled by network + IndexedDB offline queue
+  const acceptHeader = request.headers.get('accept') || '';
+  // NEVER cache API calls, no-store requests, or JSON payloads
   if (
-    url.pathname.startsWith('/v1/') ||
-    url.pathname.startsWith('/api/') ||
-    url.pathname.startsWith('/auth/') ||
-    url.pathname.startsWith('/health')
+    request.cache === 'no-store' ||
+    acceptHeader.includes('application/json') ||
+    /(^|\/)(v1|api|auth|health)(\/|$)/.test(url.pathname)
   ) {
     return;
   }
 
-  // Network-first for HTML navigations, stale-while-revalidate for hashed static assets
+  // Network-first for HTML navigations (only cache valid 200 OK shell responses)
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put('/index.html', clone));
+          if (res && res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((c) => c.put('/index.html', clone));
+          }
           return res;
         })
-        .catch(() => caches.match('/index.html'))
+        .catch(() => caches.match('/index.html').then((m) => m || Response.error()))
     );
     return;
   }
@@ -61,7 +63,7 @@ self.addEventListener('fetch', (event) => {
             }
             return res;
           })
-          .catch(() => cached);
+          .catch(() => cached || Response.error());
         return cached || fetched;
       })
     );

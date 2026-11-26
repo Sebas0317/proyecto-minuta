@@ -89,11 +89,29 @@ function computeColombianHolidaysLocal(year) {
   return all;
 }
 
+const MAX_HOLIDAY_CACHE = 30;
+
+function normalizeYear(year) {
+  const parsed = Number(year);
+  if (!Number.isInteger(parsed) || parsed < 1970 || parsed > 2100) {
+    return new Date().getUTCFullYear();
+  }
+  return parsed;
+}
+
+function setBoundedHolidayCache(year, items) {
+  if (holidayCache.size >= MAX_HOLIDAY_CACHE && !holidayCache.has(year)) {
+    const oldestKey = holidayCache.keys().next().value;
+    holidayCache.delete(oldestKey);
+  }
+  holidayCache.set(year, { items, fetchedAt: Date.now() });
+}
+
 async function getColombianHolidays(year = new Date().getFullYear()) {
-  const y = Number(year) || new Date().getFullYear();
+  const y = normalizeYear(year);
   const cached = holidayCache.get(y);
   if (cached && Date.now() - cached.fetchedAt < 24 * 3600 * 1000) {
-    return cached.items;
+    return cached.items.map((item) => ({ ...item }));
   }
 
   const localItems = computeColombianHolidaysLocal(y);
@@ -111,8 +129,8 @@ async function getColombianHolidays(year = new Date().getFullYear()) {
             name: h.localName || h.name,
             source: 'nager.date',
           }));
-          holidayCache.set(y, { items: mapped, fetchedAt: Date.now() });
-          return mapped;
+          setBoundedHolidayCache(y, mapped);
+          return mapped.map((item) => ({ ...item }));
         }
       }
     } catch {
@@ -121,12 +139,15 @@ async function getColombianHolidays(year = new Date().getFullYear()) {
   }
 
   const withSource = localItems.map((h) => ({ ...h, source: 'ley_emiliani_local' }));
-  holidayCache.set(y, { items: withSource, fetchedAt: Date.now() });
-  return withSource;
+  setBoundedHolidayCache(y, withSource);
+  return withSource.map((item) => ({ ...item }));
 }
 
 function getBogotaDateParts(inputDate = new Date()) {
-  const d = inputDate instanceof Date ? inputDate : new Date(inputDate);
+  let d = inputDate instanceof Date ? inputDate : new Date(inputDate);
+  if (Number.isNaN(d.getTime())) {
+    d = new Date();
+  }
   const fmt = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Bogota',
     year: 'numeric',
@@ -147,28 +168,31 @@ function getBogotaDateParts(inputDate = new Date()) {
 }
 
 function isHolidaySync(ymd) {
-  const year = Number(String(ymd).slice(0, 4));
+  const year = normalizeYear(String(ymd).slice(0, 4));
   const list = holidayCache.get(year)?.items || computeColombianHolidaysLocal(year);
   return list.find((h) => h.date === ymd) || null;
 }
 
 /**
- * Calcula N días hábiles en Colombia (excluyendo sábados, domingos y los 18 festivos de Ley Emiliani).
+ * Calcula N días hábiles en Colombia (excluyendo sábados, domingos y los 18 festivos de Ley Emiliani),
+ * anclado estrictamente a la zona horaria America/Bogota (UTC-5 sin horario de verano).
  */
 function calcularDiasHabilesColombia(fechaInicio = new Date(), diasHabiles = 15) {
-  const fecha = new Date(fechaInicio);
+  const { year, month, day } = getBogotaDateParts(fechaInicio);
+  let cursor = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  const meta = Math.max(1, Number(diasHabiles) || 15);
   let agregados = 0;
 
-  while (agregados < diasHabiles) {
-    fecha.setDate(fecha.getDate() + 1);
-    const dow = fecha.getDay();
+  while (agregados < meta) {
+    cursor = addDaysUTC(cursor, 1);
+    const dow = cursor.getUTCDay();
     if (dow === 0 || dow === 6) continue;
-    const ymd = formatYMD(fecha.getFullYear(), fecha.getMonth() + 1, fecha.getDate());
+    const ymd = toYMDFromUTC(cursor);
     if (isHolidaySync(ymd)) continue;
     agregados++;
   }
-  fecha.setHours(23, 59, 59, 999);
-  return fecha.toISOString();
+  const endYmd = toYMDFromUTC(cursor);
+  return new Date(`${endYmd}T23:59:59.999-05:00`).toISOString();
 }
 
 function calcularPicoYPlacaBogota(inputDate = new Date()) {

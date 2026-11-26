@@ -267,6 +267,21 @@ async function login(req, res) {
 
     await securityTracker.resetAttempts({ ip, action: 'login' });
 
+    if (user.twoFactorEnabled) {
+      const { plainCode } = await codeStore.createCode({
+        userId: user.id,
+        type: '2fa',
+        ttlMs: 300000,
+      });
+      await emailService.send2FACode(user.email, plainCode).catch(() => {});
+      return res.json({
+        requires2FA: true,
+        userId: user.id,
+        email: user.email,
+        expiresIn: 300,
+      });
+    }
+
     await userStore.updateLastLogin(user.id, ip);
 
     const token = generateToken(user);
@@ -326,9 +341,15 @@ async function verify2FA(req, res) {
 
     await securityTracker.resetAttempts({ userId, ip, action: '2fa' });
 
-    const token = generateToken(result.user);
+    const verifiedUser = await userStore.findUserById(userId);
+    if (!verifiedUser || !verifiedUser.isActive) {
+      return res.status(401).json({ error: 'Usuario no encontrado o inactivo' });
+    }
+
+    await userStore.updateLastLogin(verifiedUser.id, ip);
+    const token = generateToken(verifiedUser);
     logger.info(
-      { userId, email: result.user.email },
+      { userId, email: verifiedUser.email },
       '2FA verification successful'
     );
 
@@ -337,13 +358,14 @@ async function verify2FA(req, res) {
       userId: userId,
       ip,
       action: '2fa_verify',
-      detail: 'Codigo de recuperacion verificado exitosamente',
+      detail: 'Codigo 2FA verificado exitosamente',
     });
 
     setTokenCookie(res, token);
 
     return res.json({
-      usuario: userStore.sanitizeUser(result.user),
+      token,
+      usuario: userStore.sanitizeUser(verifiedUser),
     });
   } catch (err) {
     logger.error({ err }, '2FA verification error');
@@ -391,7 +413,7 @@ async function sendLoginCode(req, res) {
 
     const { plainCode } = await codeStore.createCode({
       userId: user.id,
-      type: 'login',
+      type: '2fa',
       ttlMs: 300000,
     });
 
@@ -664,8 +686,14 @@ async function verificarCodigoRecuperacion(req, res) {
       action: 'recovery',
     });
 
+    const pwdFp = require('node:crypto')
+      .createHash('sha256')
+      .update(String(user.passwordHash || ''))
+      .digest('hex')
+      .slice(0, 16);
+
     const resetToken = jwt.sign(
-      { id: user.id, purpose: 'password_reset' },
+      { id: user.id, purpose: 'password_reset', pwdFp },
       getJwtSecret(),
       { algorithm: 'HS256', expiresIn: '5m' }
     );
@@ -713,6 +741,7 @@ async function cambiarContrasena(req, res) {
     if (pwErr2) return res.status(400).json({ error: pwErr2 });
 
     let targetUserId = userId;
+    let decodedReset = null;
 
     if (resetToken) {
       try {
@@ -722,6 +751,7 @@ async function cambiarContrasena(req, res) {
         if (decoded.purpose !== 'password_reset') {
           return res.status(400).json({ error: 'Token invalido' });
         }
+        decodedReset = decoded;
         targetUserId = decoded.id;
       } catch {
         await securityTracker.logSecurityEvent({
@@ -745,13 +775,38 @@ async function cambiarContrasena(req, res) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
+    if (decodedReset?.pwdFp) {
+      const currentFp = require('node:crypto')
+        .createHash('sha256')
+        .update(String(user.passwordHash || ''))
+        .digest('hex')
+        .slice(0, 16);
+      if (decodedReset.pwdFp !== currentFp) {
+        return res.status(401).json({ error: 'Este token de recuperacion ya fue utilizado' });
+      }
+    }
+
     if (!resetToken) {
       if (currentPassword) {
+        const { blocked } = await securityTracker.isBlocked({
+          userId: targetUserId,
+          ip,
+          action: 'password_change',
+        });
+        if (blocked) {
+          return res.status(429).json({ error: 'Demasiados intentos. Intenta mas tarde.' });
+        }
         const { valid } = await userStore.verifyPassword(
           user.email,
           currentPassword
         );
         if (!valid) {
+          await securityTracker.recordAttempt({
+            userId: targetUserId,
+            ip,
+            action: 'password_change',
+            success: false,
+          });
           await securityTracker.logSecurityEvent({
             type: 'failed_login',
             userId: targetUserId,
@@ -782,7 +837,12 @@ async function cambiarContrasena(req, res) {
     });
 
     if (req.cookies?.resetToken) {
-      res.clearCookie('resetToken', { path: '/' });
+      res.clearCookie('resetToken', {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
     }
     return res.json({ mensaje: 'Contrasena cambiada exitosamente' });
   } catch (err) {

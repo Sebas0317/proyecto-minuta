@@ -4,14 +4,19 @@ const { getMinuta, saveMinuta } = require('../data/jsonStore');
 const { logger } = require('../utils/logger');
 const { generateId } = require('../utils/idGenerator');
 const { sendPaginatedOrArray } = require('../utils/pagination');
+const { getBogotaDateParts } = require('../utils/colombianHolidays');
 
-function normalizeMinutaEntry(m) {
+function normalizeMinutaEntry(m, isStaff = true) {
   if (!m || typeof m !== 'object') return m;
+  const rawDesc = m.descripcion || '';
+  const safeDesc = isStaff
+    ? rawDesc
+    : rawDesc.replace(/\(Doc:\s*[^)]+\)/gi, '(Doc: Protegido)');
   return {
     ...m,
     titulo: m.titulo || (m.tipo === 'emergencia' ? `Alerta SOS ${m.radicado || ''}`.trim() : m.tipo === 'cambio_turno' ? 'Cambio de Turno' : 'Registro de Novedad'),
     guarda: m.guarda || m.guardaTurno || 'Guarda de Turno',
-    descripcion: m.descripcion || '',
+    descripcion: safeDesc,
     severidad: m.severidad || 'info',
   };
 }
@@ -19,7 +24,8 @@ function normalizeMinutaEntry(m) {
 async function getAllMinuta(req, res) {
   try {
     const raw = await getMinuta();
-    const minuta = Array.isArray(raw) ? raw.map(normalizeMinutaEntry) : [];
+    const isStaff = Boolean(req.user && ['owner', 'admin', 'supervisor', 'guarda', 'operator', 'analyst'].includes(req.user.role));
+    const minuta = Array.isArray(raw) ? raw.map((m) => normalizeMinutaEntry(m, isStaff)) : [];
     const { tipo, severidad, search, fecha } = req.query;
 
     let filtered = [...minuta];
@@ -33,7 +39,8 @@ async function getAllMinuta(req, res) {
     }
 
     if (fecha) {
-      filtered = filtered.filter(m => typeof m.fecha === 'string' && m.fecha.startsWith(fecha));
+      const targetFecha = String(fecha);
+      filtered = filtered.filter(m => m.fecha && getBogotaDateParts(m.fecha).ymd === targetFecha);
     }
 
     if (search) {
@@ -96,8 +103,8 @@ async function getMinutaStats(req, res) {
   try {
     const raw = await getMinuta();
     const minuta = Array.isArray(raw) ? raw : [];
-    const hoy = new Date().toISOString().slice(0, 10);
-    const hoyEntradas = minuta.filter(m => typeof m.fecha === 'string' && m.fecha.startsWith(hoy));
+    const hoy = getBogotaDateParts(new Date()).ymd;
+    const hoyEntradas = minuta.filter(m => m.fecha && getBogotaDateParts(m.fecha).ymd === hoy);
 
     const stats = {
       totalHoy: hoyEntradas.length,
