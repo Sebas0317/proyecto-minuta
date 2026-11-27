@@ -43,3 +43,13 @@ cloudflared.exe
 CLAUDE.md
 .claude/
 .env*
+
+# Local tooling, AI agents & debug outputs
+.vercel/
+.agents/
+.continue/
+.qwen/
+.ai-pipeline.json
+curl_response.txt
+loop-budget.json
+loop-state.json

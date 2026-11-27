@@ -4,6 +4,7 @@
 
 <br />
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-10b981?logo=vercel&logoColor=white)](https://proyecto-minuta-phi.vercel.app)
 [![CI Pipeline](https://github.com/Sebas0317/proyecto-minuta/actions/workflows/ci.yml/badge.svg)](https://github.com/Sebas0317/proyecto-minuta/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-10b981.svg)](LICENSE)
 [![Backend Tests](https://img.shields.io/badge/Backend_Tests-80_passing-0f172a?logo=nodedotjs&logoColor=34d399)](backend/tests)
@@ -15,7 +16,7 @@
 **Plataforma open-source de seguridad física, operación de portería 24/7 y administración de propiedad horizontal.**  
 Diseñada para conjuntos residenciales y edificios corporativos en Latinoamérica bajo los lineamientos de la **Ley 675 de 2001** y la **Ley 1755 de 2015**.
 
-[Arquitectura](#-arquitectura-del-sistema) • [Ingeniería Destacada](#-decisiones-de-ingeniería) • [Módulos por Rol](#-módulos-por-rol) • [Inicio Rápido](#-inicio-rápido-local) • [Seguridad y Pruebas](#-seguridad-y-calidad) • [Contribuir](CONTRIBUTING.md)
+**[Live Demo](https://proyecto-minuta-phi.vercel.app)** • [Arquitectura](#-arquitectura-del-sistema) • [Ingeniería Destacada](#-decisiones-de-ingeniería) • [Módulos por Rol](#-módulos-por-rol) • [Inicio Rápido](#-inicio-rápido-local) • [Seguridad y Pruebas](#-seguridad-y-calidad) • [Contribuir](CONTRIBUTING.md)
 
 </div>
 
@@ -223,6 +224,7 @@ Revisa la guía en [CONTRIBUTING.md](CONTRIBUTING.md) para levantar tu entorno y
 
 Si este repositorio te resulta útil como referencia de arquitectura **PropTech**, **PWA Offline-First** o **Seguridad Física en Node.js + React**, considera darle una **estrella (⭐)** en GitHub y compartirlo con otros desarrolladores.
 
-## 📄 Licencia
+## 👨‍💻 Autor y Licencia
 
+Desarrollado por **Juan Sebastián Sandoval** ([@Sebas0317](https://github.com/Sebas0317)) — Bogotá, Colombia.  
 Distribuido bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
